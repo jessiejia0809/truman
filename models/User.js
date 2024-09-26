@@ -128,6 +128,16 @@ const userSchema = new mongoose.Schema({
         }, { _id: true, versionKey: false })]
     }, { _id: true, versionKey: false })],
 
+    chatAction: [new Schema({
+        chat_id: String, // chat id's are defined by who it is in correspondance with: aka actors' usernames
+        messages: [new Schema({
+            body: { type: String, default: '', trim: true }, // Body of the chat message
+            absTime: Date, // The absolute date (time) of when the chat message was made
+            name: String, // Indicates who made the chat message
+            isAgent: { type: Boolean, default: false }, // Indicates if the user made the chat message
+        }, { _id: true, versionKey: false })],
+    }, { _id: false, versionKey: false })],
+
     profile: {
         name: String,
         location: String,
@@ -197,14 +207,14 @@ userSchema.methods.logPage = async function logPage(time, page) {
  * Also displayed in /completed (Admin Dashboard) for admin accounts.
  */
 userSchema.methods.logPostStats = function logPage() {
-    const counts = this.feedAction.reduce(function(newCount, feedAction) {
-            const numLikes = feedAction.comments.filter(comment => comment.liked && !comment.new_comment).length;
-            const numNewComments = feedAction.comments.filter(comment => comment.new_comment).length;
+    const counts = this.feedAction.reduce(function (newCount, feedAction) {
+        const numLikes = feedAction.comments.filter(comment => comment.liked && !comment.new_comment).length;
+        const numNewComments = feedAction.comments.filter(comment => comment.new_comment).length;
 
-            newCount[0] += numLikes;
-            newCount[1] += numNewComments;
-            return newCount;
-        }, [0, 0], //[actorCommentLikes, newComments]
+        newCount[0] += numLikes;
+        newCount[1] += numNewComments;
+        return newCount;
+    }, [0, 0], //[actorCommentLikes, newComments]
     );
 
     const log = {
@@ -223,11 +233,11 @@ userSchema.methods.logPostStats = function logPage() {
  */
 userSchema.methods.getPosts = function getPosts() {
     let ret = this.posts;
-    ret.sort(function(a, b) {
+    ret.sort(function (a, b) {
         return b.relativeTime - a.relativeTime;
     });
     for (const post of ret) {
-        post.comments.sort(function(a, b) {
+        post.comments.sort(function (a, b) {
             return a.relativeTime - b.relativeTime;
         });
     }
@@ -235,13 +245,13 @@ userSchema.methods.getPosts = function getPosts() {
 };
 
 // Return the user post from its ID
-userSchema.methods.getUserPostByID = function(postID) {
+userSchema.methods.getUserPostByID = function (postID) {
     return this.posts.find(x => x.postID == postID);
 };
 
 // Get user posts within the min/max time period
-userSchema.methods.getPostInPeriod = function(min, max) {
-    return this.posts.filter(function(post) {
+userSchema.methods.getPostInPeriod = function (min, max) {
+    return this.posts.filter(function (post) {
         return post.relativeTime >= min && post.relativeTime <= max;
     });
 }
