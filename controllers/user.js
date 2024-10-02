@@ -9,14 +9,18 @@ const User = require('../models/User');
  * Render the login page.
  */
 exports.getLogin = (req, res) => {
-    if (req.user) {
-        return res.redirect('/');
+    try {
+        if (req.user) {
+            return res.redirect('/');
+        }
+        res.render('account/login', {
+            title: 'Login',
+            site_picture: process.env.SITE_PICTURE,
+            r_id: req.query.r_id
+        });
+    } catch (err) {
+        next(err);
     }
-    res.render('account/login', {
-        title: 'Login',
-        site_picture: process.env.SITE_PICTURE,
-        r_id: req.query.r_id
-    });
 };
 
 /**
@@ -66,14 +70,19 @@ exports.postLogin = (req, res, next) => {
  * Handles user log out.
  */
 exports.logout = (req, res) => {
-    req.logout((err) => {
-        if (err) console.log('Error : Failed to logout.', err);
-        req.session.destroy((err) => {
-            if (err) console.log('Error : Failed to destroy the session during logout.', err);
-            req.user = null;
-            res.redirect('/');
+    try {
+        req.logout((err) => {
+            if (err) console.log('Error : Failed to logout.', err);
+            req.session.destroy((err) => {
+                if (err) console.log('Error : Failed to destroy the session during logout.', err);
+                req.user = null;
+                res.redirect('/');
+            });
         });
-    });
+    }
+    catch (err) {
+        next(err)
+    }
 };
 
 /**
@@ -81,20 +90,25 @@ exports.logout = (req, res) => {
  * Render the signup page.
  */
 exports.getSignup = (req, res) => {
-    if (req.user) {
-        return res.redirect('/');
+    try {
+        if (req.user) {
+            return res.redirect('/');
+        }
+        res.render('account/signup', {
+            title: 'Create Account',
+            r_id: req.query.r_id
+        });
     }
-    res.render('account/signup', {
-        title: 'Create Account',
-        r_id: req.query.r_id
-    });
+    catch (err) {
+        next(err)
+    }
 };
 
 /**
  * POST /signup
  * Handles user sign up and creation of a new account.
  */
-exports.postSignup = async(req, res, next) => {
+exports.postSignup = async (req, res, next) => {
     const validationErrors = [];
     if (!validator.isEmail(req.body.email)) validationErrors.push({ msg: 'Please enter a valid email address.' });
     if (!validator.isLength(req.body.password, { min: 4 })) validationErrors.push({ msg: 'Password must be at least 4 characters long.' });
@@ -157,7 +171,7 @@ exports.postSignup = async(req, res, next) => {
  * POST /account/profile
  * Update user's profile information during the sign up process.
  */
-exports.postSignupInfo = async(req, res, next) => {
+exports.postSignupInfo = async (req, res, next) => {
     try {
         const user = await User.findById(req.user.id).exec();
         user.profile.name = req.body.name.trim() || '';
@@ -179,7 +193,7 @@ exports.postSignupInfo = async(req, res, next) => {
  * POST /account/consent
  * Update user's consent.
  */
-exports.postConsent = async(req, res, next) => {
+exports.postConsent = async (req, res, next) => {
     try {
         const user = await User.findById(req.user.id).exec();
         user.consent = true;
@@ -196,16 +210,21 @@ exports.postConsent = async(req, res, next) => {
  * Render user's Update My Profile page.
  */
 exports.getAccount = (req, res) => {
-    res.render('account/profile', {
-        title: 'Account Management'
-    });
+    try {
+        res.render('account/profile', {
+            title: 'Account Management'
+        });
+    }
+    catch (err) {
+        next(err)
+    }
 };
 
 /**
  * GET /me
  * Render user's profile page.
  */
-exports.getMe = async(req, res) => {
+exports.getMe = async (req, res) => {
     try {
         const user = await User.findById(req.user.id).populate('posts.comments.actor').exec();
         const allPosts = user.getPosts();
@@ -219,7 +238,7 @@ exports.getMe = async(req, res) => {
  * POST /account/profile
  * Update user's profile information.
  */
-exports.postUpdateProfile = async(req, res, next) => {
+exports.postUpdateProfile = async (req, res, next) => {
     const validationErrors = [];
     if (!validator.isEmail(req.body.email)) validationErrors.push({ msg: 'Please enter a valid email address.' });
     if (validationErrors.length) {
@@ -253,7 +272,7 @@ exports.postUpdateProfile = async(req, res, next) => {
  * POST /account/password
  * Update user's current password.
  */
-exports.postUpdatePassword = async(req, res, next) => {
+exports.postUpdatePassword = async (req, res, next) => {
     const validationErrors = [];
     if (!validator.isLength(req.body.password, { min: 4 })) validationErrors.push({ msg: 'Password must be at least 4 characters long.' });
     if (validator.escape(req.body.password) !== validator.escape(req.body.confirmPassword)) validationErrors.push({ msg: 'Passwords do not match.' });
@@ -277,7 +296,7 @@ exports.postUpdatePassword = async(req, res, next) => {
  * POST /pageLog
  * Record user's page visit to pageLog.
  */
-exports.postPageLog = async(req, res, next) => {
+exports.postPageLog = async (req, res, next) => {
     try {
         const user = await User.findById(req.user.id).exec();
         user.logPage(Date.now(), req.body.path);
@@ -292,7 +311,7 @@ exports.postPageLog = async(req, res, next) => {
  * POST /pageTimes
  * Record user's time on site to pageTimes.
  */
-exports.postPageTime = async(req, res, next) => {
+exports.postPageTime = async (req, res, next) => {
     try {
         const user = await User.findById(req.user.id).exec();
         // What day in the study is the user in? 
@@ -316,16 +335,22 @@ exports.getForgot = (req, res) => {
     if (req.isAuthenticated()) {
         return res.redirect('/');
     }
-    res.render('account/forgot', {
-        title: 'Forgot Password',
-        email: process.env.RESEARCHER_EMAIL
-    });
+    try {
+        res.render('account/forgot', {
+            title: 'Forgot Password',
+            email: process.env.RESEARCHER_EMAIL
+        });
+    }
+    catch (err) {
+        next(err)
+    }
+
 };
 
 /**
  * Deactivate accounts who are completed with the study, except for admin accounts. Called 3 times a day. Scheduled via CRON jobs in app.js
  */
-exports.stillActive = async() => {
+exports.stillActive = async () => {
     try {
         const activeUsers = await User.find().where('active').equals(true).exec();
         for (const user of activeUsers) {
@@ -346,7 +371,7 @@ exports.stillActive = async() => {
  * GET /completed
  * Render Admin Dashboard: Basic information on users currrently in the study
  */
-exports.userTestResults = async(req, res) => {
+exports.userTestResults = async (req, res) => {
     if (!req.user.isAdmin) {
         res.redirect('/');
     } else {
