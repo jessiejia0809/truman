@@ -8,9 +8,8 @@
         img(src=user.gravatar(60))
     a(href='/me')
       span=user.profile.name || user.username || user.id
-  if val.picture
-    .image
-      img(src='/user_post/'+val.picture)
+  .image
+    img(src='/user_post/'+val.picture)
   .content
     .description=val.body
   .two.ui.bottom.attached.icon.buttons
@@ -52,7 +51,7 @@
                 a.avatar(href='/user/'+comment.actor.username)
                   img(src='/public/picture.svg', data-src=cdn+"/profile_pictures/"+comment.actor.profile.picture)
                 .content
-                  a.author.username(href='/user/'+comment.actor.username data-username=comment.actor.username data-picture=comment.actor.profile.picture data-html='<div></div>')=comment.actor.profile.name
+                  a.author(href='/user/'+comment.actor.username)=comment.actor.profile.name
                   .metadata
                     span.date=(comment.absTime.getTime())
                     .rating
