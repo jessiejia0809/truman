@@ -49,7 +49,13 @@ exports.getScript = async (req, res, next) => {
             .where('time').lte(time_diff).gte(time_limit)
             .sort('-time')
             .populate('poster')
-            .populate('comments')
+            .populate()
+            .populate({
+                path: 'comments',
+                populate: {
+                    path: 'commentor'
+                }
+            })
             .exec();
 
         // Array of any user-made posts within the past 24 hours, sorted by time they were created.
@@ -75,6 +81,7 @@ exports.newPost = async (req, res) => {
     try {
         const user = await User.findById(req.user.id).exec();
         user.numPosts = user.numPosts + 1; // Count begins at 0
+        await user.save();
         const currDate = Date.now();
 
         let post = {
@@ -94,10 +101,11 @@ exports.newPost = async (req, res) => {
         await new_post.save();
 
         // Get the newly added post from Script
-        const postID = await Script.find()
+        let postID = await Script.find()
             .where('poster').equals(req.user.id)
             .where('postID').equals(user.numPosts)
             .exec()
+        postID = postID[0]
 
         // Find any Actor replies (comments) that go along with this post
         const actor_replies = await Notification.find()
@@ -108,6 +116,7 @@ exports.newPost = async (req, res) => {
         // If there are Actor replies (comments) that go along with this post, add them to comments
         if (actor_replies.length > 0) {
             for (const reply of actor_replies) {
+                console.log(new Date(user.createdAt.getTime() + post.time + reply.time))
                 user.numActorReplies = user.numActorReplies + 1; // Count begins at 0
                 const tmp_actor_reply = {
                     commentType: 'Actor',
@@ -115,8 +124,8 @@ exports.newPost = async (req, res) => {
                     post: postID._id,
                     body: reply.replyBody,
                     commentID: user.numActorReplies,
-                    time: post.relativeTime + reply.time,
-                    absTime: new Date(user.createdAt.getTime() + post.relativeTime + reply.time),
+                    time: post.time + reply.time,
+                    absTime: new Date(user.createdAt.getTime() + post.time + reply.time),
                     likes: 0,
                     comments: []
                 };
@@ -131,13 +140,12 @@ exports.newPost = async (req, res) => {
             .exec();
 
         for (comment of comments) {
-            postID.comments.push({
-                comment: comment._id,
-            })
+            postID.comments.push(comment._id);
         }
 
         res.redirect('/');
     } catch (err) {
+        console.log(err)
         next(err);
     }
 };

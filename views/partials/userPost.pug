@@ -2,12 +2,12 @@
   .content
     .right.floated.time.meta=(val.absTime.getTime())
     a.ui.avatar.image(href='/me')
-      if user.profile.picture
-        img(src='/user_avatar/'+user.profile.picture)
+      if val.poster.profile.picture
+        img(src='/user_avatar/'+val.poster.profile.picture)
       else
-        img(src=user.gravatar(60))
+        img(src=(val.poster).gravatar(60))
     a(href='/me')
-      span=user.profile.name || user.username || user.id
+      span=val.poster.profile.name? val.poster.profile.name : val.poster.username
   if val.picture
     .image
       img(src='/user_post/'+val.picture)

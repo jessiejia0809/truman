@@ -20,7 +20,7 @@ block content
       input(type='text', placeholder='Create a post')
       i.big.photo.link.icon
     each val in script
-      if val.relativeTime 
+      if val.postType == 'User' 
         //- This is a User made post
         include partials/userPost
       else 

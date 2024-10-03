@@ -11,6 +11,14 @@ const userSchema = new mongoose.Schema({
   email: { type: String, unique: true },
   password: String,
   username: String,
+
+  profile: {
+    name: String,
+    location: String,
+    bio: String,
+    picture: String
+  },
+
   active: { type: Boolean, default: true }, // Indicates if the user is still active
   isAdmin: { type: Boolean, default: false }, // Indicates if the user is an administrator
 
@@ -78,12 +86,30 @@ const userSchema = new mongoose.Schema({
     }, { _id: true, versionKey: false })],
   }, { _id: false, versionKey: false })],
 
-  profile: {
-    name: String,
-    location: String,
-    bio: String,
-    picture: String
-  }
+  log: [new Schema({ // List of logins by the user
+    time: Date,
+    userAgent: String,
+    ipAddress: String
+  })],
+
+  pageLog: [new Schema({ // List of pages the user visits
+    time: Date,
+    page: String // URL
+  })],
+
+  pageTimes: { // Indicates how much time the user spent on the website per day where index 0 corresponds to the first day, index 1 corresopnds to the second day, etc.
+    type: [Number],
+    default: Array(parseInt(process.env.NUM_DAYS)).fill(0)
+  },
+
+  postStats: { // Statistics about the user
+    SiteVisits: Number, // Total number of times the user has logged into the website
+    GeneralTimeSpent: Number, // Time spent on website
+    GeneralPostNumber: Number, // # of posts made by user
+    GeneralPostLikes: Number, // # of posts liked
+    GeneralCommentLikes: Number, // # of comments liked
+    GeneralPostComments: Number, // # of comments left on posts
+  },
 
 }, { timestamps: true, versionKey: false });
 

@@ -1,9 +1,9 @@
-.ui.fluid.card(postClass=val.class, postID=val.id, type='actor', actor_un = val.actor.username, actor_name = val.actor.profile.name, actor_pic = val.actor.profile.picture)
+.ui.fluid.card(postClass=val.class, postID=val.id, type='actor', actor_un = val.poster.username, actor_name = val.poster.profile.name, actor_pic = val.poster.profile.picture)
   .content
     .right.floated.time.meta= (user.createdAt.getTime() + val.time)
-    a(href='/user/'+val.actor.username)     
-      img.ui.avatar.image(src='/public/picture.svg', data-src=cdn+"/profile_pictures/"+val.actor.profile.picture)
-      span.username(data-position= 'bottom center' data-username=val.actor.username data-picture=val.actor.profile.picture data-html='<div></div>')= val.actor.profile.name
+    a(href='/user/'+val.poster.username)     
+      img.ui.avatar.image(src='/public/picture.svg', data-src=cdn+"/profile_pictures/"+val.poster.profile.picture)
+      span.username(data-position= 'bottom center' data-username=val.poster.username data-picture=val.poster.profile.picture data-html='<div></div>')= val.poster.profile.name
   .content.dimmable(class=val.flagged ? "dimmed": "")
     .ui.dimmer.flag(class=val.flagged ? "active": "")
       .contents
@@ -62,10 +62,10 @@
                 .text(style="background-color: black; color: white; padding: 0.2em;")  You flagged this comment. The admins will review this comment further. We are sorry you had this experience.
                 .actions 
                   a.unflag Unflag
-              a.avatar(href='/user/'+comment.actor.username, class=comment.flagged ? "transition hidden" : "")                  
-                img(src='/public/picture.svg', data-src=cdn+"/profile_pictures/"+comment.actor.profile.picture)
+              a.avatar(href='/user/'+comment.commentor.username, class=comment.flagged ? "transition hidden" : "")                  
+                img(src='/public/picture.svg', data-src=cdn+"/profile_pictures/"+comment.commentor.profile.picture)
               .content(class=comment.flagged ? "transition hidden" : "")
-                a.author.username(href='/user/'+comment.actor.username data-username=comment.actor.username data-picture=comment.actor.profile.picture data-html='<div></div>')=comment.actor.profile.name
+                a.author.username(href='/user/'+comment.commentor.username data-username=comment.commentor.username data-picture=comment.commentor.profile.picture data-html='<div></div>')=comment.commentor.profile.name
                 .metadata
                   span.date=(user.createdAt.getTime() + comment.time)
                   .rating
