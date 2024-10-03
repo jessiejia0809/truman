@@ -1,5 +1,6 @@
 // Opens the actor chat
 var socket = io();
+const toggleAmount = 300;
 async function openActorChat(username, picture) {
   // Update chat header with given actor metadata
   $(".actor-chat").attr("id", username);
@@ -17,12 +18,12 @@ async function openActorChat(username, picture) {
   }
   // If chat history is hidden, toggle chat history up
   if (!$('.actor-chat .chat .chat-history').is(":visible")) {
-    $('.actor-chat .chat .chat-history').slideToggle(300, 'swing');
+    $('.actor-chat .chat .chat-history').slideToggle(toggleAmount, 'swing');
   }
   // Get previous messages in #USERNAME chat and update chat messages
   await $.getJSON("/chat", { "chat_id": username }, function (data) {
     for (const msg of data) {
-      chat.addMessageExternal(msg.body, msg.absTime, msg.name, msg.isAgent);
+      chat.addMessageExternal(msg.body, msg.absTime, msg.name);
     }
   });
 
@@ -61,7 +62,7 @@ $(window).on("load", function () {
       if (chatId != chat.chatId) {
         await openActorChat(msg.chatId, msg.actorSrc);
       } else {
-        chat.addMessageExternal(msg.body, msg.absTime, msg.name, msg.isAgent);
+        chat.addMessageExternal(msg.body, msg.absTime, msg.name);
       }
     }
   });
@@ -76,16 +77,24 @@ $(window).on("load", function () {
       if (chatId != chat.chatId) {
         await openActorChat(msg.chatId, msg.actorSrc);
       }
-      chat.addTypingAnimationExternal(msg.name, msg.isAgent);
+      chat.addTypingAnimationExternal(msg.name);
+    }
+  });
+
+  // Enable popups over usernames
+  $('.username').popup({
+    hoverable: true,
+    onShow: function (el) {
+      const username = $(el).attr('data-username');
+      const picture = $(el).attr('data-picture');
+
+      // Update the popup content dynamically
+      $(this).html(`<div class='header'><img class='ui avatar image' src='/profile_pictures/${picture}'/>${username}</div><div class='content'><button class='ui small button basic message-button' onClick="clickMessageUser(event)">Message</button></div>`);
     }
   });
 
 
-  // Enable popups over usernames
-  $('.username').popup({ hoverable: true });
-
-
-  //Message button
+  // Message button
   $('.ui.basic.primary.message-user.button').on('click', messageFromProfile);
 
 
@@ -114,6 +123,7 @@ $(window).on("load", function () {
           this.$textarea = $('.actor-chat #message-to-send');
           this.$img = $('.actor-chat img.ui.avatar.image');
           this.$chatHistoryList = this.$chatHistory.find('ul');
+          this.$profile = $('img.mini.spaced.circular.image').attr('src');
         }
       },
       bindEvents: function () {
@@ -121,33 +131,40 @@ $(window).on("load", function () {
         this.$textarea.on('keydown', this.addMessageTyping.bind(this));
       },
       // Renders a message
-      render: function (body, absTime, name, isAgent, isExternalMessage, isTypingAnimation) {
+      render: function (body, absTime, name, isExternalMessage, isTypingAnimation) {
+        const absTimeFormatted = new Date(absTime).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
         if (this.typingTimeout != null) {
           clearTimeout(this.typingTimeout);
           this.typingTimeout = null;
           this.removeTypingAnimationExternal();
         }
         if (isTypingAnimation || body.trim() !== '') {
-          let template;
-          if (isAgent) {
-            template = Handlebars.compile($("#other-message-template").html());
-          } else {
-            template = Handlebars.compile($("#my-message-template").html());
-          }
-          let context = {
-            name: name,
-            messageOutput: body,
-            time: absTime,
-            addProfilePhoto: this.mostRecentMessenger != name,
-            isTypingAnimation: isTypingAnimation,
-            profilePicture: $('img.mini.spaced.circular.image').attr('src')
-          };
+          const li = document.createElement('li');
+          li.classList.add('clearfix');
+
+          const messageDiv = document.createElement('div');
+          messageDiv.classList.add('ui', 'grid', 'centered');
+          li.appendChild(messageDiv);
+
+          const messageContent = `
+            <div class="thirteen wide right aligned column padding-right-small my-message-div">
+              <div class="my-message align-right">
+                ${isTypingAnimation ? '<img src="/typing.gif"/>' : body}
+              </div>
+              <span class="message-data-time align-right">${absTimeFormatted}</span>
+            </div>
+            <div class="three wide column padding-left-small">
+              <div class="align-center">
+                ${this.mostRecentMessenger != name ? `<img class="message-avatar" src="${this.$profile}"/>` : ''}
+              </div>
+            </div>
+          `;
+
+          messageDiv.innerHTML = messageContent;
           if (!isTypingAnimation) {
             this.mostRecentMessenger = name;
           }
-
-
-          this.$chatHistoryList.append(template(context));
+          this.$chatHistoryList.append(li);
 
 
           this.scrollToBottom();
@@ -161,18 +178,16 @@ $(window).on("load", function () {
           }
         }
         if (!this.$chatHistory.is(":visible")) {
-          this.$chatHistory.slideToggle(300, 'swing');
+          this.$chatHistory.slideToggle(toggleAmount, 'swing');
         }
       },
 
 
       // Handles the addition of outgoing message (by the user) to chat history
       addMessage: function () {
-        const isAgent = $('#isAgentCheckbox input').is(":checked");
-        const agentType = $('#agentTypeDropdown').dropdown('get value');
-        const name = !isAgent ? "Me" : agentType;
+        const name = "Me";
         const message = this.$textarea.val();
-        const time = this.getCurrentTime();
+        const absTime = Date.now();
 
 
         const actorSrc = this.$img.attr("src");
@@ -181,30 +196,26 @@ $(window).on("load", function () {
         socket.emit("chat message", {
           chatId: this.chatId,
           body: message,
-          absTime: time,
+          absTime: absTime,
           name: name,
-          isAgent: isAgent,
-
-
           actorSrc: actorSrc
         });
-        this.render(message, time, name, isAgent, false, false);
+        this.render(message, absTime, name, false, false);
 
 
         $.post("/chat", {
           chat_id: this.chatId,
           body: message,
-          absTime: Date.now(),
+          absTime: absTime,
           name: name,
-          isAgent: isAgent,
           _csrf: $('meta[name="csrf-token"]').attr('content')
         });
       },
 
 
       // Handles the addition of an incoming message to chat history
-      addMessageExternal: function (body, absTime, name, isAgent) {
-        this.render(body, absTime, name, isAgent, true, false);
+      addMessageExternal: function (body, absTime, name) {
+        this.render(body, absTime, name, true, false);
       },
 
 
@@ -216,9 +227,7 @@ $(window).on("load", function () {
           this.addMessage();
         } else {
           event.stopImmediatePropagation();
-          const isAgent = $('#isAgentCheckbox input').is(":checked");
-          const agentType = $('#agentTypeDropdown').dropdown('get value');
-          const name = !isAgent ? "Me" : agentType;
+          const name = "Me";
           const actorSrc = this.$img.attr("src");
 
 
@@ -226,9 +235,6 @@ $(window).on("load", function () {
             chatId: this.chatId,
             name: name,
             msg: this.$textarea.val(),
-            isAgent: isAgent,
-
-
             actorSrc: actorSrc
           });
         }
@@ -236,9 +242,9 @@ $(window).on("load", function () {
 
 
       // Adds typing animation
-      addTypingAnimationExternal: function (name, isAgent) {
+      addTypingAnimationExternal: function (name) {
         if (this.typingTimeout == null) {
-          this.render(undefined, undefined, name, isAgent, true, true);
+          this.render(undefined, undefined, name, true, true);
         } else {
           clearTimeout(this.typingTimeout);
         }
@@ -250,7 +256,7 @@ $(window).on("load", function () {
 
 
       // Removes typing animation
-      removeTypingAnimationExternal: function (name, isAgent) {
+      removeTypingAnimationExternal: function (name) {
         this.$chatHistoryList.find(".ui.grid.centered:last").remove();
       },
 
@@ -260,13 +266,6 @@ $(window).on("load", function () {
           this.$chatHistory.scrollTop(this.$chatHistory[0].scrollHeight);
         }
       },
-
-
-      getCurrentTime: function () {
-        return new Date().toLocaleTimeString().
-          replace(/([\d]+:[\d]{2})(:[\d]{2})(.*)/, "$1$3");
-      },
-
 
       resetChat: function () {
         this.$chatHistoryList.empty();
@@ -280,7 +279,7 @@ $(window).on("load", function () {
   $('.chat-minimize, .chat-header').click(function (e) {
     e.stopImmediatePropagation();
     let chat = $(this).closest('.chat').children('.chat-history');
-    chat.slideToggle(300, 'swing');
+    chat.slideToggle(toggleAmount, 'swing');
   });
 
 

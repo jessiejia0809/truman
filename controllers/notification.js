@@ -219,6 +219,6 @@ exports.getNotifications = async (req, res) => {
         };
     } catch (err) {
         console.log(err);
-        callback(err);
+        next(err);
     }
 }
