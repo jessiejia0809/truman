@@ -3,10 +3,10 @@
     .right.floated.time.meta= (user.createdAt.getTime() + val.time)
     a(href='/user/'+val.actor.username)     
       img.ui.avatar.image(src='/public/picture.svg', data-src=cdn+"/profile_pictures/"+val.actor.profile.picture)
-      span=val.actor.profile.name
+      span.username(data-position= 'bottom center' data-username=val.actor.username data-picture=val.actor.profile.picture data-html='<div></div>')= val.actor.profile.name
   .content.dimmable(class=val.flagged ? "dimmed": "")
     .ui.dimmer.flag(class=val.flagged ? "active": "")
-      .content
+      .contents
         .center
           h2.ui.inverted.icon.header
             i.red.flag.icon
@@ -65,7 +65,7 @@
               a.avatar(href='/user/'+comment.actor.username, class=comment.flagged ? "transition hidden" : "")                  
                 img(src='/public/picture.svg', data-src=cdn+"/profile_pictures/"+comment.actor.profile.picture)
               .content(class=comment.flagged ? "transition hidden" : "")
-                a.author(href='/user/'+comment.actor.username)=comment.actor.profile.name
+                a.author.username(href='/user/'+comment.actor.username data-username=comment.actor.username data-picture=comment.actor.profile.picture data-html='<div></div>')=comment.actor.profile.name
                 .metadata
                   span.date=(user.createdAt.getTime() + comment.time)
                   .rating
