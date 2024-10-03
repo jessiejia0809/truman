@@ -164,3 +164,37 @@ exports.postBlockReportOrFollow = async (req, res, next) => {
     next(err);
   }
 };
+
+/**
+ * POST /actors/new
+ * Create new user with name, gender, age, location, bio, picture, class. 
+ */
+exports.postNewActor = async (req, res) => {
+    console.log("here");
+    const { name, gender, age, location, bio, username } = req.body;
+    const picture = req.file ? req.file.filename : null; // Handle file upload (if using multer)
+
+    // Create a new actor based on form data
+    const actorDetail = {
+        username: name.toLowerCase().replace(/\s+/g, '_'), // Generate a username (e.g. "john_doe")
+        profile: {
+            name: username,
+            gender: gender,
+            age: age,
+            location: location,
+            bio: bio,
+            picture: picture,
+        },
+        class: "user_created_actor" // You can set a default or dynamic class here
+    };
+
+    const actor = new Actor(actorDetail);
+    try {
+        await actor.save();
+    } catch (err) {
+        console.log(color_error, "ERROR: Something went wrong with saving actor in database");
+        next(err);
+    }
+
+    res.redirect('/actors'); // Redirect to actors page after saving
+};

@@ -307,6 +307,7 @@ app.post(
   actorsController.postBlockReportOrFollow,
 );
 app.get("/actors", passportConfig.isAuthenticated, actorsController.getActors);
+app.post('/actors/new', useravatarupload.single('picinput'), actorsController.postNewActor);
 
 app.get("/feed", passportConfig.isAuthenticated, scriptController.getScript);
 app.post(
