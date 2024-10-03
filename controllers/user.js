@@ -8,7 +8,7 @@ const User = require('../models/User');
  * GET /login
  * Render the login page.
  */
-exports.getLogin = (req, res) => {
+exports.getLogin = (req, res, next) => {
     try {
         if (req.user) {
             return res.redirect('/');
@@ -69,7 +69,7 @@ exports.postLogin = (req, res, next) => {
  * GET /logout
  * Handles user log out.
  */
-exports.logout = (req, res) => {
+exports.logout = (req, res, next) => {
     try {
         req.logout((err) => {
             if (err) console.log('Error : Failed to logout.', err);
@@ -224,7 +224,7 @@ exports.getAccount = (req, res) => {
  * GET /me
  * Render user's profile page.
  */
-exports.getMe = async (req, res) => {
+exports.getMe = async (req, res, next) => {
     try {
         const user = await User.findById(req.user.id).populate('posts.comments.actor').exec();
         const allPosts = user.getPosts();
@@ -331,7 +331,7 @@ exports.postPageTime = async (req, res, next) => {
  * GET /forgot
  * Render Forgot Password page.
  */
-exports.getForgot = (req, res) => {
+exports.getForgot = (req, res, next) => {
     if (req.isAuthenticated()) {
         return res.redirect('/');
     }
@@ -350,7 +350,7 @@ exports.getForgot = (req, res) => {
 /**
  * Deactivate accounts who are completed with the study, except for admin accounts. Called 3 times a day. Scheduled via CRON jobs in app.js
  */
-exports.stillActive = async () => {
+exports.stillActive = async (next) => {
     try {
         const activeUsers = await User.find().where('active').equals(true).exec();
         for (const user of activeUsers) {
@@ -371,7 +371,7 @@ exports.stillActive = async () => {
  * GET /completed
  * Render Admin Dashboard: Basic information on users currrently in the study
  */
-exports.userTestResults = async (req, res) => {
+exports.userTestResults = async (req, res, next) => {
     if (!req.user.isAdmin) {
         res.redirect('/');
     } else {

@@ -31,7 +31,7 @@ function shuffle(array) {
  * Returns: 
  *  - finalfeed: the processed final feed of posts for the user
  */
-exports.getFeed = function (user_posts, script_feed, user, order, removeFlaggedContent, removedBlockedUserContent) {
+exports.getFeed = function (user_posts, script_feed, user, order, removeFlaggedContent, removedBlockedUserContent, next) {
     try {
         // Array of posts for the final feed
         let finalfeed = [];
