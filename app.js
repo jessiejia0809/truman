@@ -188,7 +188,7 @@ app.use('/profile_pictures', express.static(path.join(__dirname, 'profile_pictur
 app.get('/', passportConfig.isAuthenticated, scriptController.getScript);
 
 app.get('/chat', chatController.getChat);
-app.post('/chat', chatController.postchatAction);
+app.post('/chat', chatController.postChatAction);
 
 app.post('/post/new', userpostupload.single('picinput'), scriptController.newPost);
 app.post('/pageLog', passportConfig.isAuthenticated, userController.postPageLog);
