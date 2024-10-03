@@ -13,13 +13,7 @@ exports.getChat = async (req, res, next) => {
     if (feedIndex != -1) {
 
       let messages = user.chatAction[feedIndex].messages;
-      messages = messages.map(messageDoc => {
-        let message = messageDoc.toObject(); // Convert to plain JavaScript object
-        return {
-          ...message, // Spread the existing properties of the message
-          absTime: message.absTime.toLocaleTimeString().replace(/([\d]+:[\d]{2})(:[\d]{2})(.*)/, "$1$3") // Modify the absTime value
-        }
-      });
+      messages = messages.map(messageDoc => messageDoc.toObject());
       res.send(messages);
     } else {
       res.send([]);
@@ -34,7 +28,7 @@ exports.getChat = async (req, res, next) => {
  * POST /chat
  * Add actions with chats.
  */
-exports.postchatAction = async (req, res, next) => {
+exports.postChatAction = async (req, res, next) => {
   try {
     let user = await User.findById(req.user.id).exec();
     let userAction = user.chatAction;
@@ -53,7 +47,6 @@ exports.postchatAction = async (req, res, next) => {
       body: req.body.body,
       absTime: req.body.absTime,
       name: req.body.name,
-      isAgent: req.body.isAgent
     };
     userAction[feedIndex].messages.push(cat);
 
