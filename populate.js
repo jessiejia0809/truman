@@ -8,6 +8,7 @@ const async = require('async');
 const Actor = require('./models/Actor.js');
 const Script = require('./models/Script.js');
 const Notification = require('./models/Notification.js');
+const Comment = require('./models/Comment.js');
 const _ = require('lodash');
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
@@ -221,21 +222,30 @@ async function doPopulate() {
                                 next(err);
                             }
                             const comment_detail = {
+                                commentType: 'Actor',
+                                commentor: act,
+                                post: pr._id,
                                 commentID: new_reply.id,
                                 body: new_reply.body,
                                 likes: new_reply.likes || getLikesComment(),
-                                actor: act,
                                 time: timeStringToNum(new_reply.time),
                                 class: new_reply.class
                             };
+                            const comment = new Comment(comment_detail);
+                            try {
+                                await comment.save();
+                            } catch (err) {
+                                console.log(color_error, "ERROR: Something went wrong with saving comment in database");
+                                next(err);
+                            }
 
-                            pr.comments.push(comment_detail);
+                            pr.comments.push(comment._id);
                             pr.comments.sort(function (a, b) { return a.time - b.time; });
 
                             try {
                                 await pr.save();
                             } catch (err) {
-                                console.log(color_error, "ERROR: Something went wrong with saving reply in database");
+                                console.log(color_error, "ERROR: Something went wrong with saving comment to post in database");
                                 next(err);
                             }
                         } else { //Else no post found
