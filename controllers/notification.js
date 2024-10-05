@@ -204,7 +204,7 @@ exports.getNotifications = async (req, res, next) => {
                 .populate('actor')
                 .populate('comments.actor')
                 .exec();
-            const finalfeed = helpers.getFeed(userPosts, posts, user, 'NOTIFICATION');
+            const finalfeed = helpers.getFeed(next, userPosts, posts, user, 'NOTIFICATION');
 
             const newNotificationCount = final_notify.filter(notification => notification.unreadNotification == true).length;
             if (req.query.bell) {

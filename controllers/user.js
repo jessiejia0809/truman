@@ -350,7 +350,7 @@ exports.getForgot = (req, res, next) => {
 /**
  * Deactivate accounts who are completed with the study, except for admin accounts. Called 3 times a day. Scheduled via CRON jobs in app.js
  */
-exports.stillActive = async (_, _, next) => {
+exports.stillActive = async (req, res, next) => {
     try {
         const activeUsers = await User.find().where('active').equals(true).exec();
         for (const user of activeUsers) {

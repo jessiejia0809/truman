@@ -50,7 +50,7 @@ exports.getActor = async (req, res, next) => {
             .populate('comments.actor')
             .exec();
 
-        const finalfeed = helpers.getFeed([], script_feed, user, 'CHRONOLOGICAL', (process.env.REMOVE_FLAGGED_CONTENT == 'TRUE'), false);
+        const finalfeed = helpers.getFeed(next, [], script_feed, user, 'CHRONOLOGICAL', (process.env.REMOVE_FLAGGED_CONTENT == 'TRUE'), false);
         await user.save();
         res.render('actor', { script: finalfeed, actor: actor, isBlocked: isBlocked, isReported: isReported, title: actor.profile.name });
     } catch (err) {
