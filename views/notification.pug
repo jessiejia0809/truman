@@ -106,10 +106,10 @@ block content
                         |  and 
                         a(key=notification.key)=(best.length+notification.actors.length-1)+" others "
                         | have 
-                      | read your reply to #{notification.originalActor.profile.name}'s post:
+                      | read your reply to #{notification.originalActor.profile.name ? notification.originalActor.profile.name : notification.originalActor.username}'s post:
                       .date=notification.time
                     .extra.text=notification.body
-              when 'reply_like'
+              when 'reply_like' 
                 - var best = notification.actors.splice(0, 5);
                 .event
                   .label
@@ -129,14 +129,14 @@ block content
                         |  and 
                         a(key=notification.key)=(best.length+notification.actors.length-1)+" others "
                         | have 
-                      | liked your reply to #{notification.originalActor.profile.name}'s post:
+                      | liked your reply to #{notification.originalActor.profile.name ? notification.originalActor.profile.name : notification.originalActor.username}'s post:
                       .date=notification.time
                     .extra.text=notification.body                                                
               
     each val in script
-      if val.relativeTime 
+      if val.postType == 'User'
         //- This is a User made post
-        .ui.tiny.long.modal(correspondingPost=val.postID)
+        .ui.tiny.long.modal(correspondingPost=val._id)
           .ui.segment
             include ./partials/userPost
             .actions

@@ -37,26 +37,26 @@
       .ui.comments
         each comment in val.comments
           //- Comment is user-made
-          if comment.new_comment
-            .comment(commentID=comment.commentID)
+          if comment.commentType == 'User'
+            .comment(commentID=comment.id)
               a.avatar.image(href='/me')
-                if user.profile.picture
-                  img(src='/user_avatar/'+user.profile.picture)
+                if comment.commentor.profile.picture
+                    img(src='/user_avatar/'+comment.commentor.profile.picture)
                 else
-                  img(src=user.gravatar(60))
+                  img(src=comment.commentor.gravatar(60))
               .content
-                a.author(href='/me')=user.profile.name || user.username || user.id
+                a.author(href='/me')=comment.commentor.profile.name || comment.commentor.username || comment.commentor.id
                 .metadata
                   span.date=(user.createdAt.getTime() + comment.time)
                   .rating
                     i.heart.icon(class=comment.liked ? "red" : null)
-                    span.num=comment.likes+(comment.liked ? 1 : 0)
+                    span.num=comment.likes
                     |  Likes
                 .text=comment.body
                 .actions
                   a.like.comment(class=comment.liked ? "red" : null ) !{comment.liked ? "Unlike" : "Like"}
           //- Else this is a normal comment from the script
-          else
+          else if comment.commentType == 'Actor'
             .comment(commentID=comment.id)
               .content(class=!comment.flagged ? "transition hidden" : "")                           
                 .text(style="background-color: black; color: white; padding: 0.2em;")  You flagged this comment. The admins will review this comment further. We are sorry you had this experience.
@@ -70,7 +70,7 @@
                   span.date=(user.createdAt.getTime() + comment.time)
                   .rating
                     i.heart.icon(class=comment.liked ? "red" : null)
-                    span.num=comment.likes+(comment.liked ? 1 : 0)
+                    span.num=comment.likes
                     |  Likes
                 .text=comment.body
                 .actions

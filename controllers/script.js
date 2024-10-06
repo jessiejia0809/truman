@@ -49,7 +49,6 @@ exports.getScript = async (req, res, next) => {
             .where('time').lte(time_diff).gte(time_limit)
             .sort('-time')
             .populate('poster')
-            .populate()
             .populate({
                 path: 'comments',
                 populate: {
@@ -65,6 +64,7 @@ exports.getScript = async (req, res, next) => {
         // });
 
         // Get the newsfeed and render it.
+        //console.log((script_feed.filter(post => post.picture == '100.jpg'))[0].comments)
         const finalfeed = helpers.getFeed([], script_feed, user, process.env.FEED_ORDER, (process.env.REMOVE_FLAGGED_CONTENT == 'TRUE'), true);
         console.log("Script Size is now: " + finalfeed.length);
         res.render('script', { script: finalfeed, showNewPostIcon: true });
@@ -143,6 +143,7 @@ exports.newPost = async (req, res) => {
             postID.comments.push(comment._id);
         }
 
+        await postID.save()
         res.redirect('/');
     } catch (err) {
         console.log(err)
@@ -156,13 +157,19 @@ exports.newPost = async (req, res) => {
  */
 exports.postUpdateFeedAction = async (req, res, next) => {
     try {
-        const user = await User.findById(req.user.id).populate('postAction').exec();
+        const user = await User.findById(req.user.id).populate('postAction').populate('commentAction').exec();
 
         // Check if user has interacted with the post before.
         let postIndex = _.findIndex(user.postAction, function (o) { return o.post == req.body.postID; });
 
         // Retrieve post from database
-        const post = await Script.findById(req.body.postID).populate('comments').exec();
+        const post = await Script.findById(req.body.postID).populate('poster')
+            .populate({
+                path: 'comments',
+                populate: {
+                    path: 'commentor'
+                }
+            }).exec();
 
         // If the user has not interacted with the post before, add the post to user.feedAction.
         if (postIndex == -1) {
@@ -177,7 +184,7 @@ exports.postUpdateFeedAction = async (req, res, next) => {
                 commentType: 'User',
                 commentor: req.user.id,
                 commentID: user.numComments,
-                post: res.body.postID,
+                post: req.body.postID,
                 body: req.body.comment_text,
                 time: req.body.new_comment - user.createdAt,
                 absTime: req.body.new_comment,
@@ -188,17 +195,17 @@ exports.postUpdateFeedAction = async (req, res, next) => {
             await new_cmt.save();
 
             // Add reference to comment to post it was made on
-            const comment = await Comment.find()
+            const comment = (await Comment.find()
                 .where('commentor').equals(req.user.id)
                 .where('commentID').equals(user.numComments)
-                .exec()
+                .exec())[0]
 
-            post.comments.push({ comment: comment._id })
+            post.comments.push(comment._id)
+            await post.save()
 
         }
         // User interacted with a comment on the post.
         else if (req.body.commentID) {
-            const isUserComment = (req.body.isUserComment == 'true');
 
             // Find comment
             const comment = await Comment.findById(req.body.commentID).populate('commentor').exec();
@@ -208,10 +215,7 @@ exports.postUpdateFeedAction = async (req, res, next) => {
 
             // If the user has not interacted with the comment before, add the comment to user.commentActions
             if (commentIndex == -1) {
-                const cat = {
-                    comment: req.body.commentID
-                };
-                user.commentAction.push(cat);
+                user.commentAction.push({ comment: req.body.commentID });
                 commentIndex = user.commentAction.length - 1;
             }
 
@@ -246,6 +250,7 @@ exports.postUpdateFeedAction = async (req, res, next) => {
                 user.commentAction[commentIndex].unflagTime.push(unflag);
                 user.commentAction[commentIndex].flagged = false;
             }
+            await comment.save();
         }
         // User interacted with the post.
         else {
@@ -290,6 +295,7 @@ exports.postUpdateFeedAction = async (req, res, next) => {
             }
         }
         await user.save();
+        await post.save();
         res.send({ result: "success", numComments: user.numComments });
     } catch (err) {
         next(err);
@@ -329,7 +335,7 @@ exports.postUpdateUserPostFeedAction = async (req, res, next) => {
         // User interacted with a comment on the post.
         else if (req.body.commentID) {
             const commentIndex = _.findIndex(user.posts[feedIndex].comments, function (o) {
-                return o.commentID == req.body.commentID && o.new_comment == (req.body.isUserComment == 'true');
+                return o._id == req.body.commentID
             });
             if (commentIndex == -1) {
                 console.log("Should not happen.");

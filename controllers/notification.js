@@ -118,21 +118,9 @@ exports.getNotifications = async (req, res) => {
                 } //Notification is about a userReply (read, like)
                 else if (notification.userReplyID >= 0) {
                     const userReplyID = notification.userReplyID;
-                    const userReply_comment = await Comment.find().where('commentor').equals(req.user.id).where('commentID').equals(userReplyID);
-                    const userReply_originalPost = userReply_comment.post
-                    //const userReply_userPost = user.posts.find(post => post.comments.find(comment => comment.commentID == userReplyID && comment.new_comment == true) !== undefined);
-                    //const userReply_actorPost_feedAction = user.feedAction.find(feedAction => feedAction.comments.find(comment => comment.new_comment_id == userReplyID && comment.new_comment == true) !== undefined);
-                    // let userReply_actorPost;
-                    // if (userReply_actorPost_feedAction) {
-                    //     userReply_actorPost = userReply_actorPost_feedAction.post;
-                    // }
-                    //const userReply_originalPost = userReply_userPost || userReply_actorPost;
-
-                    //const postType = userReply_originalPost.;
-                    const userPostID = userReply_originalPost._id;
-                    // const userReply_comment = (postType == "user") ?
-                    //     userReply_originalPost.comments.find(comment => comment.commentID == userReplyID && comment.new_comment == true) :
-                    //     userReply_actorPost_feedAction.comments.find(comment => comment.new_comment_id == userReplyID && comment.new_comment == true);
+                    const userReply_comment = (await Comment.find().where('commentor').equals(req.user.id).where('commentID').equals(userReplyID))[0];
+                    const userPostID = userReply_comment.post
+                    const originalPost = await Script.findById(userPostID).populate('poster').exec()
 
                     const time = userReply_comment.absTime.getTime();
                     const time_diff = currDate - time; //Time difference between now and the time comment was created.
@@ -148,10 +136,10 @@ exports.getNotifications = async (req, res) => {
                                 postID: userPostID,
                                 replyID: userReplyID,
                                 body: userReply_comment.body,
-                                picture: userReply_originalPost.picture,
+                                picture: originalPost.picture,
                                 time: time + notification.time,
                                 actors: [notification.actor],
-                                originalActor: userReply_originalPost.poster,
+                                originalActor: originalPost.poster,
                                 unreadNotification: time + notification.time > lastNotifyVisit
                             }
                             if (notification.notificationType == 'like') {
@@ -181,6 +169,7 @@ exports.getNotifications = async (req, res) => {
                         if (notification.notificationType == 'like') {
                             userReply_comment.likes += final_notify[notifyIndex].numLikes;
                         }
+                        //await userReply_comment.save();
                     }
                 }
             }
@@ -223,6 +212,6 @@ exports.getNotifications = async (req, res) => {
         };
     } catch (err) {
         console.log(err);
-        next(err);
+        //next(err);
     }
 }

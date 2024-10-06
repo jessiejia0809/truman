@@ -46,7 +46,12 @@ exports.getActor = async (req, res, next) => {
             .where('time').lte(time_diff)
             .sort('-time')
             .populate('poster')
-            .populate('comments')
+            .populate({
+                path: 'comments',
+                populate: {
+                    path: 'commentor'
+                }
+            })
             .exec();
 
         const finalfeed = helpers.getFeed([], script_feed, user, 'CHRONOLOGICAL', (process.env.REMOVE_FLAGGED_CONTENT == 'TRUE'), false);

@@ -9,36 +9,22 @@ function likePost(e) {
         target.removeClass("red");
         label.html(function (i, val) { return val * 1 - 1 });
 
-        if (target.closest(".ui.fluid.card").attr("type") == 'userPost')
-            $.post("/userPost_feed", {
-                postID: postID,
-                unlike: currDate,
-                _csrf: $('meta[name="csrf-token"]').attr('content')
-            });
-        else
-            $.post("/feed", {
-                postID: postID,
-                unlike: currDate,
-                postClass: postClass,
-                _csrf: $('meta[name="csrf-token"]').attr('content')
-            });
+        $.post("/feed", {
+            postID: postID,
+            unlike: currDate,
+            postClass: postClass,
+            _csrf: $('meta[name="csrf-token"]').attr('content')
+        });
     } else { // Like Post
         target.addClass("red");
         label.html(function (i, val) { return val * 1 + 1 });
 
-        if (target.closest(".ui.fluid.card").attr("type") == 'userPost')
-            $.post("/userPost_feed", {
-                postID: postID,
-                like: currDate,
-                _csrf: $('meta[name="csrf-token"]').attr('content')
-            });
-        else
-            $.post("/feed", {
-                postID: postID,
-                like: currDate,
-                postClass: postClass,
-                _csrf: $('meta[name="csrf-token"]').attr('content')
-            });
+        $.post("/feed", {
+            postID: postID,
+            like: currDate,
+            postClass: postClass,
+            _csrf: $('meta[name="csrf-token"]').attr('content')
+        });
     }
 }
 
@@ -82,7 +68,6 @@ function likeComment(e) {
     const postID = target.closest(".ui.fluid.card").attr("postID");
     const postClass = target.closest(".ui.fluid.card").attr("postClass");
     const commentID = comment.attr("commentID");
-    const isUserComment = comment.find("a.author").attr('href') === '/me';
     const currDate = Date.now();
 
     if (target.hasClass("red")) { // Unlike comment
@@ -91,47 +76,27 @@ function likeComment(e) {
         target.html('Like');
         label.html(function (i, val) { return val * 1 - 1 });
 
-        if (target.closest(".ui.fluid.card").attr("type") == 'userPost') {
-            $.post("/userPost_feed", {
-                postID: postID,
-                commentID: commentID,
-                unlike: currDate,
-                isUserComment: isUserComment,
-                _csrf: $('meta[name="csrf-token"]').attr('content')
-            });
-        } else {
-            $.post("/feed", {
-                postID: postID,
-                commentID: commentID,
-                unlike: currDate,
-                isUserComment: isUserComment,
-                postClass: postClass,
-                _csrf: $('meta[name="csrf-token"]').attr('content')
-            });
-        }
+        $.post("/feed", {
+            postID: postID,
+            commentID: commentID,
+            unlike: currDate,
+            postClass: postClass,
+            _csrf: $('meta[name="csrf-token"]').attr('content')
+        });
+
     } else { // Like comment
         target.addClass("red");
         comment.find("i.heart.icon").addClass("red");
         target.html('Unlike');
         label.html(function (i, val) { return val * 1 + 1 });
 
-        if (target.closest(".ui.fluid.card").attr("type") == 'userPost')
-            $.post("/userPost_feed", {
-                postID: postID,
-                commentID: commentID,
-                like: currDate,
-                isUserComment: isUserComment,
-                _csrf: $('meta[name="csrf-token"]').attr('content')
-            });
-        else
-            $.post("/feed", {
-                postID: postID,
-                commentID: commentID,
-                like: currDate,
-                isUserComment: isUserComment,
-                postClass: postClass,
-                _csrf: $('meta[name="csrf-token"]').attr('content')
-            });
+        $.post("/feed", {
+            postID: postID,
+            commentID: commentID,
+            like: currDate,
+            postClass: postClass,
+            _csrf: $('meta[name="csrf-token"]').attr('content')
+        });
     }
 }
 
@@ -231,25 +196,15 @@ function addComment(e) {
         $(this).siblings(".ui.form").find("textarea.newcomment").val('');
         comments.append(mess);
 
-        if (card.attr("type") == 'userPost')
-            $.post("/userPost_feed", {
-                postID: postID,
-                new_comment: currDate,
-                comment_text: text,
-                _csrf: $('meta[name="csrf-token"]').attr('content')
-            }).then(function (json) {
-                numComments = json.numComments;
-            });
-        else
-            $.post("/feed", {
-                postID: postID,
-                new_comment: currDate,
-                comment_text: text,
-                postClass: postClass,
-                _csrf: $('meta[name="csrf-token"]').attr('content')
-            }).then(function (json) {
-                numComments = json.numComments;
-            });
+        $.post("/feed", {
+            postID: postID,
+            new_comment: currDate,
+            comment_text: text,
+            postClass: postClass,
+            _csrf: $('meta[name="csrf-token"]').attr('content')
+        }).then(function (json) {
+            numComments = json.numComments;
+        });
     }
 }
 

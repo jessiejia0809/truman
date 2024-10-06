@@ -68,61 +68,46 @@ exports.getFeed = function (user_posts, script_feed, user, order, removeFlaggedC
             // Filter comments to include only past simulated comments, not future simulated comments.
             script_feed[0].comments = script_feed[0].comments.filter(comment => user.createdAt.getTime() + comment.time < Date.now());
 
-            // Check if the user has interacted with this post by checking if a user.feedAction.post value matches this script_feed[0]'s _id. 
-            // If the user has interacted with this post, add the user's interactions to the post.
-            const feedIndex = _.findIndex(user.postAction, function (o) { return o.post.equals(script_feed[0].id) });
-            if (feedIndex != -1) {
-                // Check if there are comment-type actions on this post.
-                if (Array.isArray(user.postAction[feedIndex].comments) && user.postAction[feedIndex].comments) {
-                    for (const commentObject of user.postAction[feedIndex].comments) {
-                        // This is a user-made comment. Append it to the comments list for this post.
-                        if (commentObject.new_comment) {
-                            const cat = {
-                                commentID: commentObject.new_comment_id,
-                                body: commentObject.body,
-                                likes: commentObject.likes,
-                                time: commentObject.relativeTime,
 
-                                new_comment: commentObject.new_comment,
-                                liked: commentObject.liked
-                            };
-                            script_feed[0].comments.push(cat);
-                        } else {
-                            // This is not a user-made comment.
-                            // Get the index of the comment in the post.
-                            const commentIndex = _.findIndex(script_feed[0].comments, function (o) { return o.id == commentObject.comment; });
-                            if (commentIndex != -1) {
-                                // Check if this comment has been liked by the user. If true, update the comment in the post.
-                                if (commentObject.liked) {
-                                    script_feed[0].comments[commentIndex].liked = true;
-                                }
-                                // Check if this comment has been flagged by the user. If true, remove the comment from the post.
-                                if (commentObject.flagged) {
-                                    if (removeFlaggedContent) {
-                                        script_feed[0].comments.splice(commentIndex, 1);
-                                    } else {
-                                        script_feed[0].comments[commentIndex].flagged = true;
-                                    }
-                                }
-                                // Check if this comment is by a blocked user: If true and removedBlockedUserContent is true, remove the comment.
-                                if (user.blocked.includes(script_feed[0].comments[commentIndex].commentor.username) && removedBlockedUserContent) {
-                                    script_feed[0].comments.splice(commentIndex, 1);
-                                }
+            if (user.commentAction[0] !== undefined) {
+                // Check if user has any interactions with comments
+                for (const commentObject of script_feed[0].comments) {
+                    const commentIndex = _.findIndex(user.commentAction, function (o) { return o.comment.equals(commentObject._id); });
+                    if (commentIndex != -1) {
+                        // Check if this comment has been liked by the user. If true, update the comment in the post.
+                        if (user.commentAction[commentIndex].liked) {
+                            commentObject.liked = true;
+                        }
+                        // Check if this comment has been flagged by the user. If true, remove the comment from the post.
+                        if (user.commentAction[commentIndex].flagged) {
+                            if (removeFlaggedContent) {
+                                script_feed[0].comments.splice(array.indexOf(commentObject), 1);
+                            } else {
+                                commentObject.flagged = true;
                             }
+                        }
+                        // Check if this comment is by a blocked user: If true and removedBlockedUserContent is true, remove the comment.
+                        if (user.blocked.includes(commentObject.commentor.username) && removedBlockedUserContent) {
+                            script_feed[0].comments.splice(array.indexOf(commentObject), 1);
                         }
                     }
                 }
+
                 // Sort the comments in the post from least to most recent.
                 script_feed[0].comments.sort(function (a, b) {
                     return a.time - b.time;
                 });
 
-                // No longer looking at comments on this post.
-                // Now we are looking at the main post.
+            }
+
+
+            // Check if the user has interacted with this post by checking if a user.feedAction.post value matches this script_feed[0]'s _id. 
+            // If the user has interacted with this post, add the user's interactions to the post.
+            const feedIndex = _.findIndex(user.postAction, function (o) { return o.post.equals(script_feed[0].id) });
+            if (feedIndex != -1) {
                 // Check if this post has been liked by the user. If true, update the post.
                 if (user.postAction[feedIndex].liked) {
                     script_feed[0].liked = true;
-                    script_feed[0].likes++;
                 }
                 // Check if this post has been flagged by the user. If true, update the post.
                 if (user.postAction[feedIndex].flagged) {
