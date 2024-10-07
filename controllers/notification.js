@@ -38,14 +38,14 @@ exports.getNotifications = async (req, res) => {
                 .exec();
 
             let final_notify = [];
-            let numPrevCommentLikes = 0;
             for (const notification of notification_feed) {
                 //Notification is about a userPost (read, like, comment)
                 if (notification.userPostID >= 0) {
                     const userPostID = notification.userPostID;
-                    const userPost = Script.find()
+                    const userPost = (await Script.find()
                         .where('poster').equals(req.user.id)
-                        .where('postID').equals(userPostID);
+                        .where('postID').equals(userPostID)
+                        .exec())[0];
 
                     if (userPost == undefined) {
                         console.log("Should never be here.");
@@ -53,7 +53,6 @@ exports.getNotifications = async (req, res) => {
                     }
 
                     const time_diff = currDate - userPost.absTime; //Time difference between now and the time post was created.
-
                     //check if we show this notification yet
                     if (notification.time <= time_diff) {
                         if (notification.notificationType == "reply") {
@@ -61,7 +60,7 @@ exports.getNotifications = async (req, res) => {
                             const reply_tmp = {
                                 key: replyKey,
                                 action: 'reply',
-                                postID: userPostID,
+                                postID: userPost._id,
                                 body: userPost.body,
                                 picture: userPost.picture,
                                 replyBody: notification.replyBody,
@@ -79,7 +78,7 @@ exports.getNotifications = async (req, res) => {
                                 let tmp = {
                                     key: key,
                                     action: notification.notificationType,
-                                    postID: userPostID,
+                                    postID: userPost._id,
                                     body: userPost.body,
                                     picture: userPost.picture,
                                     time: userPost.absTime.getTime() + notification.time,
@@ -112,7 +111,7 @@ exports.getNotifications = async (req, res) => {
                             }
                             //Update the number of likes on user post
                             if (notification.notificationType == 'like') {
-                                userPost.likes = final_notify[notifyIndex].numLikes;
+                                userPost.actorLikes = final_notify[notifyIndex].numLikes;
                             }
                             await userPost.save();
                         } //end of LIKE or READ
@@ -186,9 +185,13 @@ exports.getNotifications = async (req, res) => {
                 return b.time - a.time;
             });
 
+
             const repliesOnActorPosts = (await Comment.find().where('commentor').equals(req.user.id)).map(comment => comment.post)
             const posts = await Script.find({
-                _id: { "$in": repliesOnActorPosts }
+                $or: [
+                    { _id: { "$in": repliesOnActorPosts } },
+                    { poster: req.user.id }
+                ]
             })
                 .populate('poster')
                 .populate({
@@ -199,9 +202,6 @@ exports.getNotifications = async (req, res) => {
                 })
                 .exec();
             const finalfeed = helpers.getFeed([], posts, user, 'NOTIFICATION');
-
-            console.log(final_notify)
-            console.log(finalfeed[0])
 
             const newNotificationCount = final_notify.filter(notification => notification.unreadNotification == true).length;
             if (req.query.bell) {

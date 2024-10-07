@@ -1,5 +1,5 @@
-$(window).on("load", function() { //notifications popup on click, show the corresponding post
-    $('.ui.raised.segment').on('click', function(event) {
+$(window).on("load", function () { //notifications popup on click, show the corresponding post
+    $('.ui.raised.segment').on('click', function (event) {
         const relevantPostNumber = $(this).attr('correspondingPost');
         //show the relevant post in a popup modal
         $(`.ui.tiny.long.modal[correspondingPost=${relevantPostNumber}]`).modal('show');
@@ -8,7 +8,7 @@ $(window).on("load", function() { //notifications popup on click, show the corre
             .visibility({
                 type: 'image',
                 offset: 0,
-                onLoad: function(calculations) {
+                onLoad: function (calculations) {
                     $('.ui.tiny.long.modal .ui.fluid.card img').visibility('refresh');
                 }
             });

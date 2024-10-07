@@ -114,8 +114,6 @@ exports.newPost = async (req, res) => {
         // If there are Actor replies (comments) that go along with this post, add them to comments
         if (actor_replies.length > 0) {
             for (const reply of actor_replies) {
-                console.log("reply: ")
-                console.log(reply)
                 user.numActorReplies = user.numActorReplies + 1; // Count begins at 0
                 const tmp_actor_reply = {
                     commentType: 'Actor',
