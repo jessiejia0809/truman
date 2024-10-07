@@ -38,6 +38,7 @@ exports.getNotifications = async (req, res) => {
                 .exec();
 
             let final_notify = [];
+            let numPrevCommentLikes = 0;
             for (const notification of notification_feed) {
                 //Notification is about a userPost (read, like, comment)
                 if (notification.userPostID >= 0) {
@@ -111,8 +112,9 @@ exports.getNotifications = async (req, res) => {
                             }
                             //Update the number of likes on user post
                             if (notification.notificationType == 'like') {
-                                userPost.likes += final_notify[notifyIndex].numLikes;
+                                userPost.likes = final_notify[notifyIndex].numLikes;
                             }
+                            await userPost.save();
                         } //end of LIKE or READ
                     } //end of userPost (read, like, comment)
                 } //Notification is about a userReply (read, like)
@@ -167,9 +169,9 @@ exports.getNotifications = async (req, res) => {
                             }
                         }
                         if (notification.notificationType == 'like') {
-                            userReply_comment.likes += final_notify[notifyIndex].numLikes;
+                            userReply_comment.actorLikes = final_notify[notifyIndex].numLikes;
                         }
-                        //await userReply_comment.save();
+                        await userReply_comment.save()
                     }
                 }
             }
@@ -177,13 +179,12 @@ exports.getNotifications = async (req, res) => {
             if (!req.query.bell) {
                 user.lastNotifyVisit = currDate;
             }
+
             await user.save();
 
             final_notify.sort(function (a, b) {
                 return b.time - a.time;
             });
-
-            //const userPosts = user.getPosts().slice(0) || [];
 
             const repliesOnActorPosts = (await Comment.find().where('commentor').equals(req.user.id)).map(comment => comment.post)
             const posts = await Script.find({
@@ -198,6 +199,9 @@ exports.getNotifications = async (req, res) => {
                 })
                 .exec();
             const finalfeed = helpers.getFeed([], posts, user, 'NOTIFICATION');
+
+            console.log(final_notify)
+            console.log(finalfeed[0])
 
             const newNotificationCount = final_notify.filter(notification => notification.unreadNotification == true).length;
             if (req.query.bell) {

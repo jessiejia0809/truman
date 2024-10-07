@@ -171,7 +171,7 @@ async function doPopulate() {
                         postID: new_post.id,
                         body: new_post.body,
                         picture: new_post.picture,
-                        likes: new_post.likes || getLikes(),
+                        actorLikes: new_post.likes || getLikes(),
                         postType: 'Actor',
                         poster: act,
                         time: timeStringToNum(new_post.time) || null,
@@ -227,7 +227,7 @@ async function doPopulate() {
                                 post: pr._id,
                                 commentID: new_reply.id,
                                 body: new_reply.body,
-                                likes: new_reply.likes || getLikesComment(),
+                                actorLikes: new_reply.likes || getLikesComment(),
                                 time: timeStringToNum(new_reply.time),
                                 class: new_reply.class
                             };

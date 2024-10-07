@@ -90,8 +90,6 @@ exports.newPost = async (req, res) => {
             postID: user.numPosts,
             body: req.body.body,
             picture: req.file ? req.file.filename : '',
-            likes: 0,
-            comments: [],
             absTime: currDate,
             time: currDate - user.createdAt,
         };
@@ -116,7 +114,8 @@ exports.newPost = async (req, res) => {
         // If there are Actor replies (comments) that go along with this post, add them to comments
         if (actor_replies.length > 0) {
             for (const reply of actor_replies) {
-                console.log(new Date(user.createdAt.getTime() + post.time + reply.time))
+                console.log("reply: ")
+                console.log(reply)
                 user.numActorReplies = user.numActorReplies + 1; // Count begins at 0
                 const tmp_actor_reply = {
                     commentType: 'Actor',
@@ -126,7 +125,6 @@ exports.newPost = async (req, res) => {
                     commentID: user.numActorReplies,
                     time: post.time + reply.time,
                     absTime: new Date(user.createdAt.getTime() + post.time + reply.time),
-                    likes: 0,
                     comments: []
                 };
                 const comment = new Comment(tmp_actor_reply);
@@ -188,7 +186,6 @@ exports.postUpdateFeedAction = async (req, res, next) => {
                 body: req.body.comment_text,
                 time: req.body.new_comment - user.createdAt,
                 absTime: req.body.new_comment,
-                likes: 0,
                 comments: []
             }
             const new_cmt = new Comment(cat);

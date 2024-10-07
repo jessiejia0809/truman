@@ -12,7 +12,8 @@ const commentSchema = new mongoose.Schema({
   commentID: Number, // ID of the comment
   time: Number, // Indicates when the comment is made on the post relative to how much time has passed since the user created their account, in milliseconds
   absTime: Date, // Absolute Time; Indicates when the comment is made on the post
-  likes: { type: Number, default: 0 }, // Indicates the # of likes on the comment by actors (excludes the user's own like)
+  actorLikes: { type: Number, default: 0 }, // Indicates the # of likes on the comment by actors
+  likes: { type: Number, default: 0 }, // Indicates the total # of likes on the comment 
   comments: [{ type: Schema.ObjectId, ref: 'Comment' }]
 }, { timestamps: true, versionKey: false });
 

@@ -42,110 +42,89 @@ exports.getFeed = function (user_posts, script_feed, user, order, removeFlaggedC
 
     // While there are actor posts or user posts to add to the final feed
     while (script_feed.length || user_posts.length) {
-        // If there are no more script_feed posts or if user_post[0] post is more recent than script_feed[0] post, then add user_post[0] post to the finalfeed.
-        // Else, add script_feed[0] post to the finalfeed.
-        if (script_feed[0] === undefined ||
-            ((user_posts[0] !== undefined) && (script_feed[0].time < user_posts[0].relativeTime))) {
-            // Filter comments to include only past simulated comments, not future simulated comments. 
-            user_posts[0].comments = user_posts[0].comments.filter(comment => comment.absTime < Date.now());
-            // Sort comments from least to most recent.
-            user_posts[0].comments.sort(function (a, b) {
-                return a.relativeTime - b.relativeTime;
-            });
-            // If the user post was made within the last 10 minutes, it should be appended to the top of the final feed. So, push it to new_user_posts.
-            if ((Date.now() - user_posts[0].absTime) < 600000) {
-                new_user_posts.push(user_posts[0]);
-                user_posts.splice(0, 1);
-            } // Else, proceed normally.
-            else {
-                finalfeed.push(user_posts[0]);
-                user_posts.splice(0, 1);
-            }
-        } else {
-            // Filter comments to include only comments labeled with the experimental condition the user is in.
-            script_feed[0].comments = script_feed[0].comments.filter(comment => !comment.class || comment.class == user.experimentalCondition);
+        // Filter comments to include only comments labeled with the experimental condition the user is in.
+        script_feed[0].comments = script_feed[0].comments.filter(comment => !comment.class || comment.class == user.experimentalCondition);
 
-            // Filter comments to include only past simulated comments, not future simulated comments.
-            script_feed[0].comments = script_feed[0].comments.filter(comment => user.createdAt.getTime() + comment.time < Date.now());
+        // Filter comments to include only past simulated comments, not future simulated comments.
+        script_feed[0].comments = script_feed[0].comments.filter(comment => user.createdAt.getTime() + comment.time < Date.now());
 
-
-            if (user.commentAction[0] !== undefined) {
-                // Check if user has any interactions with comments
-                for (const commentObject of script_feed[0].comments) {
-                    const commentIndex = _.findIndex(user.commentAction, function (o) { return o.comment.equals(commentObject._id); });
-                    if (commentIndex != -1) {
-                        // Check if this comment has been liked by the user. If true, update the comment in the post.
-                        if (user.commentAction[commentIndex].liked) {
-                            commentObject.liked = true;
-                        }
-                        // Check if this comment has been flagged by the user. If true, remove the comment from the post.
-                        if (user.commentAction[commentIndex].flagged) {
-                            if (removeFlaggedContent) {
-                                script_feed[0].comments.splice(array.indexOf(commentObject), 1);
-                            } else {
-                                commentObject.flagged = true;
-                            }
-                        }
-                        // Check if this comment is by a blocked user: If true and removedBlockedUserContent is true, remove the comment.
-                        if (user.blocked.includes(commentObject.commentor.username) && removedBlockedUserContent) {
-                            script_feed[0].comments.splice(array.indexOf(commentObject), 1);
-                        }
-                    }
+        // Check if user has any interactions with comments
+        for (const commentObject of script_feed[0].comments) {
+            // update comment likes with likes from actors
+            commentObject.likes += commentObject.actorLikes;
+            const commentIndex = _.findIndex(user.commentAction, function (o) { return o.comment.equals(commentObject._id); });
+            if (commentIndex != -1) {
+                // Check if this comment has been liked by the user. If true, update the comment in the post.
+                if (user.commentAction[commentIndex].liked) {
+                    commentObject.liked = true;
                 }
-
-                // Sort the comments in the post from least to most recent.
-                script_feed[0].comments.sort(function (a, b) {
-                    return a.time - b.time;
-                });
-
-            }
-
-
-            // Check if the user has interacted with this post by checking if a user.feedAction.post value matches this script_feed[0]'s _id. 
-            // If the user has interacted with this post, add the user's interactions to the post.
-            const feedIndex = _.findIndex(user.postAction, function (o) { return o.post.equals(script_feed[0].id) });
-            if (feedIndex != -1) {
-                // Check if this post has been liked by the user. If true, update the post.
-                if (user.postAction[feedIndex].liked) {
-                    script_feed[0].liked = true;
-                }
-                // Check if this post has been flagged by the user. If true, update the post.
-                if (user.postAction[feedIndex].flagged) {
-                    script_feed[0].flagged = true;
-                }
-                // Check if removeFlaggedContent is true, remove the post.
-                if (user.postAction[feedIndex].flagged && removeFlaggedContent) {
-                    script_feed.splice(0, 1);
-                } // Check if this post is by a blocked user: If true and removedBlockedUserContent is true, remove the post.
-                else if (user.blocked.includes(script_feed[0].poster.username) && removedBlockedUserContent) {
-                    script_feed.splice(0, 1);
-                } else {
-                    // If the post is neither flagged or from a blocked user, add it to the final feed.
-                    // If the final feed is shuffled, add posts to finalfeed_unseen and finalfeed_seen based on if the user has seen the post before or not.
-                    if (order == 'SHUFFLE') {
-                        // Check if there user has viewed the post before.
-                        if (!user.postAction[feedIndex].readTime[0]) {
-                            finalfeed_unseen.push(script_feed[0]);
-                        } else {
-                            finalfeed_seen.push(script_feed[0]);
-                        }
+                // Check if this comment has been flagged by the user. If true, remove the comment from the post.
+                if (user.commentAction[commentIndex].flagged) {
+                    if (removeFlaggedContent) {
+                        script_feed[0].comments.splice(array.indexOf(commentObject), 1);
                     } else {
-                        finalfeed.push(script_feed[0]);
+                        commentObject.flagged = true;
                     }
-                    script_feed.splice(0, 1);
                 }
-            } // If the user has not interacted with this post:
-            else {
-                if (user.blocked.includes(script_feed[0].poster.username) && removedBlockedUserContent) {
-                    script_feed.splice(0, 1);
-                } else {
-                    if (order == 'SHUFFLE') {
+                // Check if this comment is by a blocked user: If true and removedBlockedUserContent is true, remove the comment.
+                if (user.blocked.includes(commentObject.commentor.username) && removedBlockedUserContent) {
+                    script_feed[0].comments.splice(array.indexOf(commentObject), 1);
+                }
+            }
+        }
+
+        // Sort the comments in the post from least to most recent.
+        script_feed[0].comments.sort(function (a, b) {
+            return a.time - b.time;
+        });
+
+        // update post likes with likes from actors
+        script_feed[0].likes += script_feed[0].actorLikes;
+
+        // Check if the user has interacted with this post by checking if a user.feedAction.post value matches this script_feed[0]'s _id. 
+        // If the user has interacted with this post, add the user's interactions to the post.
+        const feedIndex = _.findIndex(user.postAction, function (o) { return o.post.equals(script_feed[0].id) });
+        if (feedIndex != -1) {
+            // Check if this post has been liked by the user. If true, update the post.
+            if (user.postAction[feedIndex].liked) {
+                script_feed[0].liked = true;
+            }
+            // Check if this post has been flagged by the user. If true, update the post.
+            if (user.postAction[feedIndex].flagged) {
+                script_feed[0].flagged = true;
+            }
+            // Check if removeFlaggedContent is true, remove the post.
+            if (user.postAction[feedIndex].flagged && removeFlaggedContent) {
+                script_feed.splice(0, 1);
+            } // Check if this post is by a blocked user: If true and removedBlockedUserContent is true, remove the post.
+            else if (user.blocked.includes(script_feed[0].poster.username) && removedBlockedUserContent) {
+                script_feed.splice(0, 1);
+            } else {
+                // If the post is neither flagged or from a blocked user, add it to the final feed.
+                // If the final feed is shuffled, add posts to finalfeed_unseen and finalfeed_seen based on if the user has seen the post before or not.
+                if (order == 'SHUFFLE') {
+                    // Check if there user has viewed the post before.
+                    if (!user.postAction[feedIndex].readTime[0]) {
                         finalfeed_unseen.push(script_feed[0]);
                     } else {
-                        finalfeed.push(script_feed[0]);
+                        finalfeed_seen.push(script_feed[0]);
                     }
-                    script_feed.splice(0, 1);
+                } else {
+                    finalfeed.push(script_feed[0]);
                 }
+                script_feed.splice(0, 1);
+            }
+        } // If the user has not interacted with this post:
+        else {
+            if (user.blocked.includes(script_feed[0].poster.username) && removedBlockedUserContent) {
+                script_feed.splice(0, 1);
+            } else {
+                if (order == 'SHUFFLE') {
+                    finalfeed_unseen.push(script_feed[0]);
+                } else {
+                    finalfeed.push(script_feed[0]);
+                }
+                script_feed.splice(0, 1);
             }
         }
     }
@@ -157,5 +136,6 @@ exports.getFeed = function (user_posts, script_feed, user, order, removeFlaggedC
     }
     // Concatenate the most recent user posts to the front of finalfeed.
     finalfeed = new_user_posts.concat(finalfeed);
+    //console.log(finalfeed[0])
     return finalfeed;
 };
