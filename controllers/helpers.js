@@ -20,10 +20,9 @@ function shuffle(array) {
 
 /**
  * This is a helper function, called in .getNotifications() (./notifications.js controller file), .getScript() (./script.js controller file), .getActor() (./actors.js controller file).
- * It takes in a list of user posts, a list of actor posts, a User document, and other parameters, and it processes and generates a final feed of posts for the user based on these parameters.
+ * It takes in a list of user and actor posts, a User document, and other parameters, and it processes and generates a final feed of posts for the user based on these parameters.
  * Parameters: 
- *  - user_posts: list of user posts, typically from user.posts
- *  - script_feed: list of script (actor) posts, typically from a call to the database: Script.find(...)
+ *  - script_feed: list of all posts, typically from a call to the database: Script.find(...)
  *  - user: a User document
  *  - order: 'SHUFFLE', 'CHRONOLOGICAL'; indicates the order the posts in the final feed should be displayed in.
  *  - removedFlaggedContent (boolean): T/F; indicates if a flagged post should be removed from the final feed.
@@ -31,17 +30,15 @@ function shuffle(array) {
  * Returns: 
  *  - finalfeed: the processed final feed of posts for the user
  */
-exports.getFeed = function (user_posts, script_feed, user, order, removeFlaggedContent, removedBlockedUserContent) {
+exports.getFeed = function (script_feed, user, order, removeFlaggedContent, removedBlockedUserContent) {
     // Array of posts for the final feed
     let finalfeed = [];
     // Array of seen and unseen posts, used when order=='shuffle' so that unseen posts appear before seen posts on the final feed.
     let finalfeed_seen = [];
     let finalfeed_unseen = [];
-    // Array of recent user posts, made within the last 10 minutes, used to append to the top of the final feed.
-    let new_user_posts = [];
 
     // While there are actor posts or user posts to add to the final feed
-    while (script_feed.length || user_posts.length) {
+    while (script_feed.length) {
         // Filter comments to include only comments labeled with the experimental condition the user is in.
         script_feed[0].comments = script_feed[0].comments.filter(comment => !comment.class || comment.class == user.experimentalCondition);
 
@@ -134,8 +131,6 @@ exports.getFeed = function (user_posts, script_feed, user, order, removeFlaggedC
         finalfeed_unseen = shuffle(finalfeed_unseen);
         finalfeed = finalfeed_unseen.concat(finalfeed_seen);
     }
-    // Concatenate the most recent user posts to the front of finalfeed.
-    finalfeed = new_user_posts.concat(finalfeed);
-    //console.log(finalfeed[0])
+
     return finalfeed;
 };

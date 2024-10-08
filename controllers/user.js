@@ -220,7 +220,6 @@ exports.getMe = async (req, res) => {
                 }
             })
             .exec();
-        // const allPosts = user.getPosts();
         res.render('me', { posts: allPosts, title: user.profile.name || user.email || user.id });
     } catch (err) {
         console.log(err)

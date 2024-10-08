@@ -219,18 +219,6 @@ userSchema.methods.getPosts = function getPosts() {
   return ret;
 };
 
-// Return the user post from its ID
-userSchema.methods.getUserPostByID = function (postID) {
-  return this.posts.find(x => x.postID == postID);
-};
-
-// Get user posts within the min/max time period
-userSchema.methods.getPostInPeriod = function (min, max) {
-  return this.posts.filter(function (post) {
-    return post.relativeTime >= min && post.relativeTime <= max;
-  });
-}
-
 /**
 * Helper method for getting user's gravatar.
 */

@@ -186,10 +186,12 @@ exports.getNotifications = async (req, res) => {
             });
 
 
-            const repliesOnActorPosts = (await Comment.find().where('commentor').equals(req.user.id)).map(comment => comment.post)
+            const repliesOnPosts = (await Comment.find().where('commentor').equals(req.user.id)).map(comment => comment.post)
+
+            // Get all posts that user has replied to or made
             const posts = await Script.find({
                 $or: [
-                    { _id: { "$in": repliesOnActorPosts } },
+                    { _id: { "$in": repliesOnPosts } },
                     { poster: req.user.id }
                 ]
             })
@@ -201,7 +203,8 @@ exports.getNotifications = async (req, res) => {
                     }
                 })
                 .exec();
-            const finalfeed = helpers.getFeed([], posts, user, 'NOTIFICATION');
+
+            const finalfeed = helpers.getFeed(posts, user, 'NOTIFICATION');
 
             const newNotificationCount = final_notify.filter(notification => notification.unreadNotification == true).length;
             if (req.query.bell) {
@@ -215,7 +218,6 @@ exports.getNotifications = async (req, res) => {
             }
         };
     } catch (err) {
-        console.log(err);
-        //next(err);
+        next(err);
     }
 }

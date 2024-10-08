@@ -9,7 +9,7 @@ const commentSchema = new mongoose.Schema({
   post: { type: Schema.ObjectId, ref: 'Script' }, // Indicates the post that the comment was made on
   body: { type: String, default: '', trim: true }, // Text(body) of comment
   class: { type: String, default: '', trim: true }, // For experimental use (If blank/null, this comment is shown to all users. If defined, this comment is only shown to users with the same value for their experimental condition)
-  commentID: Number, // ID of the comment
+  commentID: Number, // ID of the comment (0,1,2,3...)
   time: Number, // Indicates when the comment is made on the post relative to how much time has passed since the user created their account, in milliseconds
   absTime: Date, // Absolute Time; Indicates when the comment is made on the post
   actorLikes: { type: Number, default: 0 }, // Indicates the # of likes on the comment by actors

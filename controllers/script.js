@@ -5,7 +5,7 @@ const Notification = require('../models/Notification');
 const helpers = require('./helpers');
 const _ = require('lodash');
 const dotenv = require('dotenv');
-dotenv.config({ path: '.env' }); // See the file .env.example for the structure of .env
+dotenv.config({ path: '.env' });
 
 /**
  * GET /
@@ -57,15 +57,8 @@ exports.getScript = async (req, res, next) => {
             })
             .exec();
 
-        // Array of any user-made posts within the past 24 hours, sorted by time they were created.
-        // let user_posts = user.getPostInPeriod(time_limit, time_diff);
-        // user_posts.sort(function (a, b) {
-        //     return b.time - a.time;
-        // });
-
         // Get the newsfeed and render it.
-        //console.log((script_feed.filter(post => post.picture == '100.jpg'))[0].comments)
-        const finalfeed = helpers.getFeed([], script_feed, user, process.env.FEED_ORDER, (process.env.REMOVE_FLAGGED_CONTENT == 'TRUE'), true);
+        const finalfeed = helpers.getFeed(script_feed, user, process.env.FEED_ORDER, (process.env.REMOVE_FLAGGED_CONTENT == 'TRUE'), true);
         console.log("Script Size is now: " + finalfeed.length);
         res.render('script', { script: finalfeed, showNewPostIcon: true });
     } catch (err) {
@@ -296,72 +289,3 @@ exports.postUpdateFeedAction = async (req, res, next) => {
         next(err);
     }
 };
-
-
-// TODO: DELETE THIS METHOD --> SHOULDN'T NEED TO USE
-/**
- * POST /userPost_feed/
- * Record user's actions on USER posts. 
- */
-exports.postUpdateUserPostFeedAction = async (req, res, next) => {
-    try {
-        const user = await User.findById(req.user.id).exec();
-        // Find the index of object in user.posts
-        let feedIndex = _.findIndex(user.posts, function (o) { return o.postID == req.body.postID; });
-
-        if (feedIndex == -1) {
-            // Should not happen.
-        }
-        // User created a new comment on the post.
-        else if (req.body.new_comment) {
-            user.numComments = user.numComments + 1;
-            const cat = {
-                body: req.body.comment_text,
-                commentID: user.numComments,
-                relativeTime: req.body.new_comment - user.createdAt,
-                absTime: req.body.new_comment,
-                new_comment: true,
-                liked: false,
-                flagged: false,
-                likes: 0
-            };
-            user.posts[feedIndex].comments.push(cat);
-        }
-        // User interacted with a comment on the post.
-        else if (req.body.commentID) {
-            const commentIndex = _.findIndex(user.posts[feedIndex].comments, function (o) {
-                return o._id == req.body.commentID
-            });
-            if (commentIndex == -1) {
-                console.log("Should not happen.");
-            }
-            // User liked the comment.
-            else if (req.body.like) {
-                user.posts[feedIndex].comments[commentIndex].liked = true;
-            }
-            // User unliked the comment. 
-            else if (req.body.unlike) {
-                user.posts[feedIndex].comments[commentIndex].liked = false;
-            }
-            // User flagged the comment.
-            else if (req.body.flag) {
-                user.posts[feedIndex].comments[commentIndex].flagged = true;
-            }
-        }
-        // User interacted with the post. 
-        else {
-            // User liked the post.
-            if (req.body.like) {
-                user.posts[feedIndex].liked = true;
-            }
-            // User unliked the post.
-            if (req.body.unlike) {
-                user.posts[feedIndex].liked = false;
-            }
-        }
-        await user.save();
-        res.send({ result: "success", numComments: user.numComments });
-    } catch (err) {
-        next(err);
-    }
-}
