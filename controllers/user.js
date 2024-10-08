@@ -3,6 +3,7 @@ const validator = require('validator');
 const dotenv = require('dotenv');
 dotenv.config({ path: '.env' }); // See the file .env.example for the structure of .env
 const User = require('../models/User');
+const Script = require('../models/Script');
 
 /**
  * GET /login
@@ -208,10 +209,21 @@ exports.getAccount = (req, res) => {
  */
 exports.getMe = async (req, res) => {
     try {
-        const user = await User.findById(req.user.id).populate('posts.comments.actor').exec();
-        const allPosts = user.getPosts();
+        const user = await User.findById(req.user.id).exec();
+        const allPosts = await Script.find()
+            .where('poster').equals(req.user.id)
+            .populate('poster')
+            .populate({
+                path: 'comments',
+                populate: {
+                    path: 'commentor'
+                }
+            })
+            .exec();
+        // const allPosts = user.getPosts();
         res.render('me', { posts: allPosts, title: user.profile.name || user.email || user.id });
     } catch (err) {
+        console.log(err)
         next(err);
     }
 };

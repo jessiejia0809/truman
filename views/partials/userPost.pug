@@ -57,7 +57,7 @@
                     span.date=(comment.absTime.getTime())
                     .rating
                       i.heart.icon(class=comment.liked ? "red" : null)
-                      span.num=comment.likes+(comment.liked ? 1 : 0)
+                      span.num=comment.likes
                       |  Likes
                   .text=comment.body
                   .actions
