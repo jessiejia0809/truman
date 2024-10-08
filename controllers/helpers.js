@@ -49,6 +49,7 @@ exports.getFeed = function (script_feed, user, order, removeFlaggedContent, remo
         for (const commentObject of script_feed[0].comments) {
             // update comment likes with likes from actors
             commentObject.likes += commentObject.actorLikes;
+            // check if user has interacted with this comment
             const commentIndex = _.findIndex(user.commentAction, function (o) { return o.comment.equals(commentObject._id); });
             if (commentIndex != -1) {
                 // Check if this comment has been liked by the user. If true, update the comment in the post.
@@ -78,7 +79,7 @@ exports.getFeed = function (script_feed, user, order, removeFlaggedContent, remo
         // update post likes with likes from actors
         script_feed[0].likes += script_feed[0].actorLikes;
 
-        // Check if the user has interacted with this post by checking if a user.feedAction.post value matches this script_feed[0]'s _id. 
+        // Check if the user has interacted with this post by checking if a user.postAction.post value matches this script_feed[0]'s _id. 
         // If the user has interacted with this post, add the user's interactions to the post.
         const feedIndex = _.findIndex(user.postAction, function (o) { return o.post.equals(script_feed[0].id) });
         if (feedIndex != -1) {

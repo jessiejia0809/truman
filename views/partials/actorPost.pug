@@ -56,7 +56,7 @@
                 .actions
                   a.like.comment(class=comment.liked ? "red" : null ) !{comment.liked ? "Unlike" : "Like"}
           //- Else this is a normal comment from the script
-          else if comment.commentType == 'Actor'
+          else
             .comment(commentID=comment.id)
               .content(class=!comment.flagged ? "transition hidden" : "")                           
                 .text(style="background-color: black; color: white; padding: 0.2em;")  You flagged this comment. The admins will review this comment further. We are sorry you had this experience.

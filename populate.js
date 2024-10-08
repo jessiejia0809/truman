@@ -296,7 +296,6 @@ async function doPopulate() {
                             await notify.save();
                         } catch (err) {
                             console.log(color_error, "ERROR: Something went wrong with saving notification(reply) in database");
-                            console.log(err);
                             next(err);
                         }
                     } else { //Else no actor found

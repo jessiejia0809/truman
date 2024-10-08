@@ -135,7 +135,6 @@ exports.postSignup = async (req, res, next) => {
             active: true,
             lastNotifyVisit: currDate,
             createdAt: currDate,
-            profile: {}
         });
         if (req.query.r_id) {
             user.ResponseID = req.query.r_id;
@@ -222,7 +221,6 @@ exports.getMe = async (req, res) => {
             .exec();
         res.render('me', { posts: allPosts, title: user.profile.name || user.email || user.id });
     } catch (err) {
-        console.log(err)
         next(err);
     }
 };
