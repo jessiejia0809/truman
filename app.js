@@ -19,6 +19,8 @@ const multer = require('multer');
 const fs = require('fs');
 const util = require('util');
 fs.readFileAsync = util.promisify(fs.readFile);
+const http = require('http');
+const { Server } = require("socket.io");
 
 /**
  * Middleware for handling multipart/form-data, which is primarily used for uploading files.
@@ -26,7 +28,7 @@ fs.readFileAsync = util.promisify(fs.readFile);
  */
 var userpost_options = multer.diskStorage({
     destination: path.join(__dirname, 'uploads/user_post'),
-    filename: function(req, file, cb) {
+    filename: function (req, file, cb) {
         var lastsix = req.user.id.substr(req.user.id.length - 6);
         var prefix = lastsix + Math.random().toString(36).slice(2, 10);
         cb(null, prefix + file.originalname.replace(/[^A-Z0-9]+/ig, "_"));
@@ -34,7 +36,7 @@ var userpost_options = multer.diskStorage({
 });
 var useravatar_options = multer.diskStorage({
     destination: path.join(__dirname, 'uploads/user_avatar'),
-    filename: function(req, file, cb) {
+    filename: function (req, file, cb) {
         var prefix = req.user.id + Math.random().toString(36).slice(2, 10);
         cb(null, prefix + file.originalname.replace(/[^A-Z0-9]+/ig, "_"));
     }
@@ -55,6 +57,7 @@ const actorsController = require('./controllers/actors');
 const scriptController = require('./controllers/script');
 const userController = require('./controllers/user');
 const notificationController = require('./controllers/notification');
+const chatController = require('./controllers/chat')
 
 /**
  * API keys and Passport configuration.
@@ -65,6 +68,12 @@ const passportConfig = require('./config/passport');
  * Create Express server.
  */
 const app = express();
+
+/**
+ * Create Socket.io server.
+ */
+const server = http.createServer(app);
+const io = new Server(server);
 
 /**
  * Connect to MongoDB.
@@ -83,21 +92,21 @@ mongoose.connection.on('error', (err) => {
 const rule1 = new schedule.RecurrenceRule();
 rule1.hour = 4;
 rule1.minute = 30;
-const j = schedule.scheduleJob(rule1, function() {
+const j = schedule.scheduleJob(rule1, function () {
     userController.stillActive();
 });
 
 const rule2 = new schedule.RecurrenceRule();
 rule2.hour = 12;
 rule2.minute = 30;
-const j2 = schedule.scheduleJob(rule2, function() {
+const j2 = schedule.scheduleJob(rule2, function () {
     userController.stillActive();
 });
 
 const rule3 = new schedule.RecurrenceRule();
 rule3.hour = 20;
 rule3.minute = 30;
-const j3 = schedule.scheduleJob(rule3, function() {
+const j3 = schedule.scheduleJob(rule3, function () {
     userController.stillActive();
 });
 
@@ -178,11 +187,14 @@ app.use('/profile_pictures', express.static(path.join(__dirname, 'profile_pictur
  */
 app.get('/', passportConfig.isAuthenticated, scriptController.getScript);
 
+app.get('/chat', chatController.getChat);
+app.post('/chat', chatController.postChatAction);
+
 app.post('/post/new', userpostupload.single('picinput'), scriptController.newPost);
 app.post('/pageLog', passportConfig.isAuthenticated, userController.postPageLog);
 app.post('/pageTimes', passportConfig.isAuthenticated, userController.postPageTime);
 
-app.get('/com', function(req, res) {
+app.get('/com', function (req, res) {
     const feed = req.query.feed == "true" ? true : false; //Are we accessing the community rules from the feed?
     res.render('com', {
         title: 'Community Rules',
@@ -190,13 +202,13 @@ app.get('/com', function(req, res) {
     });
 });
 
-app.get('/info', passportConfig.isAuthenticated, function(req, res) {
+app.get('/info', passportConfig.isAuthenticated, function (req, res) {
     res.render('info', {
         title: 'User Docs'
     });
 });
 
-app.get('/tos', function(req, res) { res.render('tos', { title: 'Terms of Service' }); });
+app.get('/tos', function (req, res) { res.render('tos', { title: 'Terms of Service' }); });
 
 app.get('/completed', passportConfig.isAuthenticated, userController.userTestResults);
 
@@ -212,7 +224,7 @@ app.post('/signup', userController.postSignup);
 app.get('/account', passportConfig.isAuthenticated, userController.getAccount);
 app.post('/account/password', passportConfig.isAuthenticated, userController.postUpdatePassword);
 app.post('/account/profile', passportConfig.isAuthenticated, useravatarupload.single('picinput'), userController.postUpdateProfile);
-app.get('/account/signup_info', passportConfig.isAuthenticated, function(req, res) {
+app.get('/account/signup_info', passportConfig.isAuthenticated, function (req, res) {
     res.render('account/signup_info', {
         title: 'Add Information'
     });
@@ -228,7 +240,7 @@ app.get('/actors', passportConfig.isAuthenticated, actorsController.getActors)
 app.get('/feed', passportConfig.isAuthenticated, scriptController.getScript);
 app.post('/feed', passportConfig.isAuthenticated, scriptController.postUpdateFeedAction);
 app.post('/userPost_feed', passportConfig.isAuthenticated, scriptController.postUpdateUserPostFeedAction);
-app.get('/test', passportConfig.isAuthenticated, function(req, res) {
+app.get('/test', passportConfig.isAuthenticated, function (req, res) {
     res.render('test', {
         title: 'Test'
     })
@@ -240,14 +252,14 @@ app.get('/test', passportConfig.isAuthenticated, function(req, res) {
 app.use(errorHandler());
 
 // Catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
     var err = new Error('Not Found');
     err.status = 404;
     next(err);
 });
 
 // Error handler
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
     // set locals, only providing error in development
     res.locals.message = err.message;
     res.locals.error = req.app.get('env') === 'development' ? err : {};
@@ -257,10 +269,36 @@ app.use(function(err, req, res, next) {
     res.render('error');
 });
 
+
+/**
+ * Socket connection.
+ */
+io.on('connection', (socket) => {
+    socket.on('chat message', msg => {
+        console.log(msg);
+        // io.emit('chat message', msg); // emit to all listening sockets
+        socket.broadcast.emit('chat message', msg); // emit to all listening socketes but the one sending
+    });
+
+    socket.on('chat typing', msg => {
+        console.log(msg);
+        socket.broadcast.emit('chat typing', msg); // emit to all listening socketes but the one sending
+    });
+
+    socket.on('post activity', msg => {
+        console.log(msg);
+        io.emit('post activity', msg); // emit to all listening socketes
+    });
+
+    socket.on('error', function (err) {
+        console.log(err);
+    });
+});
+
 /**
  * Start Express server.
  */
-app.listen(app.get('port'), () => {
+server.listen(app.get('port'), () => {
     console.log(`App is running on http://localhost:${app.get('port')} in ${app.get('env')} mode.`);
     console.log('  Press CTRL-C to stop\n');
 });

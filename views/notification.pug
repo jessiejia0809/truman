@@ -28,7 +28,8 @@ block content
                   .label
                     i.large.unhide.icon
                   .content
-                    img.ui.tiny.right.floated.rounded.image(src='/user_post/'+notification.picture)
+                    if notification.picture
+                      img.ui.tiny.right.floated.rounded.image(src='/user_post/'+notification.picture)
                     .extra.images
                       each actor in best
                         if actor.username != "generic-joe"
@@ -52,7 +53,8 @@ block content
                   .label
                     i.large.like.icon
                   .content
-                    img.ui.tiny.right.floated.rounded.image(src='/user_post/'+notification.picture)
+                    if notification.picture
+                      img.ui.tiny.right.floated.rounded.image(src='/user_post/'+notification.picture)
                     .extra.images
                       each actor in best
                         a.ui.avatar.image(href='/user/'+actor.username, data-tooltip=actor.profile.name, data-position='bottom center')                       
@@ -72,7 +74,8 @@ block content
                   .label
                     i.large.reply.icon
                   .content
-                    img.ui.tiny.right.floated.rounded.image(src='/user_post/'+notification.picture)
+                    if notification.picture
+                      img.ui.tiny.right.floated.rounded.image(src='/user_post/'+notification.picture)
                     .extra.images
                         a.ui.avatar.image(href='/user/'+notification.actor.username, data-tooltip=notification.actor.profile.name, data-position='bottom center')                       
                           img.ui.avatar.image(src='/public/picture.svg', data-src='/profile_pictures/'+notification.actor.profile.picture)

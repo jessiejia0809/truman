@@ -71,56 +71,52 @@ exports.getScript = async (req, res, next) => {
  * Post /post/new
  * Record a new user-made post. Include any actor replies (comments) that go along with it.
  */
+
 exports.newPost = async (req, res, next) => {
     try {
         const user = await User.findById(req.user.id).exec();
-        if (req.file) {
-            user.numPosts = user.numPosts + 1; // Count begins at 0
-            const currDate = Date.now();
+        user.numPosts = user.numPosts + 1; // Count begins at 0
+        const currDate = Date.now();
 
-            let post = {
-                type: "user_post",
-                postID: user.numPosts,
-                body: req.body.body,
-                picture: req.file.filename,
-                liked: false,
-                likes: 0,
-                comments: [],
-                absTime: currDate,
-                relativeTime: currDate - user.createdAt,
-            };
+        let post = {
+            type: "user_post",
+            postID: user.numPosts,
+            body: req.body.body,
+            picture: req.file ? req.file.filename : '',
+            liked: false,
+            likes: 0,
+            comments: [],
+            absTime: currDate,
+            relativeTime: currDate - user.createdAt,
+        };
 
-            // Find any Actor replies (comments) that go along with this post
-            const actor_replies = await Notification.find()
-                .where('userPostID').equals(post.postID)
-                .where('notificationType').equals('reply')
-                .populate('actor').exec();
+        // Find any Actor replies (comments) that go along with this post
+        const actor_replies = await Notification.find()
+            .where('userPostID').equals(post.postID)
+            .where('notificationType').equals('reply')
+            .populate('actor').exec();
 
-            // If there are Actor replies (comments) that go along with this post, add them to the user's post.
-            if (actor_replies.length > 0) {
-                for (const reply of actor_replies) {
-                    user.numActorReplies = user.numActorReplies + 1; // Count begins at 0
-                    const tmp_actor_reply = {
-                        actor: reply.actor._id,
-                        body: reply.replyBody,
-                        commentID: user.numActorReplies,
-                        relativeTime: post.relativeTime + reply.time,
-                        absTime: new Date(user.createdAt.getTime() + post.relativeTime + reply.time),
-                        new_comment: false,
-                        liked: false,
-                        flagged: false,
-                        likes: 0
-                    };
-                    post.comments.push(tmp_actor_reply);
-                }
+        // If there are Actor replies (comments) that go along with this post, add them to the user's post.
+        if (actor_replies.length > 0) {
+            for (const reply of actor_replies) {
+                user.numActorReplies = user.numActorReplies + 1; // Count begins at 0
+                const tmp_actor_reply = {
+                    actor: reply.actor._id,
+                    body: reply.replyBody,
+                    commentID: user.numActorReplies,
+                    relativeTime: post.relativeTime + reply.time,
+                    absTime: new Date(user.createdAt.getTime() + post.relativeTime + reply.time),
+                    new_comment: false,
+                    liked: false,
+                    flagged: false,
+                    likes: 0
+                };
+                post.comments.push(tmp_actor_reply);
             }
-            user.posts.unshift(post); // Add most recent user-made post to the beginning of the array
-            await user.save();
-            res.redirect('/');
-        } else {
-            req.flash('errors', { msg: 'ERROR: Your post did not get sent. Please include a photo and a caption.' });
-            res.redirect('/');
         }
+        user.posts.unshift(post); // Add most recent user-made post to the beginning of the array
+        await user.save();
+        res.redirect('/');
     } catch (err) {
         next(err);
     }

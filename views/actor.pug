@@ -2,6 +2,7 @@ extends ui_layout
 
 block styles
   link(type='text/css', rel='stylesheet', href='/public/css/script.css')
+  link(type='text/css', rel='stylesheet', href='/public/css/chat.css')
   
 block content
   .computer.only.tablet.only.four.wide.column
@@ -16,12 +17,15 @@ block content
           if actor.profile.location
             i.marker.icon
             span=actor.profile.location
-        .ui.basic.primary.follow.button(style=" margin-top: 15px", actor_un = actor.username)
-          if user.followed.includes(actor.username)
-            i.check.icon 
-            | Following
-          else 
-            | Follow
+        .two.ui.equal.width.grid
+          .ui.basic.primary.follow.button(style="margin: 15px 0px 10px 15px;", actor_un = actor.username)
+            if user.followed.includes(actor.username)
+              i.check.icon 
+              | Following
+            else 
+              | Follow
+          .ui.basic.primary.message-user.button(style="margin: 15px 0px 10px 15px;", actor_un = actor.username, actor_pic = '/profile_pictures/'+actor.profile.picture)
+            | Message
       .two.ui.bottom.attached.icon.buttons
         button.ui.button.block(data-tooltip='Block User', data-position='bottom left', username=actor.username)
           i.ban.icon
@@ -38,6 +42,8 @@ block content
           |  No posts to show.
     each val in script
       include ./partials/actorPost
+    #content.six.wide.computer.six.wide.tablet.column
+      include partials/chat
       
   .ui.small.report.coupled.modal
     i.close.icon
@@ -104,3 +110,4 @@ block scripts
     let isReported = !{JSON.stringify(isReported)};
   script(src='/public/js/actor.js')
   script(src='/public/js/postFunctionalities.js')
+  script(src='/public/js/chat.js')
