@@ -59,7 +59,7 @@ exports.getScript = async (req, res, next) => {
         });
 
         // Get the newsfeed and render it.
-        const finalfeed = helpers.getFeed(user_posts, script_feed, user, process.env.FEED_ORDER, (process.env.REMOVE_FLAGGED_CONTENT == 'TRUE'), true);
+        const finalfeed = helpers.getFeed(next, user_posts, script_feed, user, process.env.FEED_ORDER, (process.env.REMOVE_FLAGGED_CONTENT == 'TRUE'), true);
         console.log("Script Size is now: " + finalfeed.length);
         res.render('script', { script: finalfeed, showNewPostIcon: true });
     } catch (err) {
@@ -71,7 +71,8 @@ exports.getScript = async (req, res, next) => {
  * Post /post/new
  * Record a new user-made post. Include any actor replies (comments) that go along with it.
  */
-exports.newPost = async (req, res) => {
+
+exports.newPost = async (req, res, next) => {
     try {
         const user = await User.findById(req.user.id).exec();
         user.numPosts = user.numPosts + 1; // Count begins at 0

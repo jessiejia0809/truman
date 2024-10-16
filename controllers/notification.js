@@ -10,7 +10,8 @@ const _ = require('lodash');
  * If query parameter 'bell' is true, return the number of new/ unseen notifications.
  * If it is false, render the notifications page.
  */
-exports.getNotifications = async (req, res) => {
+
+exports.getNotifications = async (req, res, next) => {
     try {
         if (req.user) {
             const user = await User.findById(req.user.id)
@@ -204,7 +205,7 @@ exports.getNotifications = async (req, res) => {
                 .populate('actor')
                 .populate('comments.actor')
                 .exec();
-            const finalfeed = helpers.getFeed(userPosts, posts, user, 'NOTIFICATION');
+            const finalfeed = helpers.getFeed(next, userPosts, posts, user, 'NOTIFICATION');
 
             const newNotificationCount = final_notify.filter(notification => notification.unreadNotification == true).length;
             if (req.query.bell) {
