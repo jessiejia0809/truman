@@ -91,48 +91,50 @@ exports.newPost = async (req, res) => {
         const new_post = new Script(post);
         await new_post.save();
 
-        // Get the newly added post from Script
-        let postID = await Script.find()
-            .where('poster').equals(req.user.id)
-            .where('postID').equals(user.numPosts)
-            .exec()
-        postID = postID[0]
+        // TO DO: Remove below code once we no longer need pre-populated replies
 
-        // Find any Actor replies (comments) that go along with this post
-        const actor_replies = await Notification.find()
-            .where('userPostID').equals(post.postID)
-            .where('notificationType').equals('reply')
-            .populate('actor').exec();
+        // // Get the newly added post from Script
+        // let postID = await Script.find()
+        //     .where('poster').equals(req.user.id)
+        //     .where('postID').equals(user.numPosts)
+        //     .exec()
+        // postID = postID[0]
 
-        // If there are Actor replies (comments) that go along with this post, add them to comments
-        if (actor_replies.length > 0) {
-            for (const reply of actor_replies) {
-                user.numActorReplies = user.numActorReplies + 1; // Count begins at 0
-                const tmp_actor_reply = {
-                    commentType: 'Actor',
-                    commentor: reply.actor._id,
-                    post: postID._id,
-                    body: reply.replyBody,
-                    commentID: user.numActorReplies,
-                    time: post.time + reply.time,
-                    absTime: new Date(user.createdAt.getTime() + post.time + reply.time),
-                    comments: []
-                };
-                const comment = new Comment(tmp_actor_reply);
-                await comment.save();
-            }
-        }
+        // // Find any Actor replies (comments) that go along with this post
+        // const actor_replies = await Notification.find()
+        //     .where('userPostID').equals(post.postID)
+        //     .where('notificationType').equals('reply')
+        //     .populate('actor').exec();
 
-        // Retrieve comments for post and add to user's post
-        const comments = await Comment.find()
-            .where('post').equals(postID._id)
-            .exec();
+        // // If there are Actor replies (comments) that go along with this post, add them to comments
+        // if (actor_replies.length > 0) {
+        //     for (const reply of actor_replies) {
+        //         user.numActorReplies = user.numActorReplies + 1; // Count begins at 0
+        //         const tmp_actor_reply = {
+        //             commentType: 'Actor',
+        //             commentor: reply.actor._id,
+        //             post: postID._id,
+        //             body: reply.replyBody,
+        //             commentID: user.numActorReplies,
+        //             time: post.time + reply.time,
+        //             absTime: new Date(user.createdAt.getTime() + post.time + reply.time),
+        //             comments: []
+        //         };
+        //         const comment = new Comment(tmp_actor_reply);
+        //         await comment.save();
+        //     }
+        // }
 
-        for (comment of comments) {
-            postID.comments.push(comment._id);
-        }
+        // // Retrieve comments for post and add to user's post
+        // const comments = await Comment.find()
+        //     .where('post').equals(postID._id)
+        //     .exec();
 
-        await postID.save()
+        // for (comment of comments) {
+        //     postID.comments.push(comment._id);
+        // }
+
+        // await postID.save()
         res.redirect('/');
     } catch (err) {
         console.log(err)
@@ -213,7 +215,7 @@ exports.postUpdateFeedAction = async (req, res, next) => {
                 user.commentAction[commentIndex].likeTime.push(like);
                 user.commentAction[commentIndex].liked = true;
                 comment.likes++;
-                user.numCommentLikes++;
+                user.numCommentLikes++; // wouldn't need to keep track of this if agent likes post
             }
 
             // User unliked the comment.

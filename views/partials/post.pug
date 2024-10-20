@@ -1,22 +1,47 @@
 .ui.fluid.card(u_postID=val.postID, type='userPost', postID=val.id)
   .content
-    .right.floated.time.meta=(val.absTime.getTime())
+    if val.postType == 'User'
+      .right.floated.time.meta=(val.absTime.getTime())
+    else
+      .right.floated.time.meta=(user.createdAt.getTime() + val.time)
     a.ui.avatar.image(href='/me')
       if val.poster.profile.picture
-        img(src='/user_avatar/'+val.poster.profile.picture)
+        if val.postType == 'User'
+          img(src='/user_avatar/'+val.poster.profile.picture)
+        else
+          img.ui.avatar.image(src='/public/picture.svg', data-src=cdn+"/profile_pictures/"+val.poster.profile.picture)
       else
         img(src=(val.poster).gravatar(60))
     a(href='/me')
       span=val.poster.profile.name? val.poster.profile.name : val.poster.username
   if val.picture
-    .image
-      img(src='/user_post/'+val.picture)
+    .content.dimmable(class=val.flagged ? "dimmed": "")
+      .ui.dimmer.flag(class=val.flagged ? "active": "")
+        .contents
+          .center
+            h2.ui.inverted.icon.header
+              i.red.flag.icon
+              | You've flagged this!
+              h3.ui.inverted.header
+                  span="The admins will review this post further. We are sorry you had this experience."
+            .ui.inverted.unflag.button(tabindex='0')
+              i.flag.icon
+              |  Unflag
+      .img.post.image
+        if val.postType == 'User'
+          img(src='/user_post/'+val.picture)
+        else
+          img(src='/public/picture.svg', data-src=cdn+"/post_pictures/"+val.picture, style="max-width:100%; width:100%;")
   .content
     .description=val.body
-  .two.ui.bottom.attached.icon.buttons
+  .myTimer.hidden 0
+  .three.ui.bottom.attached.icon.buttons
     .ui.reply.button(tabindex='0')
       i.reply.icon
       |  Reply
+    .ui.flag.button(tabindex='0')
+      i.flag.icon
+      |  Flag
     .ui.labeled.button(tabindex='0')
       .ui.like.button(class=val.liked ? "red" : null)
         i.heart.icon
@@ -46,6 +71,7 @@
                   .text=comment.body
                   .actions
                     a.like.comment(class=comment.liked ? "red" : null) !{comment.liked ? "Unlike" : "Like"}
+                    a.flag.comment Flag
             //- Else this is a normal comment from the script
             else
               .comment(commentID=comment.id)
@@ -54,7 +80,7 @@
                 .content
                   a.author.username(href='/user/'+comment.commentor.username data-username=comment.commentor.username data-picture=comment.commentor.profile.picture data-html='<div></div>')=comment.commentor.profile.name
                   .metadata
-                    span.date=(comment.absTime.getTime())
+                    span.date=(user.createdAt.getTime() + comment.time)
                     .rating
                       i.heart.icon(class=comment.liked ? "red" : null)
                       span.num=comment.likes

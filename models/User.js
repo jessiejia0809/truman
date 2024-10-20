@@ -4,35 +4,20 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const dotenv = require('dotenv');
 dotenv.config({ path: '.env' });
+const { actorSchema } = require('./Actor')
 
 const userSchema = new mongoose.Schema({
-  sessionID: String,
+  // Extend the actor schema
+  ...actorSchema.obj,
+
   // List of actions made on other's posts
   email: { type: String, unique: true },
   password: String,
-  username: String,
 
-  profile: {
-    name: String,
-    location: String,
-    bio: String,
-    picture: String
-  },
-
-  active: { type: Boolean, default: true }, // Indicates if the user is still active
   isAdmin: { type: Boolean, default: false }, // Indicates if the user is an administrator
 
   endSurveyLink: String,
 
-  numPosts: { type: Number, default: -1 }, // Indicates the # of user posts the user has made. Count begins at 0.
-  numComments: { type: Number, default: -1 }, // Indicates the # of comments on (user and actor) posts the user has made. This value is used for indexing and the commentID of user comments on (user and actor) posts. Count begins at 0.
-  numActorReplies: { type: Number, default: -1 }, // Indicates the # of actor replies on user posts, it is used for indexing and the commentID of actor comments on user posts. Count begins at 0.
-
-  numPostLikes: { type: Number, default: 0 }, // Indicates the # of actor posts liked. Count begins at 1.
-  numCommentLikes: { type: Number, default: 0 }, // Indicates the # of actor comments liked. Count begins at 1.
-
-  lastNotifyVisit: Date, // Absolute Time; Indicates the most recent visit to /notifications. First initialization is at account creation.
-  createdAt: Date, // Absolute Time the user was created
   consent: { type: Boolean, default: false }, // Indicates if user has proceeded through the Welcome & community rule pages
 
   mturkID: { type: String, unique: true }, // MTurkID
@@ -40,51 +25,10 @@ const userSchema = new mongoose.Schema({
 
   experimentalCondition: String, // Indicates the experimental condition user is assigned to. Values are defined in the .env file by the variable EXP_CONDITIONS_NAMES and assigned at account creation in the users controller.
 
-  blocked: [String], // List of usernames of actors user has blocked
-  reported: [String], // List of usernames of actors user has reported
-  followed: [String], // List of usernames of actors user has followed
-  blockReportAndFollowLog: [new Schema({
-    time: Date, // Absolute Time of action
-    action: String, // Action taken. Values include: 'block', 'unblock', 'follow', 'unfollow', 'report'
-    report_issue: String, // If action taken is 'report', indicates the reason given. Values include: 'interested', 'spam', 'bully', 'hacked'
-    actorName: String // Username of actor action relates to
-  })],
-
   study_days: { // Indicates how many times the user looked at the newsfeed per day
     type: [Number],
     default: Array(parseInt(process.env.NUM_DAYS)).fill(0)
   }, // TODO: Update. It inaccurately +1, whenever creates a new post.
-
-  postAction: [{
-    post: { type: Schema.ObjectId, ref: 'Script' },
-    liked: { type: Boolean, default: false },
-    flagged: { type: Boolean, default: false },
-    likeTime: [Date], // List of absolute times when the user has liked the post
-    unlikeTime: [Date], // List of absolute times when the user has unliked the post
-    flagTime: [Date], // List of absolute times when the user has flagged the post
-    unflagTime: [Date], // List of absolute times when the user has unflagged the post
-    mostRecentTime: Date, // Absolute Time, indicates the most recent time the post was viewed
-    rereadTimes: { type: Number, default: 0 }, // Indicates the # of times the post has been viewed by user.
-  }],
-
-  commentAction: [{
-    comment: { type: Schema.ObjectId, ref: 'Comment' },
-    liked: { type: Boolean, default: false }, // Whether the user liked the comment
-    flagged: { type: Boolean, default: false }, // Whether the user flagged the comment
-    likeTime: [Date], // List of absolute times when the user has liked the comment
-    unlikeTime: [Date], // List of absolute times when the user has unliked the comment
-    flagTime: [Date], // List of absolute times when the user has flagged the comment
-    unflagTime: [Date], // List of absolute times when the user has unflagged the comment
-  }],
-
-  chatAction: [new Schema({
-    chat_id: String, // chat id's are defined by who it is in correspondance with: aka actors' usernames
-    messages: [new Schema({
-      body: { type: String, default: '', trim: true }, // Body of the chat message
-      absTime: Date, // The absolute date (time) of when the chat message was made
-      name: String, // Indicates who made the chat message
-    }, { _id: true, versionKey: false })],
-  }, { _id: false, versionKey: false })],
 
   log: [new Schema({ // List of logins by the user
     time: Date,
@@ -110,7 +54,6 @@ const userSchema = new mongoose.Schema({
     GeneralCommentLikes: Number, // # of comments liked
     GeneralPostComments: Number, // # of comments left on posts
   },
-
 }, { timestamps: true, versionKey: false });
 
 /**

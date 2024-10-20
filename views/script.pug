@@ -20,12 +20,7 @@ block content
       input(type='text', placeholder='Create a post')
       i.big.photo.link.icon
     each val in script
-      if val.postType == 'User' 
-        //- This is a User made post
-        include partials/userPost
-      else 
-        //- This is an Actor post
-        include partials/actorPost
+      include partials/post
     #content.six.wide.computer.six.wide.tablet.column
       include partials/chat
     .ui.fluid.card
