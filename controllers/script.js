@@ -45,7 +45,8 @@ exports.getScript = async(req, res, next) => {
         let script_feed = await Script.find({
                 class: { "$in": ["", user.experimentalCondition] }
             })
-            .where('time').lte(time_diff).gte(time_limit)
+            // .where('time').lte(time_diff).gte(time_limit)
+            .where('absTime').lte(time_now)
             .sort('-time')
             .populate('poster')
             .populate({
@@ -81,8 +82,10 @@ exports.newPost = async(req, res) => {
             postID: user.numPosts,
             body: req.body.body,
             picture: req.file ? req.file.filename : '',
+            actorLikes: 0, // This value will never change.
             absTime: currDate,
             time: currDate - user.createdAt,
+            likes: 0
         };
 
         //Add new post to Script
@@ -192,7 +195,6 @@ exports.postUpdateFeedAction = async(req, res, next) => {
 
             post.comments.push(comment._id)
             await post.save()
-
         }
         // User interacted with a comment on the post.
         else if (req.body.commentID) {
@@ -283,9 +285,9 @@ exports.postUpdateFeedAction = async(req, res, next) => {
             } else {
                 console.log('Something in feedAction went crazy. You should never see this.');
             }
+            await post.save();
         }
         await user.save();
-        await post.save();
         res.send({ result: "success", numComments: user.numComments });
     } catch (err) {
         next(err);

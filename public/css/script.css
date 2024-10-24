@@ -8,6 +8,10 @@
 
 /* POST */
 
+.ui.fluid.card>.content.dimmable.dimmed {
+    min-height: 300px;
+}
+
 .ui.fluid.card>.content.dimmable>.image {
     position: relative;
     display: block;
@@ -16,16 +20,17 @@
     flex: 0 0 auto;
     padding: 0;
     background: rgba(0, 0, 0, .05);
-    margin: -1em -1em -1em -1em;
+    margin: -1em -1em 1em -1em;
 }
 
 .ui.fluid.card>.content.dimmable>.image>img {
     width: 100%;
 }
 
-.ui.fluid.card>.content.dimmable>.description {
-    padding-top: 1em;
-}
+
+/* .ui.fluid.card>.content.dimmable>.description {
+    margin-top: 2em;
+} */
 
 .ui[class*="bottom attached"].buttons .button:first-child {
     border-radius: 0 !important;

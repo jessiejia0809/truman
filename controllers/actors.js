@@ -54,6 +54,7 @@ exports.getActor = async(req, res, next) => {
         const isReported = user.reported.includes(req.params.userId);
         const script_feed = await Script.find({ poster: actor.id, class: { "$in": ["", user.experimentalCondition] } })
             // .where('time').lte(time_diff)
+            .where('absTime').lte(Date.now())
             .sort('-absTime')
             .populate('poster')
             .populate({

@@ -1,4 +1,4 @@
-.ui.fluid.card(u_postID=val.postID, type='userPost', postID=val.id)
+.ui.fluid.card(u_postID=val.postID, postID=val.id)
   .content
     .right.floated.time.meta=(val.absTime.getTime())
     a.ui.avatar.image(href='/user/'+val.poster.username)
@@ -8,11 +8,10 @@
         else
           img.ui.avatar.image(src='/public/picture.svg', data-src=cdn+"/profile_pictures/"+val.poster.profile.picture)
       else
-        img(src=(val.poster.username).gravatar(60))
+        img(src=val.poster.gravatar(60))
     a(href='/user/'+val.poster.username)
       span=val.poster.profile.name? val.poster.profile.name : val.poster.username
-  if val.picture
-    .content.dimmable(class=val.flagged ? "dimmed": "")
+  .content.dimmable(class=val.flagged ? "dimmed": "")
       .ui.dimmer.flag(class=val.flagged ? "active": "")
         .contents
           .center
@@ -23,14 +22,14 @@
                   span="The admins will review this post further. We are sorry you had this experience."
             .ui.inverted.unflag.button(tabindex='0')
               i.flag.icon
-              |  Unflag
-      .image
-        if val.postType == 'User' || val.postType == 'Agent'
-          img(src='/user_post/'+val.picture)
-        else
-          img(src='/public/picture.svg', data-src=cdn+"/post_pictures/"+val.picture, style="max-width:100%; width:100%;")
-  .content
-    .description=val.body
+              | Unflag
+      if val.picture
+        .image
+          if val.postType == 'User' || val.postType == 'Agent'
+            img(src='/user_post/'+val.picture)
+          else
+            img(src='/public/picture.svg', data-src=cdn+"/post_pictures/"+val.picture, style="max-width:100%; width:100%;")
+      .description=val.body
   .myTimer.hidden 0
   .three.ui.bottom.attached.icon.buttons
     .ui.reply.button(tabindex='0')
@@ -59,7 +58,7 @@
                   else
                     img.ui.avatar.image(src='/public/picture.svg', data-src=cdn+"/profile_pictures/"+comment.commentor.profile.picture)
                 else
-                  img(src=(comment.commentor.username).gravatar(60))
+                  img(src=comment.commentor.gravatar(60))
               .content
                 a.author(href='/user/'+comment.commentor.username)=comment.commentor.profile.name || comment.commentor.username || comment.commentor.id
                 .metadata
