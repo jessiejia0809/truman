@@ -6,32 +6,34 @@ block styles
   
 block content
   .computer.only.tablet.only.four.wide.column
-    .ui.card
-      .image
-        img(src='/public/picture.svg', data-src=cdn+'/profile_pictures/'+actor.profile.picture)
-      .content
-        a.header= actor.profile.name
-        .meta="@"+actor.username
-        .description(style='white-space: pre-wrap')=actor.profile.bio
-        .description(style="margin-top: 5px;")
-          if actor.profile.location
-            i.marker.icon
-            span=actor.profile.location
-        .two.ui.equal.width.grid
-          .ui.basic.primary.follow.button(style="margin: 15px 0px 10px 15px;", actor_un = actor.username)
-            if user.followed.includes(actor.username)
-              i.check.icon 
-              | Following
-            else 
-              | Follow
-          .ui.basic.primary.message-user.button(style="margin: 15px 0px 10px 15px;", actor_un = actor.username, actor_pic = '/profile_pictures/'+actor.profile.picture)
-            | Message
-      .two.ui.bottom.attached.icon.buttons
-        button.ui.button.block(data-tooltip='Block User', data-position='bottom left', username=actor.username)
-          i.ban.icon
-        button.ui.button.report(data-tooltip='Report User', data-position='bottom right', username=actor.username)
-          i.flag.icon
-
+    if user.username == actor.username
+      include ./partials/userCard
+    else
+      .ui.card
+        .image
+          img(src='/public/picture.svg', data-src=cdn+"/profile_pictures/"+actor.profile.picture)
+        .content
+          a.header= actor.profile.name
+          .meta="@"+actor.username
+          .description(style='white-space: pre-wrap')=actor.profile.bio
+          .description(style="margin-top: 5px;")
+            if actor.profile.location
+              i.marker.icon
+              span=actor.profile.location
+          .two.ui.equal.width.grid
+            .ui.basic.primary.follow.button(style="margin: 15px 0px 10px 15px;", actor_un = actor.username)
+              if user.followed.includes(actor.username)
+                i.check.icon 
+                | Following
+              else 
+                | Follow
+            .ui.basic.primary.message-user.button(style="margin: 15px 0px 10px 15px;", actor_un = actor.username, actor_pic = '/profile_pictures/'+actor.profile.picture)
+              | Message
+        .two.ui.bottom.attached.icon.buttons
+          button.ui.button.block(data-tooltip='Block User', data-position='bottom left', username=actor.username)
+            i.ban.icon
+          button.ui.button.report(data-tooltip='Report User', data-position='bottom right', username=actor.username)
+            i.flag.icon
   #loading.eight.wide.computer.ten.wide.tablet.sixteen.wide.mobile.column
     img.ui.centered.small.image(src='/public/heart.svg')
   #content.eight.wide.computer.ten.wide.tablet.sixteen.wide.mobile.column(style='display: none;')
@@ -41,7 +43,7 @@ block content
           .description
           |  No posts to show.
     each val in script
-      include ./partials/actorPost
+      include ./partials/post
     #content.six.wide.computer.six.wide.tablet.column
       include partials/chat
       
@@ -104,10 +106,14 @@ block content
   .computer.only.tablet.only.four.wide.column 
                      
 block scripts
-  script().
+  script.
     let numComments = !{JSON.stringify(user.numComments)};
     let isBlocked = !{JSON.stringify(isBlocked)};
     let isReported = !{JSON.stringify(isReported)};
+  script.
+    $('.ui.editprofile.button').on('click', function() {
+        window.location.href = '/account';
+    });
   script(src='/public/js/actor.js')
   script(src='/public/js/postFunctionalities.js')
   script(src='/public/js/chat.js')

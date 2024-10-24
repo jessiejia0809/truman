@@ -11,15 +11,14 @@ dotenv.config({ path: '.env' });
  * GET /
  * Fetch and render newsfeed.
  */
-exports.getScript = async (req, res, next) => {
+exports.getScript = async(req, res, next) => {
     try {
         const one_day = 86400000; // Number of milliseconds in a day.
         const time_now = Date.now(); // Current date.
         const time_diff = time_now - req.user.createdAt; // Time difference between now and user account creation, in milliseconds.
         const time_limit = time_diff - one_day; // Date in milliseconds 24 hours ago from now. This is used later to show posts only in the past 24 hours.
 
-        const user = await User.findById(req.user.id)
-            .exec();
+        const user = await User.findById(req.user.id).exec();
 
         // If the user is no longer active, sign the user out.
         if (!user.active) {
@@ -44,8 +43,8 @@ exports.getScript = async (req, res, next) => {
 
         // Array of actor and other user's posts that match the user's experimental condition, within the past 24 hours, sorted by descending time. 
         let script_feed = await Script.find({
-            class: { "$in": ["", user.experimentalCondition] }
-        })
+                class: { "$in": ["", user.experimentalCondition] }
+            })
             .where('time').lte(time_diff).gte(time_limit)
             .sort('-time')
             .populate('poster')
@@ -56,7 +55,6 @@ exports.getScript = async (req, res, next) => {
                 }
             })
             .exec();
-
         // Get the newsfeed and render it.
         const finalfeed = helpers.getFeed(script_feed, user, process.env.FEED_ORDER, (process.env.REMOVE_FLAGGED_CONTENT == 'TRUE'), true);
         console.log("Script Size is now: " + finalfeed.length);
@@ -70,7 +68,7 @@ exports.getScript = async (req, res, next) => {
  * Post /post/new
  * Record a new user-made post. Include any actor replies (comments) that go along with it.
  */
-exports.newPost = async (req, res) => {
+exports.newPost = async(req, res) => {
     try {
         const user = await User.findById(req.user.id).exec();
         user.numPosts = user.numPosts + 1; // Count begins at 0
@@ -146,12 +144,14 @@ exports.newPost = async (req, res) => {
  * POST /feed/
  * Record user's actions on ACTOR/other USER's posts. 
  */
-exports.postUpdateFeedAction = async (req, res, next) => {
+exports.postUpdateFeedAction = async(req, res, next) => {
     try {
-        const user = await User.findById(req.user.id).populate('postAction').populate('commentAction').exec();
+        const user = await User.findById(req.user.id)
+            .populate('postAction')
+            .populate('commentAction').exec();
 
         // Check if user has interacted with the post before.
-        let postIndex = _.findIndex(user.postAction, function (o) { return o.post == req.body.postID; });
+        let postIndex = _.findIndex(user.postAction, function(o) { return o.post == req.body.postID; });
 
         // Retrieve post from database
         const post = await Script.findById(req.body.postID).populate('poster')
@@ -201,7 +201,7 @@ exports.postUpdateFeedAction = async (req, res, next) => {
             const comment = await Comment.findById(req.body.commentID).populate('commentor').exec();
 
             // Check if user has interacted with the comment before.
-            let commentIndex = _.findIndex(user.commentAction, function (o) { return o.comment == req.body.commentID; });
+            let commentIndex = _.findIndex(user.commentAction, function(o) { return o.comment == req.body.commentID; });
 
             // If the user has not interacted with the comment before, add the comment to user.commentActions
             if (commentIndex == -1) {

@@ -1,18 +1,15 @@
 .ui.fluid.card(u_postID=val.postID, type='userPost', postID=val.id)
   .content
-    if val.postType == 'User'
-      .right.floated.time.meta=(val.absTime.getTime())
-    else
-      .right.floated.time.meta=(user.createdAt.getTime() + val.time)
-    a.ui.avatar.image(href='/me')
+    .right.floated.time.meta=(val.absTime.getTime())
+    a.ui.avatar.image(href='/user/'+val.poster.username)
       if val.poster.profile.picture
         if val.postType == 'User'
           img(src='/user_avatar/'+val.poster.profile.picture)
         else
           img.ui.avatar.image(src='/public/picture.svg', data-src=cdn+"/profile_pictures/"+val.poster.profile.picture)
       else
-        img(src=(val.poster).gravatar(60))
-    a(href='/me')
+        img(src=(val.poster.username).gravatar(60))
+    a(href='/user/'+val.poster.username)
       span=val.poster.profile.name? val.poster.profile.name : val.poster.username
   if val.picture
     .content.dimmable(class=val.flagged ? "dimmed": "")
@@ -27,8 +24,8 @@
             .ui.inverted.unflag.button(tabindex='0')
               i.flag.icon
               |  Unflag
-      .img.post.image
-        if val.postType == 'User'
+      .image
+        if val.postType == 'User' || val.postType == 'Agent'
           img(src='/user_post/'+val.picture)
         else
           img(src='/public/picture.svg', data-src=cdn+"/post_pictures/"+val.picture, style="max-width:100%; width:100%;")
@@ -39,9 +36,11 @@
     .ui.reply.button(tabindex='0')
       i.reply.icon
       |  Reply
-    .ui.flag.button(tabindex='0')
-      i.flag.icon
-      |  Flag
+    //- Only display the flag button if this is a not the user's own post
+    if user.username != val.poster.username
+      .ui.flag.button(tabindex='0')
+        i.flag.icon
+        |  Flag
     .ui.labeled.button(tabindex='0')
       .ui.like.button(class=val.liked ? "red" : null)
         i.heart.icon
@@ -52,42 +51,28 @@
       .ui.comments
         each comment in val.comments
           if !comment.flagged
-            //-IF this comment is USER made, do this
-            if comment.commentType == 'User'
-              .comment(commentID=comment.id)
-                a.avatar.image(href='/me')
-                  if comment.commentor.profile.picture
-                    img(src='/user_avatar/'+comment.commentor.profile.picture)
+            .comment(commentID=comment.id)
+              a.ui.avatar.image(href='/user/'+comment.commentor.username)
+                if comment.commentor.profile.picture
+                  if comment.commentType == 'User'
+                    img(src='/user_avatar/'+val.poster.profile.picture)
                   else
-                    img(src=comment.commentor.gravatar(60))
-                .content
-                  a.author(href='/me')=comment.commentor.profile.name || comment.commentor.username || comment.commentor.id
-                  .metadata
-                    span.date=(comment.absTime.getTime())
-                    .rating
-                      i.heart.icon(class=comment.liked ? "red" : null)
-                      span.num=comment.likes
-                      |  Likes
-                  .text=comment.body
-                  .actions
-                    a.like.comment(class=comment.liked ? "red" : null) !{comment.liked ? "Unlike" : "Like"}
-                    a.flag.comment Flag
-            //- Else this is a normal comment from the script
-            else
-              .comment(commentID=comment.id)
-                a.avatar(href='/user/'+comment.commentor.username)
-                  img(src='/public/picture.svg', data-src=cdn+"/profile_pictures/"+comment.commentor.profile.picture)
-                .content
-                  a.author.username(href='/user/'+comment.commentor.username data-username=comment.commentor.username data-picture=comment.commentor.profile.picture data-html='<div></div>')=comment.commentor.profile.name
-                  .metadata
-                    span.date=(user.createdAt.getTime() + comment.time)
-                    .rating
-                      i.heart.icon(class=comment.liked ? "red" : null)
-                      span.num=comment.likes
-                      |  Likes
-                  .text=comment.body
-                  .actions
-                    a.like.comment(class=comment.liked ? "red" : null) !{comment.liked ? "Unlike" : "Like"}
+                    img.ui.avatar.image(src='/public/picture.svg', data-src=cdn+"/profile_pictures/"+comment.commentor.profile.picture)
+                else
+                  img(src=(comment.commentor.username).gravatar(60))
+              .content
+                a.author(href='/user/'+comment.commentor.username)=comment.commentor.profile.name || comment.commentor.username || comment.commentor.id
+                .metadata
+                  span.date=(comment.absTime.getTime())
+                  .rating
+                    i.heart.icon(class=comment.liked ? "red" : null)
+                    span.num=comment.likes
+                    |  Likes
+                .text=comment.body
+                .actions
+                  a.like.comment(class=comment.liked ? "red" : null) !{comment.liked ? "Unlike" : "Like"}
+                  //- Only display the flag button if this is a not the user's own comment
+                  if user.username != comment.commentor.username
                     a.flag.comment Flag
   .extra.content
     .ui.fluid.left.labeled.right.icon.input

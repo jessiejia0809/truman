@@ -16,7 +16,7 @@
     flex: 0 0 auto;
     padding: 0;
     background: rgba(0, 0, 0, .05);
-    margin: -1em -1em 0 -1em;
+    margin: -1em -1em -1em -1em;
 }
 
 .ui.fluid.card>.content.dimmable>.image>img {
