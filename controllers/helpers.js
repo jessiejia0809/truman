@@ -19,7 +19,7 @@ function shuffle(array) {
 }
 
 /**
- * This is a helper function, called in .getNotifications() (./notifications.js controller file), .getScript() (./script.js controller file), .getActor() (./actors.js controller file).
+ * This is a helper function, called in .getScript() (./script.js controller file), .getActor() (./actors.js controller file).
  * It takes in a list of user and actor posts, a User document, and other parameters, and it processes and generates a final feed of posts for the user based on these parameters.
  * Parameters: 
  *  - script_feed: list of all posts, typically from a call to the database: Script.find(...)

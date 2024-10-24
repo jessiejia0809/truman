@@ -133,7 +133,6 @@ exports.postSignup = async(req, res, next) => {
             experimentalCondition: experimentalCondition,
             endSurveyLink: surveyLink,
             active: true,
-            lastNotifyVisit: currDate,
             createdAt: currDate,
         });
         if (req.query.r_id) {

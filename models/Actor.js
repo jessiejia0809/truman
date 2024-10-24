@@ -21,7 +21,6 @@ const actorSchema = new mongoose.Schema({
     numPostLikes: { type: Number, default: 0 }, // Indicates the # of posts liked. Count begins at 1.
     numCommentLikes: { type: Number, default: 0 }, // Indicates the # of comments liked. Count begins at 1.
 
-    lastNotifyVisit: Date, // Absolute Time; Indicates the most recent visit to /notifications. First initialization is at account creation.
     createdAt: Date, // Absolute Time the user was created
 
     blocked: [String], // List of usernames of the user has blocked

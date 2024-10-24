@@ -96,3 +96,18 @@ textarea.newcomment {
 .modal .ui.form .grouped.fields .field {
     margin-left: 5px !important;
 }
+
+
+/* CSS for New Timeline Activity message */
+
+#newActivityMessage {
+    cursor: pointer;
+}
+
+#newActivityMessage .ui.icon.message.info {
+    margin-bottom: 1em;
+}
+
+#newActivityMessage .ui.icon.message.info .content {
+    margin-right: 20px;
+}

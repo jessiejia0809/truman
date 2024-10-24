@@ -56,7 +56,6 @@ dotenv.config({ path: '.env' });
 const actorsController = require('./controllers/actors');
 const scriptController = require('./controllers/script');
 const userController = require('./controllers/user');
-const notificationController = require('./controllers/notification');
 const chatController = require('./controllers/chat')
 
 /**
@@ -169,7 +168,6 @@ app.use((req, res, next) => {
         req.path !== '/signup' &&
         req.path !== '/pageLog' &&
         req.path !== '/pageTimes' &&
-        req.path !== '/notifications' &&
         !req.path.match(/\./)) {
         req.session.returnTo = req.originalUrl;
     }
@@ -211,8 +209,6 @@ app.get('/info', passportConfig.isAuthenticated, function(req, res) {
 app.get('/tos', function(req, res) { res.render('tos', { title: 'Terms of Service' }); });
 
 app.get('/completed', passportConfig.isAuthenticated, userController.userTestResults);
-
-app.get('/notifications', passportConfig.isAuthenticated, notificationController.getNotifications);
 
 app.get('/login', userController.getLogin);
 app.post('/login', userController.postLogin);
@@ -276,17 +272,17 @@ io.on('connection', (socket) => {
     socket.on('chat message', msg => {
         console.log(msg);
         // io.emit('chat message', msg); // emit to all listening sockets
-        socket.broadcast.emit('chat message', msg); // emit to all listening socketes but the one sending
+        socket.broadcast.emit('chat message', msg); // emit to all listening sockets but the one sending
     });
 
     socket.on('chat typing', msg => {
         console.log(msg);
-        socket.broadcast.emit('chat typing', msg); // emit to all listening socketes but the one sending
+        socket.broadcast.emit('chat typing', msg); // emit to all listening sockets but the one sending
     });
 
-    socket.on('post activity', msg => {
+    socket.on('timeline activity', msg => {
         console.log(msg);
-        io.emit('post activity', msg); // emit to all listening socketes
+        socket.broadcast.emit('timeline activity', msg); // emit to all listening sockets but the one sending
     });
 
     socket.on('error', function(err) {

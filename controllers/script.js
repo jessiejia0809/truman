@@ -1,7 +1,6 @@
 const Script = require('../models/Script.js');
 const Comment = require('../models/Comment.js');
 const User = require('../models/User');
-const Notification = require('../models/Notification');
 const helpers = require('./helpers');
 const _ = require('lodash');
 const dotenv = require('dotenv');

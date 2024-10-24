@@ -29,8 +29,21 @@ $(window).on("load", function() {
         },
         onSuccess: function(event, fields) {
             $("#postform")[0].submit();
+            socket.emit("timeline activity");
             $('.actions .ui.green.button').addClass('disabled');
             $('.actions .ui.green.button').val('Posting...');
         }
     });
+
+    // Socket listening to broadcasts
+    // Incoming activity
+    socket.on("timeline activity", async function(activity) {
+        if ($("#newActivityMessage .ui.fixed.bottom.sticky").is(":hidden")) {
+            $("#newActivityMessage .ui.fixed.bottom.sticky").show();
+        }
+    });
+
+    $("#newActivityMessage .ui.fixed.bottom.sticky").on("click", function() {
+        location.reload();
+    })
 });

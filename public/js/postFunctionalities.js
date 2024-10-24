@@ -7,7 +7,7 @@ function likePost(e) {
 
     if (target.hasClass("red")) { // Unlike Post
         target.removeClass("red");
-        label.html(function (i, val) { return val * 1 - 1 });
+        label.html(function(i, val) { return val * 1 - 1 });
 
         $.post("/feed", {
             postID: postID,
@@ -17,7 +17,7 @@ function likePost(e) {
         });
     } else { // Like Post
         target.addClass("red");
-        label.html(function (i, val) { return val * 1 + 1 });
+        label.html(function(i, val) { return val * 1 + 1 });
 
         $.post("/feed", {
             postID: postID,
@@ -26,6 +26,7 @@ function likePost(e) {
             _csrf: $('meta[name="csrf-token"]').attr('content')
         });
     }
+    socket.emit("timeline activity");
 }
 
 function flagPost(e) {
@@ -74,7 +75,7 @@ function likeComment(e) {
         target.removeClass("red");
         comment.find("i.heart.icon").removeClass("red");
         target.html('Like');
-        label.html(function (i, val) { return val * 1 - 1 });
+        label.html(function(i, val) { return val * 1 - 1 });
 
         $.post("/feed", {
             postID: postID,
@@ -88,7 +89,7 @@ function likeComment(e) {
         target.addClass("red");
         comment.find("i.heart.icon").addClass("red");
         target.html('Unlike');
-        label.html(function (i, val) { return val * 1 + 1 });
+        label.html(function(i, val) { return val * 1 + 1 });
 
         $.post("/feed", {
             postID: postID,
@@ -98,6 +99,7 @@ function likeComment(e) {
             _csrf: $('meta[name="csrf-token"]').attr('content')
         });
     }
+    socket.emit("timeline activity");
 }
 
 function flagComment(e) {
@@ -202,17 +204,18 @@ function addComment(e) {
             comment_text: text,
             postClass: postClass,
             _csrf: $('meta[name="csrf-token"]').attr('content')
-        }).then(function (json) {
+        }).then(function(json) {
             numComments = json.numComments;
         });
     }
+    socket.emit("timeline activity");
 }
 
 function followUser(e) {
     const target = $(e.target);
     const username = target.attr('actor_un');
     if (target.text().trim() == "Follow") { // Follow Actor
-        $(`.ui.basic.primary.follow.button[actor_un='${username}']`).each(function (i, element) {
+        $(`.ui.basic.primary.follow.button[actor_un='${username}']`).each(function(i, element) {
             const button = $(element);
             button.text("Following");
             button.prepend("<i class='check icon'></i>");
@@ -222,7 +225,7 @@ function followUser(e) {
             _csrf: $('meta[name="csrf-token"]').attr('content')
         })
     } else { // Unfollow Actor
-        $(`.ui.basic.primary.follow.button[actor_un='${username}']`).each(function (i, element) {
+        $(`.ui.basic.primary.follow.button[actor_un='${username}']`).each(function(i, element) {
             const button = $(element);
             button.text("Follow");
             button.find('i').remove();
@@ -236,7 +239,7 @@ function followUser(e) {
 
 $(window).on('load', () => {
     // add humanized time to all posts
-    $('.right.floated.time.meta, .date').each(function () {
+    $('.right.floated.time.meta, .date').each(function() {
         const ms = parseInt($(this).text(), 10);
         const time = new Date(ms);
         $(this).text(humanized_time_span(time));
@@ -244,13 +247,13 @@ $(window).on('load', () => {
 
     // ************ Actions on Main Post ***************
     // Focus new comment element if "Reply" button is clicked
-    $('.reply.button').on('click', function () {
+    $('.reply.button').on('click', function() {
         let parent = $(this).closest(".ui.fluid.card");
         parent.find("textarea.newcomment").focus();
     });
 
     // Press enter to submit a comment
-    $("textarea.newcomment").keydown(function (event) {
+    $("textarea.newcomment").keydown(function(event) {
         if (event.key === "Enter" && !event.shiftKey) {
             event.preventDefault();
             event.stopImmediatePropagation();
@@ -296,7 +299,7 @@ $(window).on('load', () => {
 
         // Handling scrolling down like normal
         // Called when bottomVisible turns true (bottom of a picture is visible): bottom can enter from top or bottom of viewport
-        onBottomVisible: function (element) {
+        onBottomVisible: function(element) {
             var startTime = parseInt($(this).siblings(".content").children(".myTimer").text());
             // Bottom of picture enters from bottom (scrolling down the feed; as normal)
             if (element.topVisible) { // Scrolling Down AND entire post is visible on the viewport 
@@ -311,7 +314,7 @@ $(window).on('load', () => {
         },
 
         // Element's bottom edge has passed top of the screen (disappearing); happens only when Scrolling Up
-        onBottomPassed: function (element) {
+        onBottomPassed: function(element) {
             var endTime = Date.now();
             var startTime = parseInt($(this).siblings(".content").children(".myTimer").text());
             var totalViewTime = endTime - startTime; // TOTAL TIME HERE
@@ -334,7 +337,7 @@ $(window).on('load', () => {
 
         // Handling scrolling up
         // Element's top edge has passed top of the screen (appearing); happens only when Scrolling Up
-        onTopPassedReverse: function (element) {
+        onTopPassedReverse: function(element) {
             var startTime = parseInt($(this).siblings(".content").children(".myTimer").text());
             if (element.bottomVisible && startTime == 0) { // Scrolling Up AND entire post is visible on the viewport 
                 var startTime = Date.now();
@@ -343,7 +346,7 @@ $(window).on('load', () => {
         },
 
         // Called when topVisible turns false (exits from top or bottom)
-        onTopVisibleReverse: function (element) {
+        onTopVisibleReverse: function(element) {
             if (element.topPassed) { // Scrolling Down, disappears on top; this event doesn't matter (since it is when bottom disappears that time is stopped)
             } else { // False when Scrolling Up (the bottom of photo exits screen.)
                 var endTime = Date.now();
