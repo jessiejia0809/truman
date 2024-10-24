@@ -43,7 +43,7 @@ exports.getFeed = function(script_feed, user, order, removeFlaggedContent, remov
         script_feed[0].comments = script_feed[0].comments.filter(comment => !comment.class || comment.class == user.experimentalCondition);
 
         // Filter comments to include only past simulated comments, not future simulated comments.
-        script_feed[0].comments = script_feed[0].comments.filter(comment => user.createdAt.getTime() + comment.time < Date.now());
+        script_feed[0].comments = script_feed[0].comments.filter(comment => comment.absTime.getTime() < Date.now());
 
         // Check if user has any interactions with comments
         for (const commentObject of script_feed[0].comments) {

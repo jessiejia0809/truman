@@ -45,9 +45,6 @@ exports.getScript = async(req, res, next) => {
         let script_feed = await Script.find({
                 class: { "$in": ["", user.experimentalCondition] }
             })
-            // .where('time').lte(time_diff).gte(time_limit)
-            .where('absTime').lte(time_now)
-            .sort('-time')
             .populate('poster')
             .populate({
                 path: 'comments',
@@ -55,6 +52,9 @@ exports.getScript = async(req, res, next) => {
                     path: 'commentor'
                 }
             })
+            // .where('time').lte(time_diff).gte(time_limit)
+            .where('absTime').lte(time_now)
+            .sort('-absTime')
             .exec();
         // Get the newsfeed and render it.
         const finalfeed = helpers.getFeed(script_feed, user, process.env.FEED_ORDER, (process.env.REMOVE_FLAGGED_CONTENT == 'TRUE'), true);
