@@ -37,10 +37,12 @@ const actorSchema = new mongoose.Schema({
         post: { type: Schema.ObjectId, ref: 'Script' },
         liked: { type: Boolean, default: false },
         flagged: { type: Boolean, default: false },
+        shared: { type: Boolean, default: false },
         likeTime: [Date], // List of absolute times when the user has liked the post
         unlikeTime: [Date], // List of absolute times when the user has unliked the post
         flagTime: [Date], // List of absolute times when the user has flagged the post
         unflagTime: [Date], // List of absolute times when the user has unflagged the post
+        shareTime: [Date], // List of absolute times when the user has shared the post
         mostRecentTime: Date, // Absolute Time, indicates the most recent time the post was viewed
         rereadTimes: { type: Number, default: 0 }, // Indicates the # of times the post has been viewed by user.
     }],
@@ -49,10 +51,12 @@ const actorSchema = new mongoose.Schema({
         comment: { type: Schema.ObjectId, ref: 'Comment' },
         liked: { type: Boolean, default: false }, // Whether the user liked the comment
         flagged: { type: Boolean, default: false }, // Whether the user flagged the comment
+        shared: { type: Boolean, default: false },
         likeTime: [Date], // List of absolute times when the user has liked the comment
         unlikeTime: [Date], // List of absolute times when the user has unliked the comment
         flagTime: [Date], // List of absolute times when the user has flagged the comment
         unflagTime: [Date], // List of absolute times when the user has unflagged the comment
+        shareTime: [Date], // List of absolute times when the user has shared the comment
     }],
 
     chatAction: [new Schema({

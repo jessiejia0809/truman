@@ -241,6 +241,13 @@ exports.postUpdateFeedAction = async(req, res, next) => {
                 user.commentAction[commentIndex].unflagTime.push(unflag);
                 user.commentAction[commentIndex].flagged = false;
             }
+
+            // User shared the comment. 
+            else if (req.body.share) {
+                const share = req.body.share;
+                user.commentAction[commentIndex].shareTime.push(share);
+                user.commentAction[commentIndex].shared = true;
+            }
             await comment.save();
         }
         // User interacted with the post.
@@ -274,6 +281,12 @@ exports.postUpdateFeedAction = async(req, res, next) => {
                 user.postAction[postIndex].liked = false;
                 post.likes--;
                 user.numPostLikes--;
+            }
+            // User shared the post. 
+            else if (req.body.share) {
+                const share = req.body.share;
+                user.postAction[postIndex].shareTime.push(share);
+                user.postAction[postIndex].shared = true;
             }
             // User read the post.
             else if (req.body.viewed) {

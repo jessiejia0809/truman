@@ -31,7 +31,7 @@
             img(src='/public/picture.svg', data-src=cdn+"/post_pictures/"+val.picture, style="max-width:100%; width:100%;")
       .description=val.body
   .myTimer.hidden 0
-  .three.ui.bottom.attached.icon.buttons
+  .four.ui.bottom.attached.icon.buttons
     .ui.reply.button(tabindex='0')
       i.reply.icon
       |  Reply
@@ -40,6 +40,9 @@
       .ui.flag.button(tabindex='0')
         i.flag.icon
         |  Flag
+      .ui.share.button(tabindex='0')
+        i.share.icon
+        |  Share
     .ui.labeled.button(tabindex='0')
       .ui.like.button(class=val.liked ? "red" : null)
         i.heart.icon
@@ -76,6 +79,7 @@
                 //- Only display the flag button if this is a not the user's own comment
                 if user.username != comment.commentor.username
                   a.flag.comment Flag
+                  a.share.comment Share
   .extra.content
     .ui.fluid.left.labeled.right.icon.input
       .ui.label

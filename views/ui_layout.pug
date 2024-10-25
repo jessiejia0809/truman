@@ -32,3 +32,13 @@ html
       .ui.grid.container#pagecontainer
         include partials/ui_flash
         block content
+        .ui.small.basic.share.modal
+          .ui.icon.header
+            i.share.icon
+            | You have shared this 
+            span.shareType
+            | !
+          .actions(style="text-align:center;")   
+            .ui.green.ok.inverted.button
+              i.checkmark.icon
+              | Done

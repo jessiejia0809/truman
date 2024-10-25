@@ -61,6 +61,23 @@ function unflagPost(e) {
     target.closest(".ui.fluid.card").find(".ui.dimmer.flag").removeClass("active").dimmer({ closable: true }).dimmer('hide');
 }
 
+function sharePost(e) {
+    $('span.shareType').html(" post")
+    $('.ui.small.basic.share.modal').modal('show');
+    const target = $(e.target);
+    const post = target.closest(".ui.fluid.card");
+    const postID = post.attr("postID");
+    const postClass = target.closest(".ui.fluid.card").attr("postClass");
+    const share = Date.now();
+
+    $.post("/feed", {
+        postID: postID,
+        share: share,
+        postClass: postClass,
+        _csrf: $('meta[name="csrf-token"]').attr('content')
+    });
+};
+
 function likeComment(e) {
     const target = $(e.target);
     const comment = target.parents(".comment");
@@ -158,6 +175,25 @@ function unflagComment(e) {
             _csrf: $('meta[name="csrf-token"]').attr('content')
         });
 }
+
+function shareComment(e) {
+    $('span.shareType').html(" comment")
+    $('.ui.small.basic.share.modal').modal('show');
+    const target = $(e.target);
+    const commentElement = target.parents(".comment");
+    const postID = target.closest(".ui.fluid.card").attr("postID");
+    const postClass = target.closest(".ui.fluid.card").attr("postClass");
+    const commentID = commentElement.attr("commentID");
+    const share = Date.now();
+
+    $.post("/feed", {
+        postID: postID,
+        commentID: commentID,
+        share: share,
+        postClass: postClass,
+        _csrf: $('meta[name="csrf-token"]').attr('content')
+    });
+};
 
 function addComment(e) {
     const target = $(e.target);
@@ -273,6 +309,9 @@ $(window).on('load', () => {
     // Unflag Post
     $(".unflag.button").click(unflagPost);
 
+    // Share Post
+    $('.ui.share.button').on('click', sharePost);
+
     // ************ Actions on Comments***************
     // Like/Unlike comment
     $('a.like.comment').on('click', likeComment);
@@ -282,6 +321,9 @@ $(window).on('load', () => {
 
     // Unflag comment
     $("a.unflag").click(unflagComment);
+
+    // Share comment
+    $("a.share").on('click', shareComment);
 
     // Follow button
     $('.ui.basic.primary.follow.button').on('click', followUser);
