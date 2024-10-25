@@ -73,7 +73,7 @@ exports.getFeed = function(script_feed, user, order, removeFlaggedContent, remov
 
         // Sort the comments in the post from least to most recent.
         script_feed[0].comments.sort(function(a, b) {
-            return a.time - b.time;
+            return a.absTime - b.absTime;
         });
 
         // update post likes with likes from actors

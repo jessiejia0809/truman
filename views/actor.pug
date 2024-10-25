@@ -11,10 +11,13 @@ block content
     else
       .ui.card
         .image
-          if actor.profile.picture
+          if actorType == "User"
+            if actor.profile.picture
+              img(src='/public/picture.svg', data-src="/user_avatar/"+actor.profile.picture)
+            else 
+              img(src=actor.gravatar(60))
+          else
             img(src='/public/picture.svg', data-src=cdn+"/profile_pictures/"+actor.profile.picture)
-          else 
-            img(src=actor.gravatar(60))
         .content
           a.header= actor.profile.name
           .meta="@"+actor.username
