@@ -10,7 +10,7 @@
       else
         img(src='/public/picture.svg', data-src=cdn+"/profile_pictures/"+val.poster.profile.picture)
     a(href='/user/'+val.poster.username)
-      span=val.poster.profile.name? val.poster.profile.name : val.poster.username
+      span.username(data-position= 'bottom center' data-type=val.postType data-username=val.poster.profile.name? val.poster.profile.name : val.poster.username data-gravatar=val.poster.gravatar(60) data-custom=val.poster.profile.picture ? val.poster.profile.picture : undefined data-html='<div></div>')= val.poster.profile.name? val.poster.profile.name : val.poster.username
   .content.dimmable(class=val.flagged ? "dimmed": "")
       .ui.dimmer.flag(class=val.flagged ? "active": "")
         .contents
@@ -66,7 +66,7 @@
               else
                 img(src='/public/picture.svg', data-src=cdn+"/profile_pictures/"+comment.commentor.profile.picture)
             .content(class=comment.flagged ? "transition hidden" : "")
-              a.author(href='/user/'+comment.commentor.username)=comment.commentor.profile.name || comment.commentor.username || comment.commentor.id
+              a.author.username(href='/user/'+comment.commentor.username data-position='bottom center' data-type=comment.commentType data-username=comment.commentor.profile.name || comment.commentor.username || comment.commentor.id data-gravatar=comment.commentor.gravatar(60) data-custom=comment.commentor.profile.picture ? comment.commentor.profile.picture : undefined data-html='<div></div>')= comment.commentor.profile.name || comment.commentor.username || comment.commentor.id
               .metadata
                 span.date=(comment.absTime.getTime())
                 .rating

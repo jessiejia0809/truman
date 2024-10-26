@@ -87,9 +87,20 @@ $(window).on("load", function () {
     onShow: function (el) {
       const username = $(el).attr('data-username');
       const picture = $(el).attr('data-picture');
+      const type = $(el).attr('data-type');
+      const custom = $(el).attr('data-custom');
+      const gravatar = $(el).attr('data-gravatar');
+      console.log(gravatar)
 
       // Update the popup content dynamically
-      $(this).html(`<div class='header'><img class='ui avatar image' src='/profile_pictures/${picture}'/>${username}</div><div class='content'><button class='ui small button basic message-button' onClick="clickMessageUser(event)">Message</button></div>`);
+      if (type === 'User' || type === 'Agent') {
+        if (custom)
+          $(this).html(`<div class='header'><img class='ui avatar image' src='/user_avatar/${picture}'/>${username}</div><div class='content'><button class='ui small button basic message-button' onClick="clickMessageUser(event)">Message</button></div>`);
+        else
+          $(this).html(`<div class='header'><img class='ui avatar image' src='${gravatar}'/>${username}</div><div class='content'><button class='ui small button basic message-button' onClick="clickMessageUser(event)">Message</button></div>`);
+      }
+      else
+        $(this).html(`<div class='header'><img class='ui avatar image' src='/profile_pictures/${picture}'/>${username}</div><div class='content'><button class='ui small button basic message-button' onClick="clickMessageUser(event)">Message</button></div>`);
     }
   });
 
