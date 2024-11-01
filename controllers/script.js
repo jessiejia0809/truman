@@ -148,6 +148,7 @@ exports.newPost = async(req, res) => {
  */
 exports.postUpdateFeedAction = async(req, res, next) => {
     try {
+        // TO DO: Current code below assumes that all actions are only by Users, but based on revamping of code, can also be Agents.
         const user = await User.findById(req.user.id)
             .populate('postAction')
             .populate('commentAction').exec();

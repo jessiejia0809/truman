@@ -7,10 +7,10 @@ const actorSchema = new mongoose.Schema({
     username: String,
 
     profile: {
-        name: String,
-        location: String,
-        bio: String,
-        picture: String
+        name: { type: String, default: '' },
+        location: { type: String, default: '' },
+        bio: { type: String, default: '' },
+        picture: { type: String, default: '' }
     },
 
     active: { type: Boolean, default: true }, // Indicates if the user is still active
@@ -59,14 +59,7 @@ const actorSchema = new mongoose.Schema({
         shareTime: [Date], // List of absolute times when the user has shared the comment
     }],
 
-    chatAction: [new Schema({
-        chat_id: String, // chat id's are defined by who it is in correspondance with: aka usernames
-        messages: [new Schema({
-            body: { type: String, default: '', trim: true }, // Body of the chat message
-            absTime: Date, // The absolute date (time) of when the chat message was made
-            name: String, // Indicates who made the chat message
-        }, { _id: true, versionKey: false })],
-    }, { _id: false, versionKey: false })],
+    chatAction: [{ type: Schema.ObjectId, ref: 'Chat' }]
 }, { timestamps: true, versionKey: false });
 
 const Actor = mongoose.model('Actor', actorSchema);

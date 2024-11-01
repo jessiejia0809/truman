@@ -33,40 +33,46 @@ exports.getActors = async(req, res) => {
  * Render the actor's profile page along with the relevant data.
  */
 exports.getActor = async(req, res, next) => {
-    // const time_diff = Date.now() - req.user.createdAt;
     try {
         const user = await User.findById(req.user.id).exec();
-        // TO DO: Not the best way to do this. Fix later.
-        let actorType = 'Actor';
-        let actor = await Actor.findOne({ username: req.params.userId }).exec();
-        if (actor == null) {
-            actor = await Agent.findOne({ username: req.params.userId }).exec();
+
+        // Sequentially find the actor as an Actor, Agent, or User, setting type accordingly
+        let actor, actorType;
+        if ((actor = await Actor.findOne({ username: req.params.userId }).exec())) {
+            actorType = 'Actor';
+        } else if ((actor = await Agent.findOne({ username: req.params.userId }).exec())) {
             actorType = 'Agent';
-            if (actor == null) {
-                actor = await User.findOne({ username: req.params.userId }).exec();
-                actorType = 'User';
-                if (actor == null) {
-                    return next(myerr);
-                }
-            }
+        } else if ((actor = await User.findOne({ username: req.params.userId }).exec())) {
+            actorType = 'User';
+        } else {
+            return next(new Error("Actor not found"));
         }
+
         const isBlocked = user.blocked.includes(req.params.userId);
         const isReported = user.reported.includes(req.params.userId);
-        const script_feed = await Script.find({ poster: actor.id, class: { "$in": ["", user.experimentalCondition] } })
-            // .where('time').lte(time_diff)
-            .where('absTime').lte(Date.now())
+
+        const script_feed = await Script.find({
+                poster: actor.id,
+                class: { "$in": ["", user.experimentalCondition] },
+                absTime: { "$lte": Date.now() }
+            })
             .sort('-absTime')
             .populate('poster')
-            .populate({
-                path: 'comments',
-                populate: {
-                    path: 'commentor'
-                }
-            })
+            .populate({ path: 'comments', populate: { path: 'commentor' } })
             .exec();
 
-        const finalfeed = helpers.getFeed(script_feed, user, 'CHRONOLOGICAL', (process.env.REMOVE_FLAGGED_CONTENT == 'TRUE'), false);
-        res.render('actor', { script: finalfeed, actor: actor, isBlocked: isBlocked, isReported: isReported, title: actor.profile.name, actorType: actorType });
+        const finalFeed = helpers.getFeed(
+            script_feed, user, 'CHRONOLOGICAL', process.env.REMOVE_FLAGGED_CONTENT === 'TRUE', false
+        );
+
+        res.render('actor', {
+            script: finalFeed,
+            actor,
+            isBlocked,
+            isReported,
+            title: actor.profile.name,
+            actorType
+        });
     } catch (err) {
         next(err);
     }

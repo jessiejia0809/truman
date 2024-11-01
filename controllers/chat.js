@@ -1,60 +1,94 @@
+const Chat = require('../models/Chat.js');
+const { Actor } = require('../models/Actor.js');
+const Agent = require('../models/Agent.js');
 const User = require('../models/User.js');
 const _ = require('lodash');
 
 /**
  * GET /chat
- * Returns list of messages of chat with chat_id value. Chat absTimes are converted to strings.
+ * Returns the list of messages of chat with chat_id value and the receiver's attributes
  */
-exports.getChat = async (req, res, next) => {
-  try {
-    let user = await User.findById(req.user.id).exec();
+exports.getChat = async(req, res, next) => {
+    try {
+        // Retrieve the chat by ID, populating messenger field in messages
+        const chat = await Chat.findOne({ chat_id: req.query.chatFullId }).populate('messages.messenger').exec();
 
-    const feedIndex = _.findIndex(user.chatAction, function (o) { return o.chat_id == req.query.chat_id });
-    if (feedIndex != -1) {
+        // Sequentially find the actor as an Actor, Agent, or User, setting type accordingly
+        let actor, actorType;
+        if ((actor = await Actor.findOne({ username: req.query.chatId }).exec())) {
+            actorType = 'Actor';
+        } else if ((actor = await Agent.findOne({ username: req.query.chatId }).exec())) {
+            actorType = 'Agent';
+        } else if ((actor = await User.findOne({ username: req.query.chatId }).exec())) {
+            actorType = 'User';
+        } else {
+            return next(new Error("Actor not found"));
+        }
 
-      let messages = user.chatAction[feedIndex].messages;
-      messages = messages.map(messageDoc => messageDoc.toObject());
-      res.send(messages);
-    } else {
-      res.send([]);
+        // If actor or chat is not found, return an empty message array with the actor
+        if (!actor) return next(new Error("Actor not found"));
+
+        // Find profile photo of actor
+        let picture;
+        if (actorType == 'User' || actorType == 'Agent') {
+            if (actor.profile.picture)
+                picture = "/user_avatar/" + actor.profile.picture;
+            else
+                picture = actor.gravatar(60);
+        } else {
+            picture = "/profile_pictures/" + actor.profile.picture
+        }
+        if (!chat) return res.send({ messages: [], actorType: actorType, username: actor.username, picture: picture, name: actor.profile.name });
+
+        // Map messages to plain JavaScript objects
+        const messages = chat.messages.length ? chat.messages.map(msg => msg.toObject()) : [];
+
+        res.send({ messages: messages, actorType: actorType, username: actor.username, picture: picture, name: actor.profile.name });
+    } catch (err) {
+        console.error(err);
+        next(err);
     }
-  } catch (err) {
-    console.log(err);
-    next(err);
-  }
 };
 
 /**
  * POST /chat
  * Add actions with chats.
  */
-exports.postChatAction = async (req, res, next) => {
-  try {
-    let user = await User.findById(req.user.id).exec();
-    let userAction = user.chatAction;
+exports.postChatAction = async(req, res, next) => {
+    try {
+        let chat = await Chat.findOne({ chat_id: req.body.chatFullId }).exec();
+        if (!chat) {
+            chat = new Chat({
+                chat_id: req.body.chat_id,
+                messages: []
+            });
+        }
+        // Sequentially find the actor as an Actor, Agent, or User, setting type accordingly
+        let actor, actorType;
+        if ((actor = await Agent.findOne({ username: req.body.username }).exec())) {
+            actorType = 'Agent';
+        } else if ((actor = await User.findOne({ username: req.body.username }).exec())) {
+            actorType = 'User';
+        } else {
+            return next(new Error("Actor not found"));
+        }
 
-    // Then find the object from the right chat in feed.
-    let feedIndex = _.findIndex(userAction, function (o) { return o.chat_id == req.body.chat_id; });
-    if (feedIndex == -1) {
-      const cat = {
-        chat_id: req.body.chat_id
-      };
-      // add new chat into correct location
-      feedIndex = userAction.push(cat) - 1;
+        actor.chatAction.push(chat.id);
+
+        const cat = {
+            messageType: actorType,
+            messenger: req.user.id,
+            body: req.body.body,
+            absTime: req.body.absTime,
+        };
+        chat.messages.push(cat);
+
+        await chat.save();
+        await actor.save();
+        let returningJson = { result: "success" };
+        res.send(returningJson);
+    } catch (err) {
+        console.log(err);
+        next(err);
     }
-
-    const cat = {
-      body: req.body.body,
-      absTime: req.body.absTime,
-      name: req.body.name,
-    };
-    userAction[feedIndex].messages.push(cat);
-
-    await user.save();
-    let returningJson = { result: "success" };
-    res.send(returningJson);
-  } catch (err) {
-    console.log(err);
-    next(err);
-  }
 };

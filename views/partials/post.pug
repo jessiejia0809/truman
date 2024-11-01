@@ -10,7 +10,7 @@
       else
         img(src='/public/picture.svg', data-src=cdn+"/profile_pictures/"+val.poster.profile.picture)
     a(href='/user/'+val.poster.username)
-      span.username(data-position= 'bottom center' data-type=val.postType data-username=val.poster.profile.name? val.poster.profile.name : val.poster.username data-gravatar=val.poster.gravatar(60) data-custom=val.poster.profile.picture ? val.poster.profile.picture : undefined data-html='<div></div>')= val.poster.profile.name? val.poster.profile.name : val.poster.username
+      span(data-position='bottom center' data-type=val.postType data-html='<div></div>' class=(user.username==val.poster.username ? null : "username"))=val.poster.profile.name? val.poster.profile.name : val.poster.username
   .content.dimmable(class=val.flagged ? "dimmed": "")
       .ui.dimmer.flag(class=val.flagged ? "active": "")
         .contents
@@ -57,7 +57,7 @@
               .text(style="background-color: black; color: white; padding: 0.2em;")  You flagged this comment. The admins will review this comment further. We are sorry you had this experience.
               .actions 
                 a.unflag Unflag
-            a.avatar(href='/user/'+comment.commentor.username, class=comment.flagged ? "transition hidden" : "")
+            a.ui.avatar.image(href='/user/'+comment.commentor.username, class=comment.flagged ? "transition hidden" : "")
               if comment.commentType == 'User' || comment.commentType == 'Agent'
                 if comment.commentor.profile.picture
                   img(src='/public/picture.svg', data-src="/user_avatar/"+comment.commentor.profile.picture)
@@ -66,7 +66,8 @@
               else
                 img(src='/public/picture.svg', data-src=cdn+"/profile_pictures/"+comment.commentor.profile.picture)
             .content(class=comment.flagged ? "transition hidden" : "")
-              a.author.username(href='/user/'+comment.commentor.username data-position='bottom center' data-type=comment.commentType data-username=comment.commentor.profile.name || comment.commentor.username || comment.commentor.id data-gravatar=comment.commentor.gravatar(60) data-custom=comment.commentor.profile.picture ? comment.commentor.profile.picture : undefined data-html='<div></div>')= comment.commentor.profile.name || comment.commentor.username || comment.commentor.id
+              a(href='/user/'+comment.commentor.username) 
+                span(data-position='bottom center' data-type=comment.commentType data-html='<div></div>' class=(user.username==comment.commentor.username ? null: "username"))= comment.commentor.profile.name || comment.commentor.username || comment.commentor.id
               .metadata
                 span.date=(comment.absTime.getTime())
                 .rating
