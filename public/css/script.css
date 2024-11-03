@@ -28,10 +28,6 @@
 }
 
 
-/* .ui.fluid.card>.content.dimmable>.description {
-    margin-top: 2em;
-} */
-
 .ui[class*="bottom attached"].buttons .button:first-child {
     border-radius: 0 !important;
 }

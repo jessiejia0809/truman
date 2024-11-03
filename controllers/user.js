@@ -9,15 +9,19 @@ const Script = require('../models/Script');
  * GET /login
  * Render the login page.
  */
-exports.getLogin = (req, res) => {
-    if (req.user) {
-        return res.redirect('/');
+exports.getLogin = (req, res, next) => {
+    try {
+        if (req.user) {
+            return res.redirect('/');
+        }
+        res.render('account/login', {
+            title: 'Login',
+            site_picture: process.env.SITE_PICTURE,
+            r_id: req.query.r_id
+        });
+    } catch (err) {
+        next(err);
     }
-    res.render('account/login', {
-        title: 'Login',
-        site_picture: process.env.SITE_PICTURE,
-        r_id: req.query.r_id
-    });
 };
 
 /**
@@ -66,36 +70,46 @@ exports.postLogin = (req, res, next) => {
  * GET /logout
  * Handles user log out.
  */
-exports.logout = (req, res) => {
-    req.logout((err) => {
-        if (err) console.log('Error : Failed to logout.', err);
-        req.session.destroy((err) => {
-            if (err) console.log('Error : Failed to destroy the session during logout.', err);
-            req.user = null;
-            res.redirect('/');
+exports.logout = (req, res, next) => {
+    try {
+        req.logout((err) => {
+            if (err) console.log('Error : Failed to logout.', err);
+            req.session.destroy((err) => {
+                if (err) console.log('Error : Failed to destroy the session during logout.', err);
+                req.user = null;
+                res.redirect('/');
+            });
         });
-    });
+    }
+    catch (err) {
+        next(err)
+    }
 };
 
 /**
  * GET /signup
  * Render the signup page.
  */
-exports.getSignup = (req, res) => {
-    if (req.user) {
-        return res.redirect('/');
+exports.getSignup = (req, res, next) => {
+    try {
+        if (req.user) {
+            return res.redirect('/');
+        }
+        res.render('account/signup', {
+            title: 'Create Account',
+            r_id: req.query.r_id
+        });
     }
-    res.render('account/signup', {
-        title: 'Create Account',
-        r_id: req.query.r_id
-    });
+    catch (err) {
+        next(err)
+    }
 };
 
 /**
  * POST /signup
  * Handles user sign up and creation of a new account.
  */
-exports.postSignup = async(req, res, next) => {
+exports.postSignup = async (req, res, next) => {
     const validationErrors = [];
     if (!validator.isEmail(req.body.email)) validationErrors.push({ msg: 'Please enter a valid email address.' });
     if (!validator.isLength(req.body.password, { min: 4 })) validationErrors.push({ msg: 'Password must be at least 4 characters long.' });
@@ -157,7 +171,7 @@ exports.postSignup = async(req, res, next) => {
  * POST /account/profile
  * Update user's profile information during the sign up process.
  */
-exports.postSignupInfo = async(req, res, next) => {
+exports.postSignupInfo = async (req, res, next) => {
     try {
         const user = await User.findById(req.user.id).exec();
         user.profile.name = req.body.name.trim() || '';
@@ -166,16 +180,6 @@ exports.postSignupInfo = async(req, res, next) => {
         if (req.file) {
             user.profile.picture = req.file.filename;
         }
-        // else {
-        //     user.profile.picture = [
-        //         "genericphoto1.png",
-        //         "genericphoto2.png",
-        //         "genericphoto3.png",
-        //         "genericphoto4.png",
-        //         "genericphoto5.png",
-        //         "genericphoto6.png"
-        //     ][Math.floor(Math.random() * months.length)]
-        // }
 
         await user.save();
         req.flash('success', { msg: 'Profile information has been updated.' });
@@ -189,7 +193,7 @@ exports.postSignupInfo = async(req, res, next) => {
  * POST /account/consent
  * Update user's consent.
  */
-exports.postConsent = async(req, res, next) => {
+exports.postConsent = async (req, res, next) => {
     try {
         const user = await User.findById(req.user.id).exec();
         user.consent = true;
@@ -205,41 +209,23 @@ exports.postConsent = async(req, res, next) => {
  * GET /account
  * Render user's Update My Profile page.
  */
-exports.getAccount = (req, res) => {
-    res.render('account/profile', {
-        title: 'Account Management'
-    });
+exports.getAccount = (req, res, next) => {
+    try {
+        res.render('account/profile', {
+            title: 'Account Management'
+        });
+    }
+    catch (err) {
+        next(err)
+    }
 };
 
-/**
- * GET /me
- * Render user's profile page.
- */
-//- REMOVED: Consolidate all actor profile page retrievals to /user/USERNAME.
-// exports.getMe = async(req, res) => {
-//     try {
-//         const user = await User.findById(req.user.id).exec();
-//         const allPosts = await Script.find()
-//             .where('poster').equals(req.user.id)
-//             .populate('poster')
-//             .populate({
-//                 path: 'comments',
-//                 populate: {
-//                     path: 'commentor'
-//                 }
-//             })
-//             .exec();
-//         res.render('me', { posts: allPosts, title: user.profile.name || user.email || user.id });
-//     } catch (err) {
-//         next(err);
-//     }
-// };
 
 /**
  * POST /account/profile
  * Update user's profile information.
  */
-exports.postUpdateProfile = async(req, res, next) => {
+exports.postUpdateProfile = async (req, res, next) => {
     const validationErrors = [];
     if (!validator.isEmail(req.body.email)) validationErrors.push({ msg: 'Please enter a valid email address.' });
     if (validationErrors.length) {
@@ -273,7 +259,7 @@ exports.postUpdateProfile = async(req, res, next) => {
  * POST /account/password
  * Update user's current password.
  */
-exports.postUpdatePassword = async(req, res, next) => {
+exports.postUpdatePassword = async (req, res, next) => {
     const validationErrors = [];
     if (!validator.isLength(req.body.password, { min: 4 })) validationErrors.push({ msg: 'Password must be at least 4 characters long.' });
     if (validator.escape(req.body.password) !== validator.escape(req.body.confirmPassword)) validationErrors.push({ msg: 'Passwords do not match.' });
@@ -297,7 +283,7 @@ exports.postUpdatePassword = async(req, res, next) => {
  * POST /pageLog
  * Record user's page visit to pageLog.
  */
-exports.postPageLog = async(req, res, next) => {
+exports.postPageLog = async (req, res, next) => {
     try {
         const user = await User.findById(req.user.id).exec();
         user.logPage(Date.now(), req.body.path);
@@ -312,7 +298,7 @@ exports.postPageLog = async(req, res, next) => {
  * POST /pageTimes
  * Record user's time on site to pageTimes.
  */
-exports.postPageTime = async(req, res, next) => {
+exports.postPageTime = async (req, res, next) => {
     try {
         const user = await User.findById(req.user.id).exec();
         // What day in the study is the user in? 
@@ -332,20 +318,26 @@ exports.postPageTime = async(req, res, next) => {
  * GET /forgot
  * Render Forgot Password page.
  */
-exports.getForgot = (req, res) => {
+exports.getForgot = (req, res, next) => {
     if (req.isAuthenticated()) {
         return res.redirect('/');
     }
-    res.render('account/forgot', {
-        title: 'Forgot Password',
-        email: process.env.RESEARCHER_EMAIL
-    });
+    try {
+        res.render('account/forgot', {
+            title: 'Forgot Password',
+            email: process.env.RESEARCHER_EMAIL
+        });
+    }
+    catch (err) {
+        next(err)
+    }
+
 };
 
 /**
  * Deactivate accounts who are completed with the study, except for admin accounts. Called 3 times a day. Scheduled via CRON jobs in app.js
  */
-exports.stillActive = async() => {
+exports.stillActive = async (req, res, next) => {
     try {
         const activeUsers = await User.find().where('active').equals(true).exec();
         for (const user of activeUsers) {
@@ -366,7 +358,7 @@ exports.stillActive = async() => {
  * GET /completed
  * Render Admin Dashboard: Basic information on users currrently in the study
  */
-exports.userTestResults = async(req, res) => {
+exports.userTestResults = async (req, res, next) => {
     if (!req.user.isAdmin) {
         res.redirect('/');
     } else {

@@ -21,8 +21,6 @@ exports.getChat = async(req, res, next) => {
             actorType = 'Agent';
         } else if ((actor = await User.findOne({ username: req.query.chatId }).exec())) {
             actorType = 'User';
-        } else {
-            return next(new Error("Actor not found"));
         }
 
         // If actor or chat is not found, return an empty message array with the actor
@@ -38,7 +36,9 @@ exports.getChat = async(req, res, next) => {
         } else {
             picture = "/profile_pictures/" + actor.profile.picture
         }
-        if (!chat) return res.send({ messages: [], actorType: actorType, username: actor.username, picture: picture, name: actor.profile.name });
+        if (!chat) {
+            return res.send({ messages: [], actorType: actorType, username: actor.username, picture: picture, name: actor.profile.name });
+        }
 
         // Map messages to plain JavaScript objects
         const messages = chat.messages.length ? chat.messages.map(msg => msg.toObject()) : [];
@@ -59,7 +59,7 @@ exports.postChatAction = async(req, res, next) => {
         let chat = await Chat.findOne({ chat_id: req.body.chatFullId }).exec();
         if (!chat) {
             chat = new Chat({
-                chat_id: req.body.chat_id,
+                chat_id: req.body.chatFullId,
                 messages: []
             });
         }

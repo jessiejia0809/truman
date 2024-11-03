@@ -15,7 +15,6 @@ exports.getScript = async(req, res, next) => {
         const one_day = 86400000; // Number of milliseconds in a day.
         const time_now = Date.now(); // Current date.
         const time_diff = time_now - req.user.createdAt; // Time difference between now and user account creation, in milliseconds.
-        const time_limit = time_diff - one_day; // Date in milliseconds 24 hours ago from now. This is used later to show posts only in the past 24 hours.
 
         const user = await User.findById(req.user.id).exec();
 
@@ -32,7 +31,7 @@ exports.getScript = async(req, res, next) => {
             });
         }
 
-        // What day in the study is the user in? 
+        // What day in the study is the user in?
         // Update study_days, which tracks the number of time user views feed.
         const current_day = Math.floor(time_diff / one_day);
         if (current_day < process.env.NUM_DAYS) {
@@ -40,7 +39,7 @@ exports.getScript = async(req, res, next) => {
             user.save();
         }
 
-        // Array of actor and other user's posts that match the user's experimental condition, within the past 24 hours, sorted by descending time. 
+        // Array of actor and other user's posts that match the user's experimental condition, within the past 24 hours, sorted by descending time.
         let script_feed = await Script.find({
                 class: { "$in": ["", user.experimentalCondition] }
             })
@@ -51,12 +50,11 @@ exports.getScript = async(req, res, next) => {
                     path: 'commentor'
                 }
             })
-            // .where('time').lte(time_diff).gte(time_limit)
             .where('absTime').lte(time_now)
             .sort('-absTime')
             .exec();
         // Get the newsfeed and render it.
-        const finalfeed = helpers.getFeed(script_feed, user, process.env.FEED_ORDER, (process.env.REMOVE_FLAGGED_CONTENT == 'TRUE'), true);
+        const finalfeed = helpers.getFeed(next, script_feed, user, process.env.FEED_ORDER, (process.env.REMOVE_FLAGGED_CONTENT == 'TRUE'), true);
         console.log("Script Size is now: " + finalfeed.length);
         res.render('script', { script: finalfeed, showNewPostIcon: true });
     } catch (err) {
@@ -68,7 +66,7 @@ exports.getScript = async(req, res, next) => {
  * Post /post/new
  * Record a new user-made post. Include any actor replies (comments) that go along with it.
  */
-exports.newPost = async(req, res) => {
+exports.newPost = async (req, res, next) => {
     try {
         const user = await User.findById(req.user.id).exec();
         user.numPosts = user.numPosts + 1; // Count begins at 0
@@ -91,50 +89,6 @@ exports.newPost = async(req, res) => {
         const new_post = new Script(post);
         await new_post.save();
 
-        // TO DO: Remove below code once we no longer need pre-populated replies
-
-        // // Get the newly added post from Script
-        // let postID = await Script.find()
-        //     .where('poster').equals(req.user.id)
-        //     .where('postID').equals(user.numPosts)
-        //     .exec()
-        // postID = postID[0]
-
-        // // Find any Actor replies (comments) that go along with this post
-        // const actor_replies = await Notification.find()
-        //     .where('userPostID').equals(post.postID)
-        //     .where('notificationType').equals('reply')
-        //     .populate('actor').exec();
-
-        // // If there are Actor replies (comments) that go along with this post, add them to comments
-        // if (actor_replies.length > 0) {
-        //     for (const reply of actor_replies) {
-        //         user.numActorReplies = user.numActorReplies + 1; // Count begins at 0
-        //         const tmp_actor_reply = {
-        //             commentType: 'Actor',
-        //             commentor: reply.actor._id,
-        //             post: postID._id,
-        //             body: reply.replyBody,
-        //             commentID: user.numActorReplies,
-        //             time: post.time + reply.time,
-        //             absTime: new Date(user.createdAt.getTime() + post.time + reply.time),
-        //             comments: []
-        //         };
-        //         const comment = new Comment(tmp_actor_reply);
-        //         await comment.save();
-        //     }
-        // }
-
-        // // Retrieve comments for post and add to user's post
-        // const comments = await Comment.find()
-        //     .where('post').equals(postID._id)
-        //     .exec();
-
-        // for (comment of comments) {
-        //     postID.comments.push(comment._id);
-        // }
-
-        // await postID.save()
         res.redirect('/');
     } catch (err) {
         console.log(err)
@@ -144,7 +98,7 @@ exports.newPost = async(req, res) => {
 
 /**
  * POST /feed/
- * Record user's actions on ACTOR/other USER's posts. 
+ * Record user's actions on ACTOR/other USER's posts.
  */
 exports.postUpdateFeedAction = async(req, res, next) => {
     try {
@@ -243,7 +197,7 @@ exports.postUpdateFeedAction = async(req, res, next) => {
                 user.commentAction[commentIndex].flagged = false;
             }
 
-            // User shared the comment. 
+            // User shared the comment.
             else if (req.body.share) {
                 const share = req.body.share;
                 user.commentAction[commentIndex].shareTime.push(share);
@@ -283,7 +237,7 @@ exports.postUpdateFeedAction = async(req, res, next) => {
                 post.likes--;
                 user.numPostLikes--;
             }
-            // User shared the post. 
+            // User shared the post.
             else if (req.body.share) {
                 const share = req.body.share;
                 user.postAction[postIndex].shareTime.push(share);

@@ -228,7 +228,6 @@ app.get('/account/signup_info', passportConfig.isAuthenticated, function(req, re
 app.post('/account/signup_info_post', passportConfig.isAuthenticated, useravatarupload.single('picinput'), userController.postSignupInfo);
 app.post('/account/consent', passportConfig.isAuthenticated, userController.postConsent);
 
-// app.get('/me', passportConfig.isAuthenticated, userController.getMe);
 app.get('/user/:userId', passportConfig.isAuthenticated, actorsController.getActor);
 app.post('/user', passportConfig.isAuthenticated, actorsController.postBlockReportOrFollow);
 app.get('/actors', passportConfig.isAuthenticated, actorsController.getActors)
