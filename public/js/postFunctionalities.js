@@ -244,7 +244,7 @@ function addComment(e) {
         <div class="comment" commentID=${commentID}>
             <a class="avatar"><img src="${ava_img}"></a>
             <div class="content"> 
-                <a href="/me">${ava_name}</a>
+                <a href="/user/${ava_name}">${ava_name}</a>
                 <div class="metadata"> 
                     <span class="date">${humanized_time_span(currDate)}</span>
                     <i class="heart icon"></i> 
