@@ -1,18 +1,19 @@
-const bcrypt = require('@node-rs/bcrypt');
-const crypto = require('crypto');
-const mongoose = require('mongoose');
+const bcrypt = require("@node-rs/bcrypt");
+const crypto = require("crypto");
+const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-const dotenv = require('dotenv');
-dotenv.config({ path: '.env' });
+const dotenv = require("dotenv");
+dotenv.config({ path: ".env" });
 
-const sessionSchema = new mongoose.Schema({
+const sessionSchema = new mongoose.Schema(
+  {
+    sessionID: String,
 
-  sessionID: String,
-
-  // List of posts made by users in current session
-  posts: [{ type: Schema.ObjectId, ref: 'Posts' }],
-
-}, { timestamps: true, versionKey: false });
+    // List of posts made by users in current session
+    posts: [{ type: Schema.ObjectId, ref: "Posts" }],
+  },
+  { timestamps: true, versionKey: false },
+);
 
 /**
  * Helper method for getting all User Posts.
@@ -30,13 +31,12 @@ sessionSchema.methods.getPosts = function getPosts() {
   return ret;
 };
 
-
 // Get user posts within the min/max time period
 sessionSchema.methods.getPostInPeriod = function (min, max) {
   return this.posts.filter(function (post) {
     return post.relativeTime >= min && post.relativeTime <= max;
   });
-}
+};
 
-const Session = mongoose.model('Session', sessionSchema);
+const Session = mongoose.model("Session", sessionSchema);
 module.exports = Session;
