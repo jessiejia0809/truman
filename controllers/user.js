@@ -133,6 +133,8 @@ exports.postSignup = async (req, res, next) => {
     validator.escape(req.body.confirmPassword)
   )
     validationErrors.push({ msg: "Passwords do not match." });
+  if (validator.isEmpty(req.body.sessionID, { ignore_whitespace: true }))
+    validationErrors.push({ msg: "Must specify session ID." });
   if (validationErrors.length) {
     req.flash("errors", validationErrors);
     return res.redirect("/signup");
@@ -143,12 +145,26 @@ exports.postSignup = async (req, res, next) => {
 
   try {
     const existingUser = await User.findOne({
-      $or: [{ email: req.body.email }, { mturkID: req.body.mturkID }],
+      $or: [
+        { username: req.body.username },
+        { email: req.body.email },
+        { mturkID: req.body.mturkID },
+      ],
     }).exec();
     if (existingUser) {
-      req.flash("errors", {
-        msg: "An account with that email address or MTurkID already exists.",
-      });
+      if (existingUser.username === req.body.username) {
+        req.flash("errors", {
+          msg: "An account with that username already exists.",
+        });
+      } else if (existingUser.email === req.body.email) {
+        req.flash("errors", {
+          msg: "An account with that email address already exists.",
+        });
+      } else {
+        req.flash("errors", {
+          msg: "An account with that MTurkID already exists.",
+        });
+      }
       return res.redirect("/signup");
     }
     /*###############################
@@ -175,6 +191,7 @@ exports.postSignup = async (req, res, next) => {
       email: req.body.email,
       password: req.body.password,
       mturkID: req.body.mturkID,
+      sessionID: req.body.sessionID,
       username: req.body.username,
       experimentalCondition: experimentalCondition,
       endSurveyLink: surveyLink,
