@@ -146,6 +146,7 @@ app.use((req, res, next) => {
   // This allows us to not check CSRF when uploading an image file. It's a weird issue that multer and lusca do not play well together.
   if (
     req.path === "/post/new" ||
+    req.path === "/actors/new" ||
     req.path === "/account/profile" ||
     req.path === "/account/signup_info_post"
   ) {
@@ -307,7 +308,16 @@ app.post(
   actorsController.postBlockReportOrFollow,
 );
 app.get("/actors", passportConfig.isAuthenticated, actorsController.getActors);
-app.post('/actors/new', useravatarupload.single('picinput'), actorsController.postNewActor);
+app.get(
+  "/actors/new",
+  passportConfig.isAuthenticated,
+  actorsController.getNewActor,
+);
+app.post(
+  "/actors/new",
+  useravatarupload.single("picinput"),
+  actorsController.postNewActor,
+);
 
 app.get("/feed", passportConfig.isAuthenticated, scriptController.getScript);
 app.post(

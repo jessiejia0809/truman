@@ -5,7 +5,7 @@ const actorSchema = new mongoose.Schema(
   {
     sessionID: String,
 
-    username: String,
+    username: { type: String, unique: true },
 
     profile: {
       name: { type: String, default: "" },

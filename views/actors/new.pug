@@ -1,4 +1,4 @@
-extends ./ui_layout
+extends ../ui_layout
 
 block content
   .twelve.wide.computer.tablet.sixteen.wide.mobile.column(style="margin-top: 2em; margin-bottom: 2em;")
@@ -7,7 +7,7 @@ block content
     form.ui.large.form(action='/actors/new', method='POST', enctype='multipart/form-data')
       input(type='hidden', name='_csrf', value=_csrf)
       .field.image-upload
-        p(style="font-weight: bold; font-size: medium; margin-bottom: 0.2em") Profile Picture 
+        p(style="font-weight: bold; font-size: medium; margin-bottom: 0.2em") Profile Picture
           span(style="font-weight: normal") (Click to Change)
         label(for='picinput', style="width: fit-content")
           if user.profile.picture
@@ -22,6 +22,12 @@ block content
         .ten.wide.field
           label(for='name') Name
           input.form-control(type='text', name='name', id='name')
+        .ten.wide.field
+          label(for='actorType') Type
+          select#actorType.form-control(name='actorType' required)
+            option(value="") --Actor Type--
+            option(value="Actor", selected=actorType == "Actor") Actor
+            option(value="Agent", selected=actorType == "Agent") Agent
       .inline.fields(style='padding-top: 10px !important;')
         .six.wide.field
           label(for='gender') Gender
@@ -37,9 +43,3 @@ block content
         textarea(rows='2', name='bio', id='bio')=user.profile.bio
       .ui.buttons
         button.ui.large.positive.button(type='submit') Save
-
-  //- script.
-  //-   $('form').on('submit', function(event) {
-  //-     event.preventDefault(); 
-  //-     window.location.href = '/'; 
-  //-   });
