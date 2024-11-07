@@ -1,5 +1,5 @@
 .computer.only.tablet.only.row
-  .ui.borderless.fixed.menu#session(sessionID=user.sessionID)
+  .ui.borderless.fixed.menu#session(sessionID=user === undefined ? "" : user.sessionID)
     .ui.container
       a.item(href= user===undefined ? (process.env.POST_SURVEY_WITH_QUALTRICS ? `/?r_id=${r_id}`: '/' ): (user.consent ? "/": "#"))
         img.ui.tiny.image(src=process.env.SITE_LOGO, id='logo')
@@ -31,7 +31,7 @@
                 a.item(href='/com') View Community Rules
               a.item.logoutLink Log Out
 .mobile.only.row
-  .ui.fluid.top.fixed.four.item.menu#session(sessionID=user.sessionID)
+  .ui.fluid.top.fixed.four.item.menu#session(sessionID=user === undefined ? "" : user.sessionID)
     a.item(href=user===undefined ? (process.env.POST_SURVEY_WITH_QUALTRICS ? `/?r_id=${r_id}`: '/' ): (user.consent ? "/": "#"))
       img.ui.tiny.image(src=process.env.SITE_LOGO, id='mobile_logo')
     if !user
