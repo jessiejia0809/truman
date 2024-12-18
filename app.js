@@ -317,6 +317,12 @@ app.post(
 );
 
 app.get("/feed", passportConfig.isAuthenticated, scriptController.getScript);
+
+app.post(
+  "/action",
+  scriptController.getAction,
+);
+
 app.post(
   "/feed",
   passportConfig.isAuthenticated,

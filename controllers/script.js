@@ -5,6 +5,7 @@ const helpers = require("./helpers");
 const _ = require("lodash");
 const dotenv = require("dotenv");
 dotenv.config({ path: ".env" });
+const mongoose = require("mongoose");
 
 /**
  * GET /
@@ -78,6 +79,59 @@ exports.getScript = async (req, res, next) => {
   }
 };
 
+
+/**
+ * GET /action
+ * Processes model output and adds it to the feed.
+ */
+exports.getAction = async (req, res, next) => {
+  try {
+    const modelOutput = req.body.input;
+    const { action, author, actionObject, actionBody, timestamp } = modelOutput;
+
+    // Find the user corresponding to the author
+    const user = await User.findOne({ username: author }).exec();
+    const feedActionRequest = {}
+    feedActionRequest.user = { id: user._id };
+
+    // Map the action to the appropriate field
+    if (action === "post") {
+      feedActionRequest.body = { body: actionBody }
+      await exports.newPost(feedActionRequest, res, next);
+    } else {
+      const post = await Script.findById(actionObject).exec();
+      if (!post) { // if post not found, then create a comment request
+        const comment = await Comment.findById(actionObject).exec();
+        feedActionRequest.body = {
+          postID: comment.post,
+          commentID: actionObject,
+        };
+      }
+      else {
+        feedActionRequest.body = {
+          postID: actionObject,
+        };
+      }
+      if (action === "comment") {
+        feedActionRequest.body.new_comment = timestamp;
+        feedActionRequest.body.comment_text = actionBody;
+      } else if (action === "like") {
+        feedActionRequest.body.like = timestamp;
+      } else if (action === "flag") {
+        feedActionRequest.body.flag = timestamp;
+      } else if (action === "share") {
+        feedActionRequest.body.share = timestamp;
+      }
+      // Call postUpdateFeedAction to process the request
+      await exports.postUpdateFeedAction(feedActionRequest, res, next);
+    }
+
+  } catch (err) {
+    next(err);
+  }
+};
+
+
 /*
  * Post /post/new
  * Record a new user-made post. Include any actor replies (comments) that go along with it.
@@ -144,7 +198,7 @@ exports.postUpdateFeedAction = async (req, res, next) => {
     if (postIndex == -1) {
       postIndex = user.postAction.push({ post: post._id }) - 1;
     }
-
+    console.log(req.body)
     // User created a new comment on the post.
     if (req.body.new_comment) {
       // Add new comment to comment database
