@@ -146,6 +146,7 @@ exports.newPost = async (req, res, next) => {
     let post = {
       postType: "User",
       poster: req.user.id,
+      sessionID: user.sessionID,
       postID: user.numPosts,
       body: req.body.body,
       picture: req.file ? req.file.filename : "",
@@ -207,6 +208,7 @@ exports.postUpdateFeedAction = async (req, res, next) => {
         commentType: "User",
         commentor: req.user.id,
         commentID: user.numComments,
+        sessionID: user.sessionID,
         post: req.body.postID,
         body: req.body.comment_text,
         time: req.body.new_comment - user.createdAt,

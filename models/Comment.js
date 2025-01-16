@@ -5,6 +5,7 @@ dotenv.config({ path: ".env" });
 
 const commentSchema = new mongoose.Schema(
   {
+    sessionID: String, // ID of session that comment was made in
     commentType: {
       type: String,
       required: true,

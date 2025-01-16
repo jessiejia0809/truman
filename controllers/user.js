@@ -3,7 +3,7 @@ const validator = require("validator");
 const dotenv = require("dotenv");
 dotenv.config({ path: ".env" }); // See the file .env.example for the structure of .env
 const User = require("../models/User");
-const Script = require("../models/Script");
+const Session = require("../models/Session");
 
 /**
  * GET /login
@@ -178,20 +178,25 @@ exports.postSignup = async (req, res, next) => {
 
     const surveyLink = process.env.POST_SURVEY
       ? process.env.POST_SURVEY +
-        (process.env.POST_SURVEY_WITH_QUALTRICS == "TRUE" &&
+      (process.env.POST_SURVEY_WITH_QUALTRICS == "TRUE" &&
         process.env.POST_SURVEY.includes("?r_id=") &&
         req.query.r_id != "null" &&
         req.query.r_id &&
         req.query.r_id != "undefined"
-          ? req.query.r_id
-          : "")
+        ? req.query.r_id
+        : "")
       : "";
+
+    const session = new Session({ sessionID: req.body.sessionID })
+    await session.save();
+
+
     const currDate = Date.now();
     const user = new User({
       email: req.body.email,
       password: req.body.password,
       mturkID: req.body.mturkID,
-      sessionID: req.body.sessionID,
+      sessionID: session.sessionID,
       username: req.body.username,
       experimentalCondition: experimentalCondition,
       endSurveyLink: surveyLink,

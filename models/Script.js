@@ -3,6 +3,7 @@ const Schema = mongoose.Schema;
 
 const scriptSchema = new mongoose.Schema(
   {
+    sessionID: String, // ID of session that post was made in
     postType: {
       type: String,
       required: true,
