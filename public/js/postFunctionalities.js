@@ -304,6 +304,14 @@ function followUser(e) {
   }
 }
 
+function populatePost(e) {
+
+  $.post("/action", {
+    input: { "action": "post", "author": "user3", "actionObject": null, "actionBody": "This is a test post.", "timestamp": "01/17/2025 14:00:00" },
+    _csrf: $('meta[name="csrf-token"]').attr("content"),
+  });
+}
+
 $(window).on("load", () => {
   // add humanized time to all posts
   $(".right.floated.time.meta, .date").each(function () {
@@ -327,6 +335,8 @@ $(window).on("load", () => {
       $(this).parents(".ui.form").siblings("i.big.send.link.icon").click();
     }
   });
+
+  $(".generate.post.button").on("click", populatePost)
 
   // Create a new Comment
   $("i.big.send.link.icon").on("click", addComment);
