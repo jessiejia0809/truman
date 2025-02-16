@@ -28,7 +28,7 @@ block content
               span=actor.profile.location
           .two.ui.equal.width.grid
             .ui.basic.primary.follow.button(style="margin: 25px 0px 10px 15px;", actor_un=actor.username)
-              if user.followed.includes(actor.username)
+              if user.followed.findIndex(({actorId}) => actor._id.equals(actorId)) !== -1
                 i.check.icon
                 | Following
               else
@@ -113,7 +113,6 @@ block content
 
 block scripts
   script.
-    let numComments = !{JSON.stringify(user.numComments)};
     let isBlocked = !{JSON.stringify(isBlocked)};
     let isReported = !{JSON.stringify(isReported)};
   script.

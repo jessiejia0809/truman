@@ -1,10 +1,10 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
+const actorTypes = { type: String, enum: ["Actor", "Agent", "User"] };
+
 const actorSchema = new mongoose.Schema(
   {
-    sessionID: String,
-
     username: { type: String, unique: true },
 
     profile: {
@@ -16,17 +16,32 @@ const actorSchema = new mongoose.Schema(
 
     active: { type: Boolean, default: true }, // Indicates if the user is still active
 
-    numPosts: { type: Number, default: -1 }, // Indicates the # of user posts the user has made. Count begins at 0.
-    numComments: { type: Number, default: -1 }, // Indicates the # of comments on (user and actor) posts the user has made. This value is used for indexing and the commentID of user comments on (user and actor) posts. Count begins at 0.
-
-    numPostLikes: { type: Number, default: 0 }, // Indicates the # of posts liked. Count begins at 1.
-    numCommentLikes: { type: Number, default: 0 }, // Indicates the # of comments liked. Count begins at 1.
+    posts: [{ type: Schema.ObjectId, ref: "Script" }],
+    comments: [{ type: Schema.ObjectId, ref: "Comment" }],
 
     createdAt: Date, // Absolute Time the user was created
 
-    blocked: [String], // List of usernames of the user has blocked
-    reported: [String], // List of usernames of the user has reported
-    followed: [String], // List of usernames of the user has followed
+    blocked: [
+      {
+        // List of actors the user has blocked
+        actorType: { ...actorTypes, required: true },
+        actorId: { type: Schema.ObjectId, refPath: "blocked.actorType" },
+      },
+    ],
+    reported: [
+      {
+        // List of actors the user has reported
+        actorType: { ...actorTypes, required: true },
+        actorId: { type: Schema.ObjectId, refPath: "reported.actorType" },
+      },
+    ],
+    followed: [
+      {
+        // List of actors the user has followed
+        actorType: { ...actorTypes, required: true },
+        actorId: { type: Schema.ObjectId, refPath: "followed.actorType" },
+      },
+    ],
     blockReportAndFollowLog: [
       new Schema({
         time: Date, // Absolute Time of action

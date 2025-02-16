@@ -1,8 +1,5 @@
 const Chat = require("../models/Chat.js");
-const { Actor } = require("../models/Actor.js");
-const Agent = require("../models/Agent.js");
-const User = require("../models/User.js");
-const _ = require("lodash");
+const helpers = require("./helpers.js");
 
 /**
  * GET /chat
@@ -15,19 +12,9 @@ exports.getChat = async (req, res, next) => {
       .populate("messages.messenger")
       .exec();
 
-    // Sequentially find the actor as an Actor, Agent, or User, setting type accordingly
-    let actor, actorType;
-    if ((actor = await Actor.findOne({ username: req.query.chatId }).exec())) {
-      actorType = "Actor";
-    } else if (
-      (actor = await Agent.findOne({ username: req.query.chatId }).exec())
-    ) {
-      actorType = "Agent";
-    } else if (
-      (actor = await User.findOne({ username: req.query.chatId }).exec())
-    ) {
-      actorType = "User";
-    }
+    const { actor, actorType } = await helpers.lookupActorByName(
+      req.query.chatId,
+    );
 
     // If actor or chat is not found, return an empty message array with the actor
     if (!actor) return next(new Error("Actor not found"));
@@ -82,18 +69,9 @@ exports.postChatAction = async (req, res, next) => {
         messages: [],
       });
     }
-    // Sequentially find the actor as an Actor, Agent, or User, setting type accordingly
-    let actor, actorType;
-    if ((actor = await Agent.findOne({ username: req.body.username }).exec())) {
-      actorType = "Agent";
-    } else if (
-      (actor = await User.findOne({ username: req.body.username }).exec())
-    ) {
-      actorType = "User";
-    } else {
-      return next(new Error("Actor not found"));
-    }
-
+    const { actor, actorType } = await helpers.lookupActorByName(
+      req.query.chatId,
+    );
     actor.chatAction.push(chat.id);
 
     const cat = {

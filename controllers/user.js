@@ -2,6 +2,7 @@ const passport = require("passport");
 const validator = require("validator");
 const dotenv = require("dotenv");
 dotenv.config({ path: ".env" }); // See the file .env.example for the structure of .env
+const helpers = require("./helpers");
 const User = require("../models/User");
 const Session = require("../models/Session");
 
@@ -83,6 +84,8 @@ exports.logout = (req, res, next) => {
   try {
     req.logout((err) => {
       if (err) console.log("Error : Failed to logout.", err);
+      // Extract the Express session id
+      const sessionId = req.session.id;
       req.session.destroy((err) => {
         if (err)
           console.log(
@@ -90,6 +93,8 @@ exports.logout = (req, res, next) => {
             err,
           );
         req.user = null;
+        // disconnect all sockets linked to the Express session id
+        req.io.in(sessionId).disconnectSockets();
         res.redirect("/");
       });
     });
@@ -133,7 +138,7 @@ exports.postSignup = async (req, res, next) => {
     validator.escape(req.body.confirmPassword)
   )
     validationErrors.push({ msg: "Passwords do not match." });
-  if (validator.isEmpty(req.body.sessionID, { ignore_whitespace: true }))
+  if (validator.isEmpty(req.body.sessionName, { ignore_whitespace: true }))
     validationErrors.push({ msg: "Must specify session ID." });
   if (validationErrors.length) {
     req.flash("errors", validationErrors);
@@ -178,25 +183,27 @@ exports.postSignup = async (req, res, next) => {
 
     const surveyLink = process.env.POST_SURVEY
       ? process.env.POST_SURVEY +
-      (process.env.POST_SURVEY_WITH_QUALTRICS == "TRUE" &&
+        (process.env.POST_SURVEY_WITH_QUALTRICS == "TRUE" &&
         process.env.POST_SURVEY.includes("?r_id=") &&
         req.query.r_id != "null" &&
         req.query.r_id &&
         req.query.r_id != "undefined"
-        ? req.query.r_id
-        : "")
+          ? req.query.r_id
+          : "")
       : "";
 
-    const session = new Session({ sessionID: req.body.sessionID })
-    await session.save();
-
+    let session = await Session.findOne({ name: req.body.sessionName }).exec();
+    if (!session) {
+      session = new Session({ name: req.body.sessionName });
+      await session.save();
+    }
 
     const currDate = Date.now();
     const user = new User({
       email: req.body.email,
       password: req.body.password,
       mturkID: req.body.mturkID,
-      sessionID: session.sessionID,
+      session: session.id,
       username: req.body.username,
       experimentalCondition: experimentalCondition,
       endSurveyLink: surveyLink,
@@ -370,6 +377,7 @@ exports.postPageTime = async (req, res, next) => {
     const one_day = 86400000; // number of milliseconds in a day
     const time_diff = Date.now() - user.createdAt; // Time difference between now and account creation.
     const current_day = Math.floor(time_diff / one_day);
+    helpers.ensureDays(user.pageTimes, current_day);
     user.pageTimes[current_day] += parseInt(req.body.time);
     await user.save();
     res.set("Content-Type", "application/json; charset=UTF-8");
@@ -439,6 +447,22 @@ exports.userTestResults = async (req, res, next) => {
       res.render("completed", { users: users });
     } catch (err) {
       next(err);
+    }
+  }
+};
+
+exports.joinRooms = async (socket) => {
+  const req = socket.request;
+
+  // Use the socket session id as a Socket.io room that links Express with Socket.io
+  socket.join(req.session.id);
+
+  const passport = req.session.passport;
+  if (passport) {
+    const user = await User.findById(passport.user).exec();
+    if (user.session) {
+      // Join a socket.io room for the session the user is in
+      socket.join(user.session._id.toString());
     }
   }
 };

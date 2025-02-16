@@ -1,23 +1,19 @@
 const dotenv = require("dotenv");
 dotenv.config({ path: ".env" });
 
-const Script = require("./models/Script.js");
 const User = require("./models/User.js");
-const Actor = require("./models/Actor.js");
 const mongoose = require("mongoose");
-const fs = require("fs");
 const createCsvWriter = require("csv-writer").createObjectCsvWriter;
 
 // Console.log color shortcuts
 const color_start = "\x1b[33m%s\x1b[0m"; // yellow
 const color_success = "\x1b[32m%s\x1b[0m"; // green
-const color_error = "\x1b[31m%s\x1b[0m"; // red
 
 /**
  * Connect to MongoDB.
  */
 mongoose.connect(process.env.MONGODB_URI);
-db = mongoose.connection;
+const db = mongoose.connection;
 db.on("error", (err) => {
   console.error(err);
   console.log(

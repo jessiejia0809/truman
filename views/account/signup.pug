@@ -15,8 +15,8 @@ block content
           label(for='mturkID') !{process.env.IDENTIFIER}
           input(type='text', name='mturkID', id='mturkID', placeholder=process.env.IDENTIFIER, required)
         .field
-          label(for='sessionID') Session ID
-          input(type='text', name='sessionID', id='sessionID', placeholder='Session ID', required)
+          label(for='sessionName') Session Name
+          input(type='text', name='sessionName', id='sessionName', placeholder='Session Name', required)
         .field
           label(for='email') Email (will not be publicly displayed)
           input(type='email', name='email', id='email', placeholder='Email', required)
@@ -24,16 +24,16 @@ block content
           label(for='password') Password
           input(type='password', name='password', id='password', placeholder='Password', minlength="4", required)
         .field
-          label(for='confirmPassword') Confirm Password 
+          label(for='confirmPassword') Confirm Password
           input(type='password', name='confirmPassword', id='confirmPassword', placeholder='Confirm Password', minlength="4", required)
-          span(style="color: green; visibility:hidden; display: inline-block;")#passwordsMatch  
-            i.icon.check 
+          span(style="color: green; visibility:hidden; display: inline-block;")#passwordsMatch
+            i.icon.check
             | Passwords Match
         .field
           .ui.checkbox
             input(type='checkbox', name='tos', tabindex="0", id='tos', required)
             label(for='tos')
-              | I agree to the 
+              | I agree to the
               a(href='/tos', target="_blank") Terms and Conditions.
         button.ui.large.button(type='submit') Sign Up
 

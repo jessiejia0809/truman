@@ -1,201 +1,189 @@
+const { Actor } = require("../models/Actor.js");
+const Agent = require("../models/Agent.js");
+const User = require("../models/User.js");
+const Script = require("../models/Script.js");
 const _ = require("lodash");
 
 // From https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
 // Function shuffles the content of an array and returns the shuffled array.
 function shuffle(array) {
-    let currentIndex = array.length,
-        randomIndex;
-    // While there remain elements to shuffle.
-    while (currentIndex != 0) {
-        // Pick a remaining element.
-        randomIndex = Math.floor(Math.random() * currentIndex);
-        currentIndex--;
-        // And swap it with the current element.
-        [array[currentIndex], array[randomIndex]] = [
-            array[randomIndex],
-            array[currentIndex],
-        ];
-    }
-    return array;
+  let currentIndex = array.length,
+    randomIndex;
+  // While there remain elements to shuffle.
+  while (currentIndex != 0) {
+    // Pick a remaining element.
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex--;
+    // And swap it with the current element.
+    [array[currentIndex], array[randomIndex]] = [
+      array[randomIndex],
+      array[currentIndex],
+    ];
+  }
+  return array;
 }
 
 /**
  * This is a helper function, called in .getScript() (./script.js controller file), .getActor() (./actors.js controller file).
- * It takes in a list of user and actor posts, a User document, and other parameters, and it processes and generates a final feed of posts for the user based on these parameters.
+ * It takes in a User document, and other parameters, and it processes and generates a final feed of posts for the user based on these parameters.
  * Parameters:
- *  - script_feed: list of all posts, typically from a call to the database: Script.find(...)
  *  - user: a User document
  *  - order: 'SHUFFLE', 'CHRONOLOGICAL'; indicates the order the posts in the final feed should be displayed in.
  *  - removedFlaggedContent (boolean): T/F; indicates if a flagged post should be removed from the final feed.
- *  - removedBlockedUserContent (boolean): T/F; indicates if posts from a blocked user should be removed from the final feed.
+ *  - removeBlockedUserContent (boolean): T/F; indicates if posts from a blocked user should be removed from the final feed.
+ *  - actor (Actor/Agent/User): if provided restrict the posts to those from the passed in actor.
  * Returns:
- *  - finalfeed: the processed final feed of posts for the user
+ *  - the processed final feed of posts for the user
  */
-exports.getFeed = function(
-    next,
-    script_feed,
-    user,
-    order,
-    removeFlaggedContent,
-    removedBlockedUserContent,
+exports.getFeed = async function (
+  user,
+  order,
+  removeFlaggedContent,
+  removeBlockedUserContent,
+  showFutureContent,
+  actor,
 ) {
-    try {
-        // Array of posts for the final feed
-        let finalfeed = [];
-        // Array of seen and unseen posts, used when order=='shuffle' so that unseen posts appear before seen posts on the final feed.
-        let finalfeed_seen = [];
-        let finalfeed_unseen = [];
+  const commonQuery = {
+    $or: [{ session: null }, { session: user.session }],
+    class: { $in: ["", user.experimentalCondition] },
+    ...(showFutureContent ? {} : { absTime: { $lte: Date.now() } }),
+  };
+  const makeBlockedQuery = (field) => {
+    return removeBlockedUserContent
+      ? { [field]: { $nin: user.blocked.map(({ actorId }) => actorId) } }
+      : {};
+  };
+  const flaggedPosts = removeFlaggedContent
+    ? user.postAction
+        .filter((action) => action.flagged)
+        .map((action) => action.post)
+    : [];
+  const flaggedComments = removeFlaggedContent
+    ? user.commentAction
+        .filter((action) => action.flagged)
+        .map((action) => action.comment)
+    : [];
 
-        // While there are actor posts or user posts to add to the final feed
-        while (script_feed.length) {
-            // If the post is not an actor post and its sessionID doesn't match the sessionID of the current user, remove the post from the final feed
-            if (
-                script_feed[0].postType !== "Actor" &&
-                script_feed[0].poster.sessionID != user.sessionID
-            ) {
-                script_feed.splice(0, 1);
-                continue;
-            }
+  // Array of actor and other user's posts that match the user's experimental condition, within the past 24 hours, sorted by time.
+  const posts = await Script.find({
+    _id: { $nin: flaggedPosts },
+    ...(actor ? { poster: actor.id } : {}),
+    ...makeBlockedQuery("poster"),
+    ...commonQuery,
+  })
+    .populate("poster")
+    .populate({
+      path: "comments",
+      populate: { path: "commentor" },
+      match: {
+        _id: { $nin: flaggedComments },
+        ...makeBlockedQuery("commentor"),
+        ...commonQuery,
+      },
+    })
+    .sort("absTime")
+    .exec();
 
-            // Filter comments to include only comments labeled with the experimental condition the user is in.
-            script_feed[0].comments = script_feed[0].comments.filter(
-                (comment) =>
-                (!comment.class || comment.class == user.experimentalCondition)
-            );
+  // Array of posts for the final feed
+  const feed = [];
+  // Array of seen and unseen posts, used when order=='shuffle' so that unseen posts appear before seen posts on the final feed.
+  const feed_seen = [];
+  const feed_unseen = [];
 
-            // Filter comments to include only comments that match the sessionID of the current user.
-            script_feed[0].comments = script_feed[0].comments.filter(
-                (comment) =>
-                (comment.commentType !== "Actor" ? comment.commentor.sessionID == user.sessionID : true)
-            );
-
-            // Filter comments to include only past simulated comments, not future simulated comments.
-            script_feed[0].comments = script_feed[0].comments.filter(
-                (comment) => comment.absTime.getTime() < Date.now(),
-            );
-
-            // Check if user has any interactions with comments
-            for (const commentObject of script_feed[0].comments) {
-                // update comment likes with likes from actors
-                commentObject.likes += commentObject.actorLikes;
-                // check if user has interacted with this comment
-                const commentIndex = _.findIndex(user.commentAction, function(o) {
-                    return o.comment.equals(commentObject._id);
-                });
-                if (commentIndex != -1) {
-                    // Check if this comment has been liked by the user. If true, update the comment in the post.
-                    if (user.commentAction[commentIndex].liked) {
-                        commentObject.liked = true;
-                    }
-                    // Check if this comment has been flagged by the user. If true, remove the comment from the post.
-                    if (user.commentAction[commentIndex].flagged) {
-                        if (removeFlaggedContent) {
-                            script_feed[0].comments.splice(
-                                script_feed[0].comments.indexOf(commentObject),
-                                1,
-                            );
-                        } else {
-                            commentObject.flagged = true;
-                        }
-                    }
-                }
-                // Check if this comment is by a blocked user: If true and removedBlockedUserContent is true, remove the comment.
-                if (
-                    user.blocked.includes(commentObject.commentor.username) &&
-                    removedBlockedUserContent
-                ) {
-                    script_feed[0].comments.splice(
-                        script_feed[0].comments.indexOf(commentObject),
-                        1,
-                    );
-                }
-            }
-
-            // Sort the comments in the post from least to most recent.
-            script_feed[0].comments.sort(function(a, b) {
-                return a.absTime - b.absTime;
-            });
-
-            // update post likes with likes from actors
-            script_feed[0].likes += script_feed[0].actorLikes;
-
-            // Check if the user has interacted with this post by checking if a user.postAction.post value matches this script_feed[0]'s _id.
-            // If the user has interacted with this post, add the user's interactions to the post.
-            const feedIndex = _.findIndex(user.postAction, function(o) {
-                return o.post.equals(script_feed[0].id);
-            });
-            if (feedIndex != -1) {
-                // Check if this post has been liked by the user. If true, update the post.
-                if (user.postAction[feedIndex].liked) {
-                    script_feed[0].liked = true;
-                }
-                // Check if this post has been flagged by the user. If true, update the post.
-                if (user.postAction[feedIndex].flagged) {
-                    script_feed[0].flagged = true;
-                }
-                // Check if removeFlaggedContent is true, remove the post.
-                if (user.postAction[feedIndex].flagged && removeFlaggedContent) {
-                    script_feed.splice(0, 1);
-                } // Check if this post is by a blocked user: If true and removedBlockedUserContent is true, remove the post.
-                else if (
-                    user.blocked.includes(script_feed[0].poster.username) &&
-                    removedBlockedUserContent
-                ) {
-                    script_feed.splice(0, 1);
-                } else {
-                    // If the post is neither flagged or from a blocked user, add it to the final feed.
-                    // If the final feed is shuffled, add posts to finalfeed_unseen and finalfeed_seen based on if the user has seen the post before or not.
-                    if (order == "SHUFFLE") {
-                        // Check if there user has viewed the post before.
-                        if (!user.postAction[feedIndex].readTime[0]) {
-                            finalfeed_unseen.push(script_feed[0]);
-                        } else {
-                            finalfeed_seen.push(script_feed[0]);
-                        }
-                    } else {
-                        finalfeed.push(script_feed[0]);
-                    }
-                    script_feed.splice(0, 1);
-                }
-            } // If the user has not interacted with this post:
-            else {
-                if (
-                    user.blocked.includes(script_feed[0].poster.username) &&
-                    removedBlockedUserContent
-                ) {
-                    script_feed.splice(0, 1);
-                } else {
-                    for (const commentObject of script_feed[0].comments) {
-                        // Check if this comment is by a blocked user: If true and removedBlockedUserContent is true, remove the comment.
-                        if (
-                            user.blocked.includes(commentObject.commentor.username) &&
-                            removedBlockedUserContent
-                        ) {
-                            script_feed[0].comments.splice(
-                                script_feed[0].comments.indexOf(commentObject),
-                                1,
-                            );
-                        }
-                    }
-                    if (order == "SHUFFLE") {
-                        finalfeed_unseen.push(script_feed[0]);
-                    } else {
-                        finalfeed.push(script_feed[0]);
-                    }
-                    script_feed.splice(0, 1);
-                }
-            }
+  // While there are posts to add to the feed
+  while (posts.length) {
+    const post = posts.pop();
+    // Check if user has any interactions with comments
+    for (const comment of post.comments) {
+      // update comment likes with likes from actors
+      comment.likes += comment.actorLikes;
+      // check if user has interacted with this comment
+      const commentIndex = _.findIndex(user.commentAction, function (o) {
+        return o.comment.equals(comment._id);
+      });
+      if (commentIndex != -1) {
+        const action = user.commentAction[commentIndex];
+        // Check if this comment has been liked by the user. If true, update the comment in the post.
+        if (action.liked) {
+          comment.liked = true;
         }
-        if (order == "SHUFFLE") {
-            // Shuffle the feed
-            finalfeed_seen = shuffle(finalfeed_seen);
-            finalfeed_unseen = shuffle(finalfeed_unseen);
-            finalfeed = finalfeed_unseen.concat(finalfeed_seen);
+        // Check if this comment has been flagged by the user. If true, remove the comment from the post.
+        if (action.flagged) {
+          comment.flagged = true;
         }
-
-        return finalfeed;
-    } catch (err) {
-        console.log(err);
-        next(err);
+      }
     }
+
+    // Sort the comments in the post from least to most recent.
+    post.comments.sort(function (a, b) {
+      return a.absTime - b.absTime;
+    });
+
+    // update post likes with likes from actors
+    post.likes += post.actorLikes;
+
+    // Check if the user has interacted with this post by checking if a user.postAction.post value matches this post's _id.
+    // If the user has interacted with this post, add the user's interactions to the post.
+    const postIndex = _.findIndex(user.postAction, function (o) {
+      return o.post.equals(post._id);
+    });
+    if (postIndex != -1) {
+      const action = user.postAction[postIndex];
+      // Check if this post has been liked by the user. If true, update the post.
+      if (action.liked) {
+        post.liked = true;
+      }
+      // Check if this post has been flagged by the user. If true, update the post.
+      if (action.flagged) {
+        post.flagged = true;
+      }
+      if (order == "SHUFFLE") {
+        if (!action.readTime[0]) {
+          feed_unseen.push(post);
+        } else {
+          feed_seen.push(post);
+        }
+      } else {
+        feed.push(post);
+      }
+    } // If the user has not interacted with this post:
+    else {
+      if (order == "SHUFFLE") {
+        feed_unseen.push(post);
+      } else {
+        feed.push(post);
+      }
+    }
+  }
+
+  return order == "SHUFFLE"
+    ? // Shuffle the feed
+      shuffle(feed_unseen).concat(shuffle(feed_seen))
+    : feed;
+};
+
+exports.ensureDays = function (day_array, current_day) {
+  if (day_array.length <= current_day) {
+    day_array.push(...Array(current_day - day_array.length + 1).fill(0));
+  }
+};
+
+exports.lookupActorByName = async function (username) {
+  // Sequentially find the actor as an Actor, Agent, or User, setting type accordingly
+  const actor = await Actor.findOne({ username: username }).exec();
+  if (actor) {
+    return { actor, actorType: "Actor" };
+  }
+
+  const agent = await Agent.findOne({ username: username }).exec();
+  if (agent) {
+    return { actor: agent, actorType: "Agent" };
+  }
+
+  const user = await User.findOne({ username: username }).exec();
+  if (user) {
+    return { actor: user, actorType: "User" };
+  }
+
+  throw new Error("Actor not found");
 };

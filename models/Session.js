@@ -1,11 +1,9 @@
 const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
 
 const sessionSchema = new mongoose.Schema(
   {
-    sessionID: { type: String, required: true },
-    description: { type: String, default: "" }, // optional description specifying what is session is used for
-
+    name: { type: String, required: true, unique: true },
+    description: { type: String, default: "" }, // an optional description of the session
   },
   { versionKey: false },
 );

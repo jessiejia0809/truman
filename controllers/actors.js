@@ -1,10 +1,9 @@
 const { Actor } = require("../models/Actor.js");
-const Script = require("../models/Script.js");
 const User = require("../models/User");
 const Agent = require("../models/Agent");
 const helpers = require("./helpers");
-const _ = require("lodash");
 const dotenv = require("dotenv");
+const _ = require("lodash");
 dotenv.config({ path: ".env" }); // See the file .env.example for the structure of .env
 
 /**
@@ -21,15 +20,15 @@ exports.getActors = async (req, res, next) => {
       const agents = await Agent.find().exec();
       res.render("actors", { actors, agents });
     } catch (err) {
-      console.log(err);
+      console.error(err);
       next(err);
     }
   }
 };
 
 /**
- * GET /user/:userId
- * Retrieve the profile and relevant experimental posts of the actor whose username field value matches the query parameter value 'userId'.
+ * GET /user/:username
+ * Retrieve the profile and relevant experimental posts of the actor whose username field value matches the query parameter value 'username'.
  * Process the posts with the helper function .getFeed() in ./helpers.js.
  * Check if the current user has blocked or reported the actor.
  * Render the actor's profile page along with the relevant data.
@@ -37,43 +36,23 @@ exports.getActors = async (req, res, next) => {
 exports.getActor = async (req, res, next) => {
   try {
     const user = await User.findById(req.user.id).exec();
+    const { actor, actorType } = await helpers.lookupActorByName(
+      req.params.username,
+    );
 
-    // Sequentially find the actor as an Actor, Agent, or User, setting type accordingly
-    let actor, actorType;
-    if ((actor = await Actor.findOne({ username: req.params.userId }).exec())) {
-      actorType = "Actor";
-    } else if (
-      (actor = await Agent.findOne({ username: req.params.userId }).exec())
-    ) {
-      actorType = "Agent";
-    } else if (
-      (actor = await User.findOne({ username: req.params.userId }).exec())
-    ) {
-      actorType = "User";
-    } else {
-      return next(new Error("Actor not found"));
-    }
+    const isBlocked =
+      user.blocked.findIndex(({ actorId }) => actor._id.equals(actorId)) !== -1;
+    const isReported =
+      user.reported.findIndex(({ actorId }) => actor._id.equals(actorId)) !==
+      -1;
 
-    const isBlocked = user.blocked.includes(req.params.userId);
-    const isReported = user.reported.includes(req.params.userId);
-
-    const script_feed = await Script.find({
-      poster: actor.id,
-      class: { $in: ["", user.experimentalCondition] },
-      absTime: { $lte: Date.now() },
-    })
-      .sort("-absTime")
-      .populate("poster")
-      .populate({ path: "comments", populate: { path: "commentor" } })
-      .exec();
-
-    const finalFeed = helpers.getFeed(
-      next,
-      script_feed,
+    const finalFeed = await helpers.getFeed(
       user,
       "CHRONOLOGICAL",
       process.env.REMOVE_FLAGGED_CONTENT === "TRUE",
       false,
+      process.env.SHOW_FUTURE_CONTENT === "TRUE",
+      actor,
     );
 
     res.render("actor", {
@@ -85,6 +64,7 @@ exports.getActor = async (req, res, next) => {
       actorType,
     });
   } catch (err) {
+    console.error(err);
     next(err);
   }
 };
@@ -99,8 +79,14 @@ exports.postBlockReportOrFollow = async (req, res, next) => {
     const user = await User.findById(req.user.id).exec();
     // Block an actor
     if (req.body.blocked) {
-      if (!user.blocked.includes(req.body.blocked)) {
-        user.blocked.push(req.body.blocked);
+      const { actor, actorType } = await helpers.lookupActorByName(
+        req.body.blocked,
+      );
+      const index = user.blocked.findIndex(({ actorId }) =>
+        actor._id.equals(actorId),
+      );
+      if (index === -1) {
+        user.blocked.push({ actorId: actor._id, actorType });
       }
       const log = {
         time: currDate,
@@ -111,8 +97,11 @@ exports.postBlockReportOrFollow = async (req, res, next) => {
     }
     // Unblock a user
     else if (req.body.unblocked) {
-      if (user.blocked.includes(req.body.unblocked)) {
-        const index = user.blocked.indexOf(req.body.unblocked);
+      const { actor } = await helpers.lookupActorByName(req.body.unblocked);
+      const index = user.blocked.findIndex(({ actorId }) =>
+        actor._id.equals(actorId),
+      );
+      if (index > -1) {
         user.blocked.splice(index, 1);
       }
       const log = {
@@ -124,8 +113,14 @@ exports.postBlockReportOrFollow = async (req, res, next) => {
     }
     // Report an actor
     else if (req.body.reported) {
-      if (!user.reported.includes(req.body.reported)) {
-        user.reported.push(req.body.reported);
+      const { actor, actorType } = await helpers.lookupActorByName(
+        req.body.reported,
+      );
+      const index = user.reported.findIndex(({ actorId }) =>
+        actor._id.equals(actorId),
+      );
+      if (index === -1) {
+        user.reported.push({ actorId: actor._id, actorType });
       }
       const log = {
         time: currDate,
@@ -137,8 +132,14 @@ exports.postBlockReportOrFollow = async (req, res, next) => {
     }
     // Follow an actor
     else if (req.body.followed) {
-      if (!user.followed.includes(req.body.followed)) {
-        user.followed.push(req.body.followed);
+      const { actor, actorType } = await helpers.lookupActorByName(
+        req.body.followed,
+      );
+      const index = user.followed.findIndex(({ actorId }) =>
+        actor._id.equals(actorId),
+      );
+      if (index === -1) {
+        user.followed.push({ actorId: actor._id, actorType });
       }
       const log = {
         time: currDate,
@@ -148,8 +149,11 @@ exports.postBlockReportOrFollow = async (req, res, next) => {
       user.blockReportAndFollowLog.push(log);
     } // Unfollow an actor
     else if (req.body.unfollowed) {
-      if (user.followed.includes(req.body.unfollowed)) {
-        const index = user.followed.indexOf(req.body.unfollowed);
+      const { actor } = await helpers.lookupActorByName(req.body.unfollowed);
+      const index = user.followed.findIndex(({ actorId }) =>
+        actor._id.equals(actorId),
+      );
+      if (index > -1) {
         user.followed.splice(index, 1);
       }
       const log = {
@@ -175,10 +179,9 @@ exports.getNewActor = async (req, res, next) => {
     res.redirect("/");
   } else {
     try {
-      const actors = await Actor.find().exec();
       res.render("actors/new", { user: req.user });
     } catch (err) {
-      console.log(err);
+      console.error(err);
       next(err);
     }
   }
@@ -188,15 +191,15 @@ exports.getNewActor = async (req, res, next) => {
  * POST /actors/new
  * Create new user with name, gender, age, location, bio, picture, class.
  */
-exports.postNewActor = async (req, res) => {
+exports.postNewActor = async (req, res, next) => {
   const { name, gender, age, location, bio, username, actorType } = req.body;
   const picture = req.file ? req.file.filename : null; // Handle file upload (if using multer)
 
   // Create a new actor based on form data
   const actorDetail = {
-    username: name.toLowerCase().replace(/\s+/g, "_"), // Generate a username (e.g. "john_doe")
+    username: username,
     profile: {
-      name: username,
+      name: name,
       gender: gender,
       age: age,
       location: location,
@@ -211,10 +214,7 @@ exports.postNewActor = async (req, res) => {
   try {
     await actor.save();
   } catch (err) {
-    console.log(
-      color_error,
-      "ERROR: Something went wrong with saving actor in database",
-    );
+    console.error("Something went wrong with saving actor in database");
     next(err);
   }
 

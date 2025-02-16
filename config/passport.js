@@ -21,6 +21,7 @@ passport.deserializeUser(async (id, done) => {
 passport.use(
   new LocalStrategy({ usernameField: "email" }, (email, password, done) => {
     User.findOne({ email: email.toLowerCase() })
+      .populate("session")
       .then((user) => {
         if (!user) {
           return done(null, false, { msg: `Email ${email} not found.` });

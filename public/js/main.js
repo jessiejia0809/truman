@@ -4,6 +4,9 @@ $("#loading").show();
 let isActive = false;
 let activeStartTime;
 
+// Socket for realtime updates (e.g. chat, timeline updates, etc)
+var socket = io();
+
 function resetActiveTimer(loggingOut) {
   if (isActive) {
     const currentTime = new Date();
@@ -38,7 +41,7 @@ $(window).on("load", function () {
   $("#pagegrid").on("mousemove keypress scroll mousewheel", function () {
     //If there hasn't been a "start time" for activity, set it. We use session storage so we can track activity when pages changes too.
     if (!isActive) {
-      activeStartTime = Date.now();
+      activeStartTime = new Date().getTime();
       isActive = true;
     }
     idleTime = 0;

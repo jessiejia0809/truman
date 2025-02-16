@@ -34,7 +34,6 @@ function likePost(e) {
       _csrf: $('meta[name="csrf-token"]').attr("content"),
     });
   }
-  socket.emit("timeline activity", $("#session").attr("sessionID"));
 }
 
 function flagPost(e) {
@@ -134,7 +133,6 @@ function likeComment(e) {
       _csrf: $('meta[name="csrf-token"]').attr("content"),
     });
   }
-  socket.emit("timeline activity", $("#session").attr("sessionID"));
 }
 
 function flagComment(e) {
@@ -238,26 +236,6 @@ function addComment(e) {
     const ava_img = ava.attr("src");
     const ava_name = ava.attr("name");
     const postID = card.attr("postID");
-    const commentID = numComments + 1;
-
-    const mess = `
-        <div class="comment" commentID=${commentID}>
-            <a class="avatar"><img src="${ava_img}"></a>
-            <div class="content"> 
-                <a href="/user/${ava_name}">${ava_name}</a>
-                <div class="metadata"> 
-                    <span class="date">${humanized_time_span(currDate)}</span>
-                    <i class="heart icon"></i> 
-                    <span class="num"> 0 </span> Likes
-                </div> 
-                <div class="text">${text}</div>
-                <div class="actions"> 
-                    <a class="like comment" onClick="likeComment(event)">Like</a> 
-                </div> 
-            </div>
-        </div>`;
-    $(this).siblings(".ui.form").find("textarea.newcomment").val("");
-    comments.append(mess);
 
     $.post("/feed", {
       postID: postID,
@@ -266,10 +244,26 @@ function addComment(e) {
       postClass: postClass,
       _csrf: $('meta[name="csrf-token"]').attr("content"),
     }).then(function (json) {
-      numComments = json.numComments;
+      const mess = `
+          <div class="comment" commentID=${json.commentID}>
+              <a class="avatar"><img src="${ava_img}"></a>
+              <div class="content"> 
+                  <a href="/user/${ava_name}">${ava_name}</a>
+                  <div class="metadata"> 
+                      <span class="date">${humanized_time_span(currDate)}</span>
+                      <i class="heart icon"></i> 
+                      <span class="num"> 0 </span> Likes
+                  </div> 
+                  <div class="text">${text}</div>
+                  <div class="actions"> 
+                      <a class="like comment" onClick="likeComment(event)">Like</a> 
+                  </div> 
+              </div>
+          </div>`;
+      $(this).siblings(".ui.form").find("textarea.newcomment").val("");
+      comments.append(mess);
     });
   }
-  socket.emit("timeline activity", $("#session").attr("sessionID"));
 }
 
 function followUser(e) {
@@ -305,9 +299,14 @@ function followUser(e) {
 }
 
 function populatePost(e) {
-
   $.post("/action", {
-    input: { "action": "post", "author": "user3", "actionObject": null, "actionBody": "This is a test post.", "timestamp": "01/17/2025 14:00:00" },
+    input: {
+      action: "post",
+      author: "user3",
+      actionObject: null,
+      actionBody: "This is a test post.",
+      timestamp: "01/17/2025 14:00:00",
+    },
     _csrf: $('meta[name="csrf-token"]').attr("content"),
   });
 }
@@ -336,7 +335,7 @@ $(window).on("load", () => {
     }
   });
 
-  $(".generate.post.button").on("click", populatePost)
+  $(".generate.post.button").on("click", populatePost);
 
   // Create a new Comment
   $("i.big.send.link.icon").on("click", addComment);

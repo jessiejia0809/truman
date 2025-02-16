@@ -93,21 +93,21 @@ mongoose.connection.on("error", (err) => {
 const rule1 = new schedule.RecurrenceRule();
 rule1.hour = 4;
 rule1.minute = 30;
-const j = schedule.scheduleJob(rule1, function () {
+schedule.scheduleJob(rule1, function () {
   userController.stillActive();
 });
 
 const rule2 = new schedule.RecurrenceRule();
 rule2.hour = 12;
 rule2.minute = 30;
-const j2 = schedule.scheduleJob(rule2, function () {
+schedule.scheduleJob(rule2, function () {
   userController.stillActive();
 });
 
 const rule3 = new schedule.RecurrenceRule();
 rule3.hour = 20;
 rule3.minute = 30;
-const j3 = schedule.scheduleJob(rule3, function () {
+schedule.scheduleJob(rule3, function () {
   userController.stillActive();
 });
 
@@ -122,22 +122,30 @@ app.use(compression());
 app.use(logger("dev"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(
-  session({
-    resave: true,
-    saveUninitialized: true,
-    secret: process.env.SESSION_SECRET,
-    cookie: {
-      path: "/",
-      httpOnly: true,
-      secure: false,
-      maxAge: 86400000, //24 hours
-    },
-    store: MongoStore.create({
-      mongoUrl: process.env.MONGODB_URI,
-    }),
+
+// Create a session middleware that can be shared between
+// Express and socket.io
+const sessionMiddleware = session({
+  resave: true,
+  saveUninitialized: true,
+  secret: process.env.SESSION_SECRET,
+  cookie: {
+    path: "/",
+    httpOnly: true,
+    secure: false,
+    maxAge: 86400000, //24 hours
+  },
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGODB_URI,
+    collectionName: "express-sessions",
   }),
-);
+});
+app.use(sessionMiddleware);
+io.engine.use(sessionMiddleware);
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
@@ -146,6 +154,7 @@ app.use(
     // Multer multipart/form-data handling needs to occur before the Lusca CSRF check.
     // This allows us to not check CSRF when uploading an image file. It's a weird issue that multer and lusca do not play well together.
     blocklist: [
+      "/action",
       "/post/new",
       "/actors/new",
       "/account/profile",
@@ -295,7 +304,7 @@ app.post(
 );
 
 app.get(
-  "/user/:userId",
+  "/user/:username",
   passportConfig.isAuthenticated,
   actorsController.getActor,
 );
@@ -318,10 +327,7 @@ app.post(
 
 app.get("/feed", passportConfig.isAuthenticated, scriptController.getScript);
 
-app.post(
-  "/action",
-  scriptController.getAction,
-);
+app.post("/action", scriptController.postAction);
 
 app.post(
   "/feed",
@@ -347,7 +353,7 @@ app.use(function (req, res, next) {
 });
 
 // Error handler
-app.use(function (err, req, res, next) {
+app.use(function (err, req, res) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get("env") === "development" ? err : {};
@@ -361,19 +367,30 @@ app.use(function (err, req, res, next) {
  * Socket connection.
  */
 io.on("connection", (socket) => {
+  const req = socket.request;
+  userController.joinRooms(socket);
+
+  // Automatically reload the Express session on each new packet over the socket
+  // as the socket is not tied to a single http request
+  socket.use((__ /*[event, ...args]*/, next) => {
+    req.session.reload((err) => {
+      if (err) {
+        socket.disconnect();
+      } else {
+        next();
+      }
+    });
+  });
+
+  // TODO: Revisit to fixup timeline and chat indicators
   socket.on("chat message", (msg) => {
     console.log(msg);
-    // io.emit('chat message', msg); // emit to all listening sockets
     socket.broadcast.emit("chat message", msg); // emit to all listening sockets but the one sending
   });
 
   socket.on("chat typing", (msg) => {
     console.log(msg);
     socket.broadcast.emit("chat typing", msg); // emit to all listening sockets but the one sending
-  });
-
-  socket.on("timeline activity", (sessionID) => {
-    socket.broadcast.emit("timeline activity", sessionID); // emit to all listening sockets but the one sending
   });
 
   socket.on("error", function (err) {

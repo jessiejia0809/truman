@@ -3,14 +3,13 @@ const Schema = mongoose.Schema;
 
 const scriptSchema = new mongoose.Schema(
   {
-    sessionID: String, // ID of session that post was made in
+    session: { type: Schema.ObjectId, ref: "Session" }, // session the post was made in
     postType: {
       type: String,
       required: true,
       enum: ["Actor", "Agent", "User"],
     }, //Indicates whether an actor, agent, or user made a post
     poster: { type: Schema.ObjectId, refPath: "postType" }, // Indicates which actor/user made the post
-    postID: Number, // ID for post (0,1,2,3...)
     class: {
       type: String,
       default: "",

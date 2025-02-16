@@ -11,6 +11,18 @@ const userSchema = new mongoose.Schema(
     // Extend the actor schema
     ...actorSchema.obj,
 
+    // The session the user is part of
+    session: {
+      type: Schema.ObjectId,
+      ref: "Session",
+      required: [
+        function () {
+          return !this.isAdmin;
+        },
+        "Session is required for regular users (not admins).",
+      ],
+    },
+
     // List of actions made on other's posts
     email: { type: String, unique: true },
     password: String,
@@ -142,7 +154,7 @@ userSchema.methods.logPostStats = function logPage() {
       const numNewComments = feedAction.comments.filter(
         (comment) => comment.new_comment,
       ).length;
-      const counts = this.feedAction.reduce(
+      this.feedAction.reduce(
         function (newCount, feedAction) {
           const numLikes = feedAction.comments.filter(
             (comment) => comment.liked && !comment.new_comment,
@@ -170,29 +182,13 @@ userSchema.methods.logPostStats = function logPage() {
       (partialSum, a) => partialSum + a,
       0,
     ),
-    GeneralPostNumber: this.numPosts + 1,
-    GeneralPostLikes: this.feedAction.filter((feedAction) => feedAction.liked)
+    GeneralPostNumber: this.posts.length,
+    GeneralPostLikes: this.postAction.filter((action) => action.liked).length,
+    GeneralPostComments: this.comments.length,
+    GeneralCommentLikes: this.commentAction.filter((action) => action.liked)
       .length,
-    GeneralCommentLikes: counts[0],
-    GeneralPostComments: counts[1],
   };
   this.postStats = log;
-};
-
-/**
- * Helper method for getting all User Posts.
- */
-userSchema.methods.getPosts = function getPosts() {
-  let ret = this.posts;
-  ret.sort(function (a, b) {
-    return b.relativeTime - a.relativeTime;
-  });
-  for (const post of ret) {
-    post.comments.sort(function (a, b) {
-      return a.relativeTime - b.relativeTime;
-    });
-  }
-  return ret;
 };
 
 /**

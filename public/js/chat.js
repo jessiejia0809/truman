@@ -1,5 +1,3 @@
-// Opens the actor chat
-var socket = io();
 const toggleAmount = 300;
 
 // Chats are saved in the MongoDB in the format [USERNAME_A]-[USERNAME_B], where USERNAME_A and USERNAME_B are the two actors in the chat.
