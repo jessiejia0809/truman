@@ -1,10 +1,101 @@
+function onBottomVisible(element) {
+  const postParent = $(this).closest("[postID]");
+  const commentParent = $(this).closest("[commentID]");
+  const parent = commentParent.length ? commentParent : postParent;
+  const timer = parent.children(".viewTimer");
+  // Bottom of the element enters from bottom (scrolling down the feed; as normal)
+  if (element.topVisible) {
+    // Scrolling Down AND entire element is visible in the viewport
+    // If this is the first time bottom is visible
+    timer.text(parseInt(timer.text()) || Date.now());
+  } else {
+    // Scrolling up and this event does not matter, since entire photo isn't visible anyways.
+    // Reset Timer
+    timer.text("NaN");
+  }
+}
+
+// Element's bottom edge has passed top of the screen (disappearing); happens only when Scrolling Up
+function onBottomPassed(element) {
+  const postParent = $(this).closest("[postID]");
+  const commentParent = $(this).closest("[commentID]");
+  const parent = commentParent.length ? commentParent : postParent;
+  const timer = parent.children(".viewTimer");
+
+  const endTime = Date.now();
+  const startTime = parseInt(timer.text());
+  const totalViewTime = endTime - startTime; // TOTAL TIME HERE
+
+  const postID = postParent.attr("postID");
+  const commentID = commentParent?.attr("commentID");
+
+  // If user viewed it for less than 24 hours, but more than 1.5 seconds (just in case)
+  if (totalViewTime < 86400000 && totalViewTime > 1500) {
+    $.post("/feed", {
+      postID: postID,
+      commentID: commentID,
+      viewed: startTime,
+      duration: totalViewTime,
+      _csrf: $('meta[name="csrf-token"]').attr("content"),
+    });
+    // Reset Timer
+    timer.text("NaN");
+  }
+}
+
+// Handling scrolling up
+// Element's top edge has passed top of the screen (appearing); happens only when Scrolling Up
+function onTopPassedReverse(element) {
+  const postParent = $(this).closest("[postID]");
+  const commentParent = $(this).closest("[commentID]");
+  const parent = commentParent.length ? commentParent : postParent;
+  const timer = parent.children(".viewTimer");
+
+  if (element.bottomVisible) {
+    // Scrolling Up AND entire post is visible on the viewport
+    timer.text(parseInt(timer.text()) || Date.now());
+  }
+}
+
+// Called when topVisible turns false (exits from top or bottom)
+function onTopVisibleReverse(element) {
+  const postParent = $(this).closest("[postID]");
+  const commentParent = $(this).closest("[commentID]");
+  const parent = commentParent.length ? commentParent : postParent;
+  const timer = parent.children(".viewTimer");
+
+  if (element.topPassed) {
+    // Scrolling Down, disappears on top; this event doesn't matter (since it is when bottom disappears that time is stopped)
+  } else {
+    // False when Scrolling Up (the bottom of element exits screen.)
+    const endTime = Date.now();
+    const startTime = parseInt(timer.text());
+    const totalViewTime = endTime - startTime;
+
+    const postID = postParent.attr("postID");
+    const commentID = commentParent?.attr("commentID");
+
+    // If user viewed it for less than 24 hours, but more than 1.5 seconds (just in case)
+    if (totalViewTime < 86400000 && totalViewTime > 1500) {
+      $.post("/feed", {
+        postID: postID,
+        commentID: commentID,
+        viewed: startTime,
+        duration: totalViewTime,
+        _csrf: $('meta[name="csrf-token"]').attr("content"),
+      });
+      // Reset Timer
+      timer.text("NaN");
+    }
+  }
+}
+
 function likePost(e) {
   const target = $(e.target).closest(".ui.like.button");
   const label = target
     .closest(".ui.like.button")
     .next("a.ui.basic.red.left.pointing.label.count");
   const postID = target.closest(".ui.fluid.card").attr("postID");
-  const postClass = target.closest(".ui.fluid.card").attr("postClass");
   const currDate = Date.now();
 
   if (target.hasClass("red")) {
@@ -17,7 +108,6 @@ function likePost(e) {
     $.post("/feed", {
       postID: postID,
       unlike: currDate,
-      postClass: postClass,
       _csrf: $('meta[name="csrf-token"]').attr("content"),
     });
   } else {
@@ -30,7 +120,6 @@ function likePost(e) {
     $.post("/feed", {
       postID: postID,
       like: currDate,
-      postClass: postClass,
       _csrf: $('meta[name="csrf-token"]').attr("content"),
     });
   }
@@ -40,13 +129,11 @@ function flagPost(e) {
   const target = $(e.target);
   const post = target.closest(".ui.fluid.card");
   const postID = post.attr("postID");
-  const postClass = target.closest(".ui.fluid.card").attr("postClass");
   const flag = Date.now();
 
   $.post("/feed", {
     postID: postID,
     flag: flag,
-    postClass: postClass,
     _csrf: $('meta[name="csrf-token"]').attr("content"),
   });
   post.find(".ui.dimmer.flag").dimmer({ closable: true }).dimmer("show");
@@ -56,13 +143,11 @@ function unflagPost(e) {
   const target = $(e.target);
   const post = target.closest(".ui.fluid.card");
   const postID = post.attr("postID");
-  const postClass = target.closest(".ui.fluid.card").attr("postClass");
   const unflag = Date.now();
 
   $.post("/feed", {
     postID: postID,
     unflag: unflag,
-    postClass: postClass,
     _csrf: $('meta[name="csrf-token"]').attr("content"),
   });
   target
@@ -79,13 +164,11 @@ function sharePost(e) {
   const target = $(e.target);
   const post = target.closest(".ui.fluid.card");
   const postID = post.attr("postID");
-  const postClass = target.closest(".ui.fluid.card").attr("postClass");
   const share = Date.now();
 
   $.post("/feed", {
     postID: postID,
     share: share,
-    postClass: postClass,
     _csrf: $('meta[name="csrf-token"]').attr("content"),
   });
 }
@@ -96,7 +179,6 @@ function likeComment(e) {
   const label = comment.find("span.num");
 
   const postID = target.closest(".ui.fluid.card").attr("postID");
-  const postClass = target.closest(".ui.fluid.card").attr("postClass");
   const commentID = comment.attr("commentID");
   const currDate = Date.now();
 
@@ -113,7 +195,6 @@ function likeComment(e) {
       postID: postID,
       commentID: commentID,
       unlike: currDate,
-      postClass: postClass,
       _csrf: $('meta[name="csrf-token"]').attr("content"),
     });
   } else {
@@ -129,7 +210,6 @@ function likeComment(e) {
       postID: postID,
       commentID: commentID,
       like: currDate,
-      postClass: postClass,
       _csrf: $('meta[name="csrf-token"]').attr("content"),
     });
   }
@@ -139,7 +219,6 @@ function flagComment(e) {
   const target = $(e.target);
   const commentElement = target.parents(".comment");
   const postID = target.closest(".ui.fluid.card").attr("postID");
-  const postClass = target.closest(".ui.fluid.card").attr("postClass");
   const commentID = commentElement.attr("commentID");
 
   const comment_imageElement = commentElement.children("a.avatar");
@@ -159,7 +238,6 @@ function flagComment(e) {
       postID: postID,
       commentID: commentID,
       flag: flag,
-      postClass: postClass,
       _csrf: $('meta[name="csrf-token"]').attr("content"),
     });
 }
@@ -168,7 +246,6 @@ function unflagComment(e) {
   const target = $(e.target);
   const commentElement = target.parents(".comment");
   const postID = target.closest(".ui.fluid.card").attr("postID");
-  const postClass = target.closest(".ui.fluid.card").attr("postClass");
   const commentID = commentElement.attr("commentID");
 
   const comment_imageElement = commentElement.children("a.avatar.hidden");
@@ -190,7 +267,6 @@ function unflagComment(e) {
       postID: postID,
       commentID: commentID,
       unflag: unflag,
-      postClass: postClass,
       _csrf: $('meta[name="csrf-token"]').attr("content"),
     });
 }
@@ -201,7 +277,6 @@ function shareComment(e) {
   const target = $(e.target);
   const commentElement = target.parents(".comment");
   const postID = target.closest(".ui.fluid.card").attr("postID");
-  const postClass = target.closest(".ui.fluid.card").attr("postClass");
   const commentID = commentElement.attr("commentID");
   const share = Date.now();
 
@@ -209,7 +284,6 @@ function shareComment(e) {
     postID: postID,
     commentID: commentID,
     share: share,
-    postClass: postClass,
     _csrf: $('meta[name="csrf-token"]').attr("content"),
   });
 }
@@ -223,7 +297,6 @@ function addComment(e) {
     .trim();
   const card = target.parents(".ui.fluid.card");
   let comments = card.find(".ui.comments");
-  const postClass = target.closest(".ui.fluid.card").attr("postClass");
   // no comments area - add it
   if (!comments.length) {
     const buttons = card.find(".ui.bottom.attached.icon.buttons");
@@ -241,7 +314,6 @@ function addComment(e) {
       postID: postID,
       new_comment: currDate,
       comment_text: text,
-      postClass: postClass,
       _csrf: $('meta[name="csrf-token"]').attr("content"),
     }).then(function (json) {
       const mess = `
@@ -368,10 +440,10 @@ $(window).on("load", () => {
   // Follow button
   $(".ui.basic.primary.follow.button").on("click", followUser);
 
-  // Track how long a post is on the screen (borders are defined by image)
-  // Start time: When the entire photo is visible in the viewport.
-  // End time: When the entire photo is no longer visible in the viewport.
-  $(".ui.fluid.card .img.post").visibility({
+  // Track how long a post is on the screen
+  // Start time: When the entire post is visible in the viewport.
+  // End time: When the entire post is no longer visible in the viewport.
+  $("[postID] .description").visibility({
     once: false,
     continuous: false,
     observeChanges: true,
@@ -379,90 +451,26 @@ $(window).on("load", () => {
     initialCheck: true,
     offset: 50,
 
-    // Handling scrolling down like normal
-    // Called when bottomVisible turns true (bottom of a picture is visible): bottom can enter from top or bottom of viewport
-    onBottomVisible: function (element) {
-      var startTime = parseInt(
-        $(this).siblings(".content").children(".myTimer").text(),
-      );
-      // Bottom of picture enters from bottom (scrolling down the feed; as normal)
-      if (element.topVisible) {
-        // Scrolling Down AND entire post is visible on the viewport
-        // If this is the first time bottom is visible
-        if (startTime == 0) {
-          var startTime = Date.now();
-        }
-      } else {
-        // Scrolling up and this event does not matter, since entire photo isn't visible anyways.
-        var startTime = 0;
-      }
-      $(this).siblings(".content").children(".myTimer").text(startTime);
-    },
+    onBottomVisible,
+    onBottomPassed,
+    onTopPassedReverse,
+    onTopVisibleReverse,
+  });
 
-    // Element's bottom edge has passed top of the screen (disappearing); happens only when Scrolling Up
-    onBottomPassed: function (element) {
-      var endTime = Date.now();
-      var startTime = parseInt(
-        $(this).siblings(".content").children(".myTimer").text(),
-      );
-      var totalViewTime = endTime - startTime; // TOTAL TIME HERE
+  // Track how long a comment is on the screen
+  // Start time: When the entire comment is visible in the viewport.
+  // End time: When the entire comment is no longer visible in the viewport.
+  $("[commentID] .text:visible").visibility({
+    once: false,
+    continuous: false,
+    observeChanges: true,
+    // throttle:100,
+    initialCheck: true,
+    offset: 50,
 
-      var parent = $(this).parents(".ui.fluid.card");
-      var postID = parent.attr("postID");
-      var postClass = parent.attr("postClass");
-      // If user viewed it for less than 24 hours, but more than 1.5 seconds (just in case)
-      if (totalViewTime < 86400000 && totalViewTime > 1500 && startTime > 0) {
-        $.post("/feed", {
-          postID: postID,
-          viewed: totalViewTime,
-          postClass: postClass,
-          _csrf: $('meta[name="csrf-token"]').attr("content"),
-        });
-        // Reset Timer
-        $(this).siblings(".content").children(".myTimer").text(0);
-      }
-    },
-
-    // Handling scrolling up
-    // Element's top edge has passed top of the screen (appearing); happens only when Scrolling Up
-    onTopPassedReverse: function (element) {
-      var startTime = parseInt(
-        $(this).siblings(".content").children(".myTimer").text(),
-      );
-      if (element.bottomVisible && startTime == 0) {
-        // Scrolling Up AND entire post is visible on the viewport
-        var startTime = Date.now();
-        $(this).siblings(".content").children(".myTimer").text(startTime);
-      }
-    },
-
-    // Called when topVisible turns false (exits from top or bottom)
-    onTopVisibleReverse: function (element) {
-      if (element.topPassed) {
-        // Scrolling Down, disappears on top; this event doesn't matter (since it is when bottom disappears that time is stopped)
-      } else {
-        // False when Scrolling Up (the bottom of photo exits screen.)
-        var endTime = Date.now();
-        var startTime = parseInt(
-          $(this).siblings(".content").children(".myTimer").text(),
-        );
-        var totalViewTime = endTime - startTime;
-
-        var parent = $(this).parents(".ui.fluid.card");
-        var postID = parent.attr("postID");
-        var postClass = parent.attr("postClass");
-        // If user viewed it for less than 24 hours, but more than 1.5 seconds (just in case)
-        if (totalViewTime < 86400000 && totalViewTime > 1500 && startTime > 0) {
-          $.post("/feed", {
-            postID: postID,
-            viewed: totalViewTime,
-            postClass: postClass,
-            _csrf: $('meta[name="csrf-token"]').attr("content"),
-          });
-          // Reset Timer
-          $(this).siblings(".content").children(".myTimer").text(0);
-        }
-      }
-    },
+    onBottomVisible,
+    onBottomPassed,
+    onTopPassedReverse,
+    onTopVisibleReverse,
   });
 });

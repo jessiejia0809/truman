@@ -56,7 +56,6 @@ exports.getScript = async (req, res, next) => {
       process.env.FEED_ORDER,
       process.env.REMOVE_FLAGGED_CONTENT === "TRUE",
       true,
-      process.env.SHOW_FUTURE_CONTENT === "TRUE",
     );
     res.render("script", { script: finalfeed, showNewPostIcon: true });
   } catch (err) {
@@ -68,8 +67,7 @@ exports.getScript = async (req, res, next) => {
 /**
  * Helper for making Agent/User posts
  */
-const makePost = async (user, body, session, file) => {
-  const currDate = Date.now();
+const makePost = async (user, time, body, session, file) => {
   const isAgent = user.isAdmin === undefined;
 
   let post = {
@@ -79,8 +77,8 @@ const makePost = async (user, body, session, file) => {
     body: body,
     picture: file ? file.filename : "",
     actorLikes: 0, // This value will never change.
-    absTime: currDate,
-    time: currDate - user.createdAt,
+    absTime: time,
+    updateTime: time,
     likes: 0,
   };
 
@@ -98,15 +96,7 @@ const performFeedAction = async (userId, isAgent, body, session) => {
     .exec();
 
   // Retrieve post from database
-  const post = await Script.findById(body.postID)
-    .populate("poster")
-    .populate({
-      path: "comments",
-      populate: {
-        path: "commentor",
-      },
-    })
-    .exec();
+  const post = await Script.findById(body.postID).populate("comments").exec();
 
   // Check if user has interacted with the post before.
   let postIndex = _.findIndex(user.postAction, function (o) {
@@ -127,25 +117,25 @@ const performFeedAction = async (userId, isAgent, body, session) => {
       session: isAgent ? session.id : user.session.id,
       post: body.postID,
       body: body.comment_text,
-      time: body.new_comment - user.createdAt,
       absTime: body.new_comment,
+      updateTime: body.new_comment,
       comments: [],
     });
     await comment.save();
 
     // Add reference to comment to post it was made on
+    post.updateTime = body.new_comment;
     post.comments.push(comment._id);
     await post.save();
 
     return { post, comment };
   }
 
-  // User interacted with a comment on the post.
+  let target = post;
+  let action = user.postAction[postIndex];
   if (body.commentID) {
     // Find comment
-    const comment = await Comment.findById(body.commentID)
-      .populate("commentor")
-      .exec();
+    const comment = await Comment.findById(body.commentID).exec();
 
     // Check if user has interacted with the comment before.
     let commentIndex = _.findIndex(user.commentAction, function (o) {
@@ -158,96 +148,64 @@ const performFeedAction = async (userId, isAgent, body, session) => {
       commentIndex = user.commentAction.length - 1;
     }
 
-    const commentAction = user.commentAction[commentIndex];
-
-    // User liked the comment.
-    if (body.like) {
-      const like = body.like;
-      commentAction.likeTime.push(like);
-      commentAction.liked = true;
-      comment.likes++;
-    }
-    // User unliked the comment.
-    else if (body.unlike) {
-      const unlike = body.unlike;
-      commentAction.unlikeTime.push(unlike);
-      commentAction.liked = false;
-      comment.likes--;
-    }
-
-    // User flagged the comment.
-    if (body.flag) {
-      const flag = body.flag;
-      commentAction.flagTime.push(flag);
-      commentAction.flagged = true;
-    }
-    // User unflagged the comment.
-    else if (body.unflag) {
-      const unflag = body.unflag;
-      commentAction.unflagTime.push(unflag);
-      commentAction.flagged = false;
-    }
-
-    // User shared the comment.
-    if (body.share) {
-      const share = body.share;
-      commentAction.shareTime.push(share);
-      commentAction.shared = true;
-    }
-    await comment.save();
-    await user.save();
-
-    return { post, comment };
+    target = comment;
+    action = user.commentAction[commentIndex];
   }
-  // User interacted with the post.
-  const postAction = user.postAction[postIndex];
 
-  // User flagged the post.
+  // User flagged the post or comment.
+  const lastUpdateTime = target.updateTime;
   if (body.flag) {
-    const flag = body.flag;
-    postAction.flagTime.push(flag);
-    postAction.flagged = true;
+    action.flagTime.push(body.flag);
+    target.updateTime = body.flag;
+    action.flagged = true;
   }
-  // User unflagged the post.
+  // User unflagged the post or comment.
   else if (body.unflag) {
-    const unflag = body.unflag;
-    postAction.unflagTime.push(unflag);
-    postAction.flagged = false;
+    action.unflagTime.push(body.unflag);
+    target.updateTime = body.unflag;
+    action.flagged = false;
   }
 
-  // User liked the post.
+  // User liked the post or comment.
   if (body.like) {
-    const like = body.like;
-    postAction.likeTime.push(like);
-    postAction.liked = true;
-    post.likes++;
+    action.likeTime.push(body.like);
+    target.updateTime = body.like;
+    action.liked = true;
+    target.likes++;
   }
-  // User unliked the post.
+  // User unliked the post or comment.
   else if (body.unlike) {
-    const unlike = body.unlike;
-    postAction.unlikeTime.push(unlike);
-    postAction.liked = false;
-    post.likes--;
+    action.unlikeTime.push(body.unlike);
+    target.updateTime = body.unlike;
+    action.liked = false;
+    target.likes--;
   }
 
-  // User shared the post.
+  // User shared the post or comment.
   if (body.share) {
-    const share = body.share;
-    postAction.shareTime.push(share);
-    postAction.shared = true;
+    action.shareTime.push(body.share);
+    target.updateTime = body.share;
+    action.shared = true;
   }
 
-  // User read the post.
+  // User read the post or comment.
   if (body.viewed) {
-    const view = body.viewed;
-    postAction.readTime.push(view);
-    postAction.rereadTimes++;
-    postAction.mostRecentTime = Date.now();
+    action.readTime.push({ time: body.viewed, duration: body.duration });
   }
-  await post.save();
+  await target.save();
   await user.save();
 
-  return { post };
+  if (post === target) {
+    return { post };
+  }
+
+  if (lastUpdateTime !== target.updateTime) {
+    // If we updated the commen time, then update the post as well
+    post.updateTime = target.updateTime;
+    await post.save();
+  }
+
+  return { post, comment: target };
 };
 
 /**
@@ -262,9 +220,13 @@ exports.postAction = async (req, res, next) => {
     // Find the user corresponding to the author
     const user = await Agent.findOne({ username: author }).exec();
     const session = await Session.findOne({ name: sessionName }).exec();
+
+    // Parse the time of the action
+    const time = Date.parse(timestamp);
+
     // Map the action to the appropriate field
     if (action === "post") {
-      await makePost(user, actionBody, session);
+      await makePost(user, time, actionBody, session);
     } else {
       const body = {};
       const post = await Script.findById(actionObject).exec();
@@ -278,7 +240,6 @@ exports.postAction = async (req, res, next) => {
       }
 
       // Timestamp is sent in ISO 8601 format, so parse to get milliseconds
-      const time = Date.parse(timestamp);
       if (action === "comment") {
         body.new_comment = time;
         body.comment_text = actionBody;
@@ -291,7 +252,7 @@ exports.postAction = async (req, res, next) => {
       }
       await performFeedAction(user._id, true, body, session);
     }
-    req.io.to(session._id.toString()).emit("timeline activity");
+    req.io.to(session._id.toString()).emit("timeline activity", time);
     res.send({ result: "success" });
   } catch (err) {
     next(err);
@@ -305,7 +266,7 @@ exports.postAction = async (req, res, next) => {
 exports.newPost = async (req, res, next) => {
   try {
     const user = await User.findById(req.user.id).exec();
-    await makePost(user, req.body.body, user.session, req.file);
+    await makePost(user, Date.now(), req.body.body, user.session, req.file);
     req.io
       .to(user.session._id.toString())
       .except(req.session.id)
@@ -323,17 +284,22 @@ exports.newPost = async (req, res, next) => {
  */
 exports.postUpdateFeedAction = async (req, res, next) => {
   try {
+    const lastUpdateTime = (await Script.findById(req.body.postID).exec())
+      .updateTime;
     const { post, comment } = await performFeedAction(
       req.user.id,
       false,
       req.body,
     );
 
-    const user = await User.findById(req.user.id).exec();
-    req.io
-      .to(user.session._id.toString())
-      .except(req.session.id)
-      .emit("timeline activity");
+    if (post.updateTime > lastUpdateTime) {
+      // Notify client if the post was updated
+      const user = await User.findById(req.user.id).exec();
+      req.io
+        .to(user.session._id.toString())
+        .except(req.session.id)
+        .emit("timeline activity");
+    }
     res.send({ result: "success", postID: post._id, commentID: comment?._id });
   } catch (err) {
     next(err);

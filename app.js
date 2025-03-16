@@ -44,6 +44,7 @@ var useravatar_options = multer.diskStorage({
 
 const userpostupload = multer({ storage: userpost_options });
 const useravatarupload = multer({ storage: useravatar_options });
+const csrf = lusca.csrf();
 
 /**
  * Load environment variables from .env file.
@@ -147,14 +148,20 @@ app.use((req, res, next) => {
   next();
 });
 app.use(passport.initialize());
-app.use(passport.session());
+app.use(passportConfig.authenticate);
 app.use(flash());
 app.use(
   lusca.csrf({
-    // Multer multipart/form-data handling needs to occur before the Lusca CSRF check.
-    // This allows us to not check CSRF when uploading an image file. It's a weird issue that multer and lusca do not play well together.
     blocklist: [
+      // REST API endpoints don't need CSRF, see:
+      // https://security.stackexchange.com/a/166798
       "/action",
+      // Multer multipart/form-data handling needs to occur before the Lusca
+      // CSRF check.  It's a weird issue that multer and lusca do not play well
+      // together. So add all multipart/form-data routes to the general
+      // blocklist, then define Lusca CSRF in the definition of the routes to
+      // ensure the proper ordering.  See this github comment for more details:
+      // https://github.com/expressjs/multer/issues/195#issuecomment-129568691
       "/post/new",
       "/actors/new",
       "/account/profile",
@@ -176,8 +183,9 @@ app.use((req, res, next) => {
 });
 
 app.use((req, res, next) => {
-  // If a user attempts to access a site page that requires logging in, but they are not logged in, then record the page they desired to visit.
-  // After successfully logging in, redirect the user back to their desired page.
+  // If a user attempts to access a site page that requires logging in, but
+  // they are not logged in, then record the page they desired to visit. After
+  // successfully logging in, redirect the user back to their desired page.
   if (
     !req.user &&
     req.path !== "/login" &&
@@ -226,6 +234,7 @@ app.post("/chat", chatController.postChatAction);
 app.post(
   "/post/new",
   userpostupload.single("picinput"),
+  csrf,
   scriptController.newPost,
 );
 app.post(
@@ -240,7 +249,8 @@ app.post(
 );
 
 app.get("/com", function (req, res) {
-  const feed = req.query.feed == "true" ? true : false; //Are we accessing the community rules from the feed?
+  // Are we accessing the community rules from the feed?
+  const feed = req.query.feed == "true" ? true : false;
   res.render("com", {
     title: "Community Rules",
     feed,
@@ -280,11 +290,13 @@ app.post(
   "/account/profile",
   passportConfig.isAuthenticated,
   useravatarupload.single("picinput"),
+  csrf,
   userController.postUpdateProfile,
 );
 app.get(
   "/account/signup_info",
   passportConfig.isAuthenticated,
+  csrf,
   function (req, res) {
     res.render("account/signup_info", {
       title: "Add Information",
@@ -295,6 +307,7 @@ app.post(
   "/account/signup_info_post",
   passportConfig.isAuthenticated,
   useravatarupload.single("picinput"),
+  csrf,
   userController.postSignupInfo,
 );
 app.post(
@@ -317,17 +330,23 @@ app.get("/actors", passportConfig.isAuthenticated, actorsController.getActors);
 app.get(
   "/actors/new",
   passportConfig.isAuthenticated,
+  csrf,
   actorsController.getNewActor,
 );
 app.post(
   "/actors/new",
   useravatarupload.single("picinput"),
+  csrf,
   actorsController.postNewActor,
 );
 
 app.get("/feed", passportConfig.isAuthenticated, scriptController.getScript);
 
-app.post("/action", scriptController.postAction);
+app.post(
+  "/action",
+  passportConfig.isAuthenticated,
+  scriptController.postAction,
+);
 
 app.post(
   "/feed",
@@ -384,13 +403,13 @@ io.on("connection", (socket) => {
 
   // TODO: Revisit to fixup timeline and chat indicators
   socket.on("chat message", (msg) => {
-    console.log(msg);
-    socket.broadcast.emit("chat message", msg); // emit to all listening sockets but the one sending
+    // emit to all listening sockets but the one sending
+    socket.broadcast.emit("chat message", msg);
   });
 
   socket.on("chat typing", (msg) => {
-    console.log(msg);
-    socket.broadcast.emit("chat typing", msg); // emit to all listening sockets but the one sending
+    // emit to all listening sockets but the one sending
+    socket.broadcast.emit("chat typing", msg);
   });
 
   socket.on("error", function (err) {

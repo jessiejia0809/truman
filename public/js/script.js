@@ -40,10 +40,15 @@ $(window).on("load", function () {
 
   // Socket listening to broadcasts
   // Incoming activity
-  socket.on("timeline activity", async function () {
-    if ($("#newActivityMessage .ui.fixed.bottom.sticky").is(":hidden")) {
-      $("#newActivityMessage .ui.fixed.bottom.sticky").show();
-    }
+  socket.on("timeline activity", function (timestamp) {
+    setTimeout(
+      () => {
+        if ($("#newActivityMessage .ui.fixed.bottom.sticky").is(":hidden")) {
+          $("#newActivityMessage .ui.fixed.bottom.sticky").show();
+        }
+      },
+      timestamp ? Math.max(0, timestamp - Date.now()) : 0,
+    );
   });
 
   $("#newActivityMessage .ui.fixed.bottom.sticky").on("click", function () {

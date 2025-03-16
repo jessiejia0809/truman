@@ -28,6 +28,7 @@ const userSchema = new mongoose.Schema(
     password: String,
 
     isAdmin: { type: Boolean, default: false }, // Indicates if the user is an administrator
+    token: String, // API token
 
     endSurveyLink: String,
 

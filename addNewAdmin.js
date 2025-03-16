@@ -8,6 +8,7 @@ This script uses the connection information from your local .env file (in line 2
 so set your local .env variables to match the database you want to connect to.
 */
 
+const crypto = require("crypto");
 const User = require("./models/User.js");
 const dotenv = require("dotenv");
 const mongoose = require("mongoose");
@@ -39,16 +40,19 @@ async function addAdminToDB() {
   const email = myArgs[0];
   const username = myArgs[1];
   const password = myArgs[2];
-  const currDate = Date.now();
-  console.log(color_start, `Creating new admin...`);
+  const token = crypto.randomBytes(20).toString("base64");
+
+  console.log(color_start, `Creating new admin with API token: ${token}`);
 
   const user = new User({
+    actorType: "User",
     email: email,
     username: username,
     password: password,
     active: true,
     isAdmin: true,
-    createdAt: currDate,
+    token: token,
+    createdAt: Date.now(),
     mturkID: username,
     consent: true,
   });

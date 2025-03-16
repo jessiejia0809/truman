@@ -1,5 +1,6 @@
 const passport = require("passport");
 const { Strategy: LocalStrategy } = require("passport-local");
+const { Strategy: BearerStrategy } = require("passport-http-bearer");
 
 const User = require("../models/User");
 
@@ -41,8 +42,34 @@ passport.use(
 );
 
 /**
+ * Sign in API key
+ */
+passport.use(
+  "bearer_token",
+  new BearerStrategy(function (token, done) {
+    User.findOne({ token: token }).then((user) => {
+      if (!user) {
+        return done(null, false, { msg: `Invalid API key.` });
+      }
+      return done(null, user, { scope: "all" });
+    });
+  }),
+);
+
+/**
  * Middleware.
  */
+const sessionAuthentication = passport.authenticate("session");
+const apiKeyAuthentication = passport.authenticate("bearer_token", {
+  session: false,
+});
+exports.authenticate = (req, res, next) => {
+  const authenticate = req.headers.authorization
+    ? apiKeyAuthentication
+    : sessionAuthentication;
+  authenticate(req, res, next);
+};
+
 exports.isAuthenticated = (req, res, next) => {
   if (req.isAuthenticated()) {
     return next();

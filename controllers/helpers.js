@@ -28,7 +28,7 @@ function shuffle(array) {
  * It takes in a User document, and other parameters, and it processes and generates a final feed of posts for the user based on these parameters.
  * Parameters:
  *  - user: a User document
- *  - order: 'SHUFFLE', 'CHRONOLOGICAL'; indicates the order the posts in the final feed should be displayed in.
+ *  - order: 'SHUFFLE', 'CHRONOLOGICAL', 'NEWEST'; indicates the order the posts in the final feed should be displayed in.
  *  - removedFlaggedContent (boolean): T/F; indicates if a flagged post should be removed from the final feed.
  *  - removeBlockedUserContent (boolean): T/F; indicates if posts from a blocked user should be removed from the final feed.
  *  - actor (Actor/Agent/User): if provided restrict the posts to those from the passed in actor.
@@ -40,13 +40,12 @@ exports.getFeed = async function (
   order,
   removeFlaggedContent,
   removeBlockedUserContent,
-  showFutureContent,
   actor,
 ) {
   const commonQuery = {
     $or: [{ session: null }, { session: user.session }],
     class: { $in: ["", user.experimentalCondition] },
-    ...(showFutureContent ? {} : { absTime: { $lte: Date.now() } }),
+    absTime: { $lte: Date.now() },
   };
   const makeBlockedQuery = (field) => {
     return removeBlockedUserContent
@@ -86,9 +85,6 @@ exports.getFeed = async function (
 
   // Array of posts for the final feed
   const feed = [];
-  // Array of seen and unseen posts, used when order=='shuffle' so that unseen posts appear before seen posts on the final feed.
-  const feed_seen = [];
-  const feed_unseen = [];
 
   // While there are posts to add to the feed
   while (posts.length) {
@@ -97,21 +93,11 @@ exports.getFeed = async function (
     for (const comment of post.comments) {
       // update comment likes with likes from actors
       comment.likes += comment.actorLikes;
-      // check if user has interacted with this comment
-      const commentIndex = _.findIndex(user.commentAction, function (o) {
-        return o.comment.equals(comment._id);
-      });
-      if (commentIndex != -1) {
-        const action = user.commentAction[commentIndex];
-        // Check if this comment has been liked by the user. If true, update the comment in the post.
-        if (action.liked) {
-          comment.liked = true;
-        }
-        // Check if this comment has been flagged by the user. If true, remove the comment from the post.
-        if (action.flagged) {
-          comment.flagged = true;
-        }
-      }
+
+      // Add user interactions with the comment
+      const action = _.find(user.commentAction, { comment: comment._id });
+      comment.liked = action?.liked;
+      comment.flagged = action?.flagged;
     }
 
     // Sort the comments in the post from least to most recent.
@@ -122,44 +108,27 @@ exports.getFeed = async function (
     // update post likes with likes from actors
     post.likes += post.actorLikes;
 
-    // Check if the user has interacted with this post by checking if a user.postAction.post value matches this post's _id.
-    // If the user has interacted with this post, add the user's interactions to the post.
-    const postIndex = _.findIndex(user.postAction, function (o) {
-      return o.post.equals(post._id);
-    });
-    if (postIndex != -1) {
-      const action = user.postAction[postIndex];
-      // Check if this post has been liked by the user. If true, update the post.
-      if (action.liked) {
-        post.liked = true;
-      }
-      // Check if this post has been flagged by the user. If true, update the post.
-      if (action.flagged) {
-        post.flagged = true;
-      }
-      if (order == "SHUFFLE") {
-        if (!action.readTime[0]) {
-          feed_unseen.push(post);
-        } else {
-          feed_seen.push(post);
-        }
-      } else {
-        feed.push(post);
-      }
-    } // If the user has not interacted with this post:
-    else {
-      if (order == "SHUFFLE") {
-        feed_unseen.push(post);
-      } else {
-        feed.push(post);
-      }
-    }
+    // Add user interactions with the post
+    const action = _.find(user.postAction, { post: post._id });
+    post.liked = action?.liked;
+    post.flagged = action?.flagged;
+    post.read = !!action?.readTime[0];
+    feed.push(post);
+
+    console.log(post);
   }
 
-  return order == "SHUFFLE"
-    ? // Shuffle the feed
-      shuffle(feed_unseen).concat(shuffle(feed_seen))
-    : feed;
+  if (order === "SHUFFLE") {
+    // Shuffle the feed, but keep unread posts first
+    return _.sortBy(_.shuffle(feed), "read");
+  }
+
+  if (order === "NEWEST") {
+    // Keep new posts and posts with recent updates (new comments, likes, shares) first
+    return _.orderBy(feed, "updateTime", "desc");
+  }
+
+  return feed;
 };
 
 exports.ensureDays = function (day_array, current_day) {
@@ -172,17 +141,17 @@ exports.lookupActorByName = async function (username) {
   // Sequentially find the actor as an Actor, Agent, or User, setting type accordingly
   const actor = await Actor.findOne({ username: username }).exec();
   if (actor) {
-    return { actor, actorType: "Actor" };
+    return actor;
   }
 
   const agent = await Agent.findOne({ username: username }).exec();
   if (agent) {
-    return { actor: agent, actorType: "Agent" };
+    return agent;
   }
 
   const user = await User.findOne({ username: username }).exec();
   if (user) {
-    return { actor: user, actorType: "User" };
+    return user;
   }
 
   throw new Error("Actor not found");

@@ -1,6 +1,8 @@
 const { Actor } = require("./models/Actor.js");
+const Agent = require("./models/Agent.js");
 const Script = require("./models/Script.js");
 const Comment = require("./models/Comment.js");
+const fs = require("fs/promises");
 const dotenv = require("dotenv");
 const mongoose = require("mongoose");
 const CSVToJSON = require("csvtojson");
@@ -11,11 +13,6 @@ const color_success = "\x1b[32m%s\x1b[0m"; // green
 const color_error = "\x1b[31m%s\x1b[0m"; // red
 
 console.log(color_start, "Started populate.js script...");
-
-//Input Files
-const actor_inputFile = "./input/actors.csv";
-const posts_inputFile = "./input/posts.csv";
-const replies_inputFile = "./input/replies.csv";
 
 dotenv.config({ path: ".env" });
 
@@ -33,11 +30,29 @@ mongoose.connection.on("error", (err) => {
 });
 
 const currDateAtPopulate = Date.now();
+const postImageDir = "uploads/user_post/";
+const profileImageDir = "uploads/user_avatar/";
 
 async function doPopulate() {
+  const args = process.argv.slice(2);
+
+  //Input Files
+  const path = args[0];
+  const actor_inputFile = `${path}/actors.csv`;
+  const agent_inputFile = `${path}/agents.csv`;
+  const posts_inputFile = `${path}/posts.csv`;
+  const replies_inputFile = `${path}/replies.csv`;
+
+  await fs.mkdir(postImageDir, { recursive: true });
+  await fs.mkdir(profileImageDir, { recursive: true });
+
   console.log(color_start, "Dropping actors...");
   await db.collections["actors"].drop();
   console.log(color_success, "Actors collection dropped");
+
+  console.log(color_start, "Dropping agents...");
+  await db.collections["agents"].drop();
+  console.log(color_success, "Agents collection dropped");
 
   console.log(color_start, "Dropping scripts...");
   await db.collections["scripts"].drop();
@@ -51,6 +66,10 @@ async function doPopulate() {
   const actors_list = await CSVToJSON().fromFile(actor_inputFile);
   console.log(color_success, "Finished getting the actors_list");
 
+  console.log(color_start, "Reading agents list...");
+  const agents_list = await CSVToJSON().fromFile(agent_inputFile);
+  console.log(color_success, "Finished getting the agents_list");
+
   console.log(color_start, "Reading posts list...");
   const posts_list = await CSVToJSON().fromFile(posts_inputFile);
   console.log(color_success, "Finished getting the posts list");
@@ -60,12 +79,13 @@ async function doPopulate() {
   console.log(color_success, "Finished getting the comment list");
 
   /*
-   * Create all the Actors in the simulation
+   * Create all the Actors and Agents in the simulation
    * Must be done before creating any other instances
    */
-  const actors = Object.fromEntries(
-    actors_list.map(function (actor_raw) {
-      const actor = new Actor({
+  const actors = actors_list.map(
+    (actor_raw) =>
+      new Actor({
+        actorType: "Actor",
         username: actor_raw.username,
         profile: {
           name: actor_raw.name,
@@ -76,38 +96,79 @@ async function doPopulate() {
           picture: actor_raw.picture,
         },
         class: actor_raw.class,
+      }),
+  );
+
+  const agents = await Promise.all(
+    agents_list.map(async function (agent_raw) {
+      const agent = new Agent({
+        actorType: "Agent",
+        username: agent_raw.username,
+        profile: {
+          name: agent_raw.name,
+          gender: agent_raw.gender,
+          age: agent_raw.age,
+          location: agent_raw.location,
+          bio: agent_raw.bio,
+          picture: agent_raw.picture,
+        },
+        class: agent_raw.class,
       });
 
-      return [actor.username, actor];
+      if (agent_raw.picture) {
+        await fs.cp(
+          `profile_pictures/${agent_raw.picture}`,
+          `${profileImageDir}/${agent_raw.picture}`,
+        );
+      }
+
+      return agent;
     }),
   );
+
+  const allActors = Object.fromEntries([
+    ..._.map(actors, (a) => [a.username, a]),
+    ..._.map(agents, (a) => [a.username, a]),
+  ]);
 
   /*
    * Create each post and upload it to the DB
    * Actors must be in DB first to add them correctly to the post
    */
   const posts = Object.fromEntries(
-    posts_list.map(function (post) {
-      const actor = actors[post.actor];
-      if (actor) {
+    await Promise.all(
+      posts_list.map(async function (post, index) {
+        const actor = allActors[post.actor];
+        if (!actor) {
+          //Else no actor found
+          throw new ReferenceError(`ERROR: Unknown Actor "${post.actor}"`);
+        }
+
+        const postTime = new Date(
+          currDateAtPopulate + timeStringToNum(post.time),
+        );
         const script = new Script({
           body: post.body,
           picture: post.picture,
           actorLikes: post.likes || getLikes(),
-          postType: "Actor",
+          postType: actor.actorType,
           poster: actor,
-          time: timeStringToNum(post.time) || null,
-          absTime: new Date(currDateAtPopulate + timeStringToNum(post.time)),
+          absTime: postTime,
+          updateTime: postTime,
           class: post.class,
         });
         actor.posts.push(script._id);
 
-        return [post.id, script];
-      } else {
-        //Else no actor found
-        throw new ReferenceError(`ERROR: Unknown Actor "${post.actor}"`);
-      }
-    }),
+        if (actor.actorType === "Agent" && post.picture) {
+          await fs.cp(
+            `post_pictures/${post.picture}`,
+            `${postImageDir}/${post.picture}`,
+          );
+        }
+
+        return [index + 1, script];
+      }),
+    ),
   );
 
   /*
@@ -115,7 +176,7 @@ async function doPopulate() {
    * Looks up actors and posts to insert the correct comment
    */
   const comments = comments_list.map(function (reply) {
-    const actor = actors[reply.actor];
+    const actor = allActors[reply.actor];
     if (!actor) {
       //No actor found
       throw new ReferenceError(`ERROR: Unknown Actor "${reply.actor}"`);
@@ -126,24 +187,29 @@ async function doPopulate() {
       throw new ReferenceError(`ERROR: Unknown Post #${reply.postID}`);
     }
 
-    if (post.time > timeStringToNum(reply.time)) {
+    const replyTime = currDateAtPopulate + timeStringToNum(reply.time);
+    if (post.time > replyTime) {
       throw new RangeError(
         `ERROR: The simulated time for comment #${reply.id} is before the simulated post time.`,
       );
     }
 
     const comment = new Comment({
-      commentType: "Actor",
+      commentType: actor.actorType,
       commentor: actor,
       post: post._id,
       body: reply.body,
       actorLikes: reply.likes || getLikesComment(),
-      time: timeStringToNum(reply.time),
-      absTime: new Date(currDateAtPopulate + timeStringToNum(reply.time)),
+      absTime: replyTime,
+      updateTime: replyTime,
       class: reply.class,
     });
 
-    const index = _.sortedIndexBy(posts.comments, comment, ({ time }) => time);
+    const index = _.sortedIndexBy(
+      posts.comments,
+      comment,
+      ({ absTime }) => absTime,
+    );
     post.comments.splice(index, 0, comment._id);
 
     actor.comments.push(comment._id);
@@ -152,9 +218,13 @@ async function doPopulate() {
   });
 
   try {
-    console.log(color_success, "All actors added to database!");
     console.log(color_start, "Starting to populate actors collection...");
     await Actor.bulkSave(Object.values(actors));
+    console.log(color_success, "All actors added to database!");
+
+    console.log(color_start, "Starting to populate agents collection...");
+    await Agent.bulkSave(Object.values(agents));
+    console.log(color_success, "All agents added to database!");
 
     console.log(color_start, "Starting to populate posts collection...");
     await Script.bulkSave(Object.values(posts));

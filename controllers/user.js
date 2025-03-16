@@ -3,6 +3,8 @@ const validator = require("validator");
 const dotenv = require("dotenv");
 dotenv.config({ path: ".env" }); // See the file .env.example for the structure of .env
 const helpers = require("./helpers");
+const { Actor } = require("../models/Actor");
+const Agent = require("../models/Agent");
 const User = require("../models/User");
 const Session = require("../models/Session");
 
@@ -149,6 +151,12 @@ exports.postSignup = async (req, res, next) => {
   });
 
   try {
+    const existingActor = await Actor.findOne({
+      username: req.body.username,
+    }).exec();
+    const existingAgent = await Agent.findOne({
+      username: req.body.username,
+    }).exec();
     const existingUser = await User.findOne({
       $or: [
         { username: req.body.username },
@@ -156,8 +164,12 @@ exports.postSignup = async (req, res, next) => {
         { mturkID: req.body.mturkID },
       ],
     }).exec();
-    if (existingUser) {
-      if (existingUser.username === req.body.username) {
+    if (existingActor || existingAgent || existingUser) {
+      if (
+        existingActor ||
+        existingAgent ||
+        existingUser.username === req.body.username
+      ) {
         req.flash("errors", {
           msg: "An account with that username already exists.",
         });
@@ -200,6 +212,7 @@ exports.postSignup = async (req, res, next) => {
 
     const currDate = Date.now();
     const user = new User({
+      actorType: "User",
       email: req.body.email,
       password: req.body.password,
       mturkID: req.body.mturkID,

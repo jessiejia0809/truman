@@ -14,6 +14,7 @@ const actorSchema = new mongoose.Schema(
       picture: { type: String, default: "" },
     },
 
+    actorType: { ...actorTypes, required: true },
     active: { type: Boolean, default: true }, // Indicates if the user is still active
 
     posts: [{ type: Schema.ObjectId, ref: "Script" }],
@@ -54,16 +55,20 @@ const actorSchema = new mongoose.Schema(
     postAction: [
       {
         post: { type: Schema.ObjectId, ref: "Script" },
-        liked: { type: Boolean, default: false },
-        flagged: { type: Boolean, default: false },
+        liked: { type: Boolean, default: false }, // Whether the user liked the post
+        flagged: { type: Boolean, default: false }, // Whether the user flagged the post
         shared: { type: Boolean, default: false },
         likeTime: [Date], // List of absolute times when the user has liked the post
         unlikeTime: [Date], // List of absolute times when the user has unliked the post
         flagTime: [Date], // List of absolute times when the user has flagged the post
         unflagTime: [Date], // List of absolute times when the user has unflagged the post
         shareTime: [Date], // List of absolute times when the user has shared the post
-        mostRecentTime: Date, // Absolute Time, indicates the most recent time the post was viewed
-        rereadTimes: { type: Number, default: 0 }, // Indicates the # of times the post has been viewed by user.
+        readTime: [
+          new Schema({
+            time: Date, // Absolute Time when the post was viewed
+            duration: Number, // Duration the user spent looking at the post in milliseconds (we do not record times less than 1.5 seconds)
+          }),
+        ],
       },
     ],
 
@@ -78,6 +83,12 @@ const actorSchema = new mongoose.Schema(
         flagTime: [Date], // List of absolute times when the user has flagged the comment
         unflagTime: [Date], // List of absolute times when the user has unflagged the comment
         shareTime: [Date], // List of absolute times when the user has shared the comment
+        readTime: [
+          new Schema({
+            time: Date, // Absolute Time when the comment was viewed
+            duration: Number, // Duration the user spent looking at the comment in milliseconds (we do not record times less than 1.5 seconds)
+          }),
+        ],
       },
     ],
 

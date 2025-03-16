@@ -1,6 +1,6 @@
 const { Actor } = require("../models/Actor.js");
-const User = require("../models/User");
 const Agent = require("../models/Agent");
+const User = require("../models/User");
 const helpers = require("./helpers");
 const dotenv = require("dotenv");
 const _ = require("lodash");
@@ -36,9 +36,7 @@ exports.getActors = async (req, res, next) => {
 exports.getActor = async (req, res, next) => {
   try {
     const user = await User.findById(req.user.id).exec();
-    const { actor, actorType } = await helpers.lookupActorByName(
-      req.params.username,
-    );
+    const actor = await helpers.lookupActorByName(req.params.username);
 
     const isBlocked =
       user.blocked.findIndex(({ actorId }) => actor._id.equals(actorId)) !== -1;
@@ -51,7 +49,6 @@ exports.getActor = async (req, res, next) => {
       "CHRONOLOGICAL",
       process.env.REMOVE_FLAGGED_CONTENT === "TRUE",
       false,
-      process.env.SHOW_FUTURE_CONTENT === "TRUE",
       actor,
     );
 
@@ -61,7 +58,7 @@ exports.getActor = async (req, res, next) => {
       isBlocked,
       isReported,
       title: actor.profile.name,
-      actorType,
+      actorType: actor.actorType,
     });
   } catch (err) {
     console.error(err);
@@ -79,14 +76,12 @@ exports.postBlockReportOrFollow = async (req, res, next) => {
     const user = await User.findById(req.user.id).exec();
     // Block an actor
     if (req.body.blocked) {
-      const { actor, actorType } = await helpers.lookupActorByName(
-        req.body.blocked,
-      );
+      const actor = await helpers.lookupActorByName(req.body.blocked);
       const index = user.blocked.findIndex(({ actorId }) =>
         actor._id.equals(actorId),
       );
       if (index === -1) {
-        user.blocked.push({ actorId: actor._id, actorType });
+        user.blocked.push({ actorId: actor._id, actorType: actor.actorType });
       }
       const log = {
         time: currDate,
@@ -113,14 +108,12 @@ exports.postBlockReportOrFollow = async (req, res, next) => {
     }
     // Report an actor
     else if (req.body.reported) {
-      const { actor, actorType } = await helpers.lookupActorByName(
-        req.body.reported,
-      );
+      const actor = await helpers.lookupActorByName(req.body.reported);
       const index = user.reported.findIndex(({ actorId }) =>
         actor._id.equals(actorId),
       );
       if (index === -1) {
-        user.reported.push({ actorId: actor._id, actorType });
+        user.reported.push({ actorId: actor._id, actorType: actor.actorType });
       }
       const log = {
         time: currDate,
@@ -132,14 +125,12 @@ exports.postBlockReportOrFollow = async (req, res, next) => {
     }
     // Follow an actor
     else if (req.body.followed) {
-      const { actor, actorType } = await helpers.lookupActorByName(
-        req.body.followed,
-      );
+      const actor = await helpers.lookupActorByName(req.body.followed);
       const index = user.followed.findIndex(({ actorId }) =>
         actor._id.equals(actorId),
       );
       if (index === -1) {
-        user.followed.push({ actorId: actor._id, actorType });
+        user.followed.push({ actorId: actor._id, actorType: actor.actorType });
       }
       const log = {
         time: currDate,
@@ -195,9 +186,28 @@ exports.postNewActor = async (req, res, next) => {
   const { name, gender, age, location, bio, username, actorType } = req.body;
   const picture = req.file ? req.file.filename : null; // Handle file upload (if using multer)
 
+  const existingActor = await Actor.findOne({
+    username: req.body.username,
+  }).exec();
+  const existingAgent = await Agent.findOne({
+    username: req.body.username,
+  }).exec();
+  const existingUser = await User.findOne({
+    username: req.body.username,
+  }).exec();
+  if (existingActor || existingAgent || existingUser) {
+    req.flash("errors", {
+      msg: "An account with that username already exists.",
+    });
+
+    res.redirect("/actors/new");
+    return;
+  }
+
   // Create a new actor based on form data
   const actorDetail = {
-    username: username,
+    actorType,
+    username,
     profile: {
       name: name,
       gender: gender,

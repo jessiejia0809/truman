@@ -10,18 +10,18 @@ const scriptSchema = new mongoose.Schema(
       enum: ["Actor", "Agent", "User"],
     }, //Indicates whether an actor, agent, or user made a post
     poster: { type: Schema.ObjectId, refPath: "postType" }, // Indicates which actor/user made the post
+    body: { type: String, default: "", trim: true }, // Text(body) of post
     class: {
       type: String,
       default: "",
       trim: true,
     }, // For experimental use (If blank/null, this post is shown to all users. If defined, this post is only shown to users with the same value for their experimental condition)
-    body: { type: String, default: "", trim: true }, // Text(body) of post
-    picture: String, // Picture (file path) for post
     actorLikes: { type: Number, default: 0 }, // Indicates the # of likes on the comment by actors
     likes: { type: Number, default: 0 }, // Indicates the total # of likes on the post
-    comments: [{ type: Schema.ObjectId, ref: "Comment" }], // Comments on post
     absTime: Date, // Absolute Time; Indicates the exact time the post was made
-    time: { type: Number }, // Indicates when the post was made relative to how much time has passed since the user created their account, in milliseconds
+    updateTime: Date, // Update Time; Indicates the exact time the comment was last updated
+    picture: String, // Picture (file path) for post
+    comments: [{ type: Schema.ObjectId, ref: "Comment" }], // Comments on post
   },
   { versionKey: false },
 );

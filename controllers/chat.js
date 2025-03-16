@@ -12,16 +12,14 @@ exports.getChat = async (req, res, next) => {
       .populate("messages.messenger")
       .exec();
 
-    const { actor, actorType } = await helpers.lookupActorByName(
-      req.query.chatId,
-    );
+    const actor = await helpers.lookupActorByName(req.query.chatId);
 
     // If actor or chat is not found, return an empty message array with the actor
     if (!actor) return next(new Error("Actor not found"));
 
     // Find profile photo of actor
     let picture;
-    if (actorType == "User" || actorType == "Agent") {
+    if (actor.actorType == "User" || actor.actorType == "Agent") {
       if (actor.profile.picture)
         picture = "/user_avatar/" + actor.profile.picture;
       else picture = actor.gravatar(60);
@@ -31,7 +29,7 @@ exports.getChat = async (req, res, next) => {
     if (!chat) {
       return res.send({
         messages: [],
-        actorType: actorType,
+        actorType: actor.actorType,
         username: actor.username,
         picture: picture,
         name: actor.profile.name,
@@ -45,7 +43,7 @@ exports.getChat = async (req, res, next) => {
 
     res.send({
       messages: messages,
-      actorType: actorType,
+      actorType: actor.actorType,
       username: actor.username,
       picture: picture,
       name: actor.profile.name,
@@ -69,13 +67,11 @@ exports.postChatAction = async (req, res, next) => {
         messages: [],
       });
     }
-    const { actor, actorType } = await helpers.lookupActorByName(
-      req.query.chatId,
-    );
+    const actor = await helpers.lookupActorByName(req.query.chatId);
     actor.chatAction.push(chat.id);
 
     const cat = {
-      messageType: actorType,
+      messageType: actor.actorType,
       messenger: req.user.id,
       body: req.body.body,
       absTime: req.body.absTime,
