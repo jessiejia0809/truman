@@ -41,3 +41,6 @@ To change or define a variable, replace the value after the equals sign of the c
 > If your variable _value_ has a space, enclose the value with quotes. For example:
 >
 > `SITE_NAME="Football Forums"`
+
+| [Previous<br>Defining Your Simulation](/docs/setting-up-truman/defining-your-simulation/index.md) | [Next<br>Simulation Components](/docs/setting-up-truman/defining-your-simulation/simulation-components.md) |
+| ------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |

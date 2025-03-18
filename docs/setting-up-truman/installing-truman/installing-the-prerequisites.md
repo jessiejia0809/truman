@@ -122,3 +122,6 @@ Visual Studio Code is a source-code editor, making it easier to make changes to 
 If you already have a source-code editor that you use to (like Atom, Sublime Text), you can skip this step. Additionally, if you do not plan to make any changes to the code, you can also skip this step.
 
 1.  Follow the instructions here to download Visual Studio Code: [https://code.visualstudio.com/](https://code.visualstudio.com/).
+
+| [Previous<br>Installing Truman](/docs/setting-up-truman/installing-truman/index.md) | [Next<br>Setting Up Truman Locally](/docs/setting-up-truman/installing-truman/setting-up-truman-locally.md) |
+| ----------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |

@@ -17,3 +17,6 @@ At the very end of the tutorial, you should have a running version of the projec
 >   ![](macos.avif)
 > - On **Windows:** In the Windows search bar, enter "Command Prompt" and select "Run as administrator".
 >   ![](windows.png)
+
+| [Previous<br>Citation and Papers](/docs/getting-started/citation-and-papers.md) | [Next<br>Installing the Prerequisites](/docs/setting-up-truman/installing-truman/installing-the-prerequisites.md) |
+| ------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |

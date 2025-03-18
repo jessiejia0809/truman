@@ -63,3 +63,6 @@ The key that unites the participants' data with any Qualtrics pre-study surveys 
 for more details)
 
 You may also use the Mechanical Turk ID value of participants and the exported data to identify and help with payments/ rewards after the study.
+
+| [Previous<br>Launching Your Study](/docs/getting-started/launching-your-study.md) | [Next<br>Citation and Papers](/docs/getting-started/citation-and-papers.md) |
+| --------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |

@@ -39,3 +39,6 @@ DiFranzo, D. & Bazarova, N. N. (2018). [The Truman Platform: Social media simula
 ## Sharing your findings with us through email
 
 We would love to hear about your study findings and contribution to the research community. Please email us a study report after you have completed your study to [cornellsocialmedia@gmail.com](mailto:cornellsocialmedia@gmail.com).
+
+| [Previous<br>Exporting Study Data](/docs/getting-started/exporting-study-data.md) | [Next<br>Installing Truman](/docs/setting-up-truman/installing-truman/index.md) |
+| --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |

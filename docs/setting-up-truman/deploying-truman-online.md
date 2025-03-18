@@ -174,3 +174,6 @@ Heroku is also among one of the fastest ways to deploy an application without in
 
 1.  Sign up for a free account at [https://heroku.com/](https://heroku.com/).
 2.  Follow these instructions to deploy the website: [https://devcenter.heroku.com/articles/git](https://devcenter.heroku.com/articles/git).
+
+| [Previous<br>File Directory](/docs/setting-up-truman/file-directory.md) | [Next<br>People](/docs/people.md) |
+| ----------------------------------------------------------------------- | --------------------------------- |

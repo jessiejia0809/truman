@@ -23,3 +23,6 @@ A multidisciplinary team of researchers and developers throughout the years have
 - **Aaishi Uppuluri** - Former Master of Science student ('24), Department of Computer Science _Cornell University_
 - **Juji Lau** - Current Master of Science student ('25), Department of Computer Science _Cornell University_
 - **Logan Kraver** - Current Undergraduate student ('25), Department of Computer Science _Cornell University_
+
+| [Previous<br>Deploying Truman Online](/docs/setting-up-truman/deploying-truman-online.md) | [Next<br>Contact Us](/docs/contact-us.md) |
+| ----------------------------------------------------------------------------------------- | ----------------------------------------- |

@@ -37,3 +37,6 @@ See [Defining your Simulation](/docs/setting-up-truman/defining-your-simulation/
 ### Displaying different simulation interfaces for different experimental conditions
 
 Researchers can also display different simulation _interfaces_ for different experimental conditions; however, coding experience is needed and requires the researcher to make changes to the codebase to develop the different interfaces and logic for display.
+
+| [Previous<br>Initial Experimental Design](/docs/getting-started/initial-experimental-design.md) | [Next<br>Launching Your Study](/docs/getting-started/launching-your-study.md) |
+| ----------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |

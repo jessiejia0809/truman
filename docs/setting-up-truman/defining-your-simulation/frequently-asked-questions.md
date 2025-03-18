@@ -84,3 +84,6 @@ To do this, follow the instructions here: [https://docs.github.com/en/pull-reque
 It is possible that as you do this, you will need to resolve merge conflicts (i.e. differences in code) manually.
 
 </details>
+
+| [Previous<br>Best Practices for Simulation Building](/docs/setting-up-truman/defining-your-simulation/best-practices-for-simulation-building.md) | [Next<br>File Directory](/docs/setting-up-truman/file-directory.md) |
+| ------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------- |

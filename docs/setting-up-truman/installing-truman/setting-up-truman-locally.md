@@ -182,3 +182,6 @@ Now that you have indicated in your project which database to connect to, it is 
 3.  You should be able to see a screen like the one below.
 4.  Congratulations! You now have your own version of Truman running on your local computer! Create a new account and try out Truman for yourself.
     ![](truman-signin.avif)
+
+| [Previous<br>Installing the Prerequisites](/docs/setting-up-truman/installing-truman/installing-the-prerequisites.md) | [Next<br>Defining Your Simulation](/docs/setting-up-truman/defining-your-simulation/index.md) |
+| --------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |

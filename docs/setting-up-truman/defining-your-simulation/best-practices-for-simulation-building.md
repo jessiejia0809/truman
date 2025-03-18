@@ -29,3 +29,6 @@
 - Test test test!
   - Live in your simulation and experience what feels real or fake.
   - Test with those who have not used your simulation before, and get their opinion on the realism and believability of the simulation.
+
+| [Previous<br>Simulation Components](/docs/setting-up-truman/defining-your-simulation/simulation-components.md) | [Next<br>Frequently Asked Questions](/docs/setting-up-truman/defining-your-simulation/frequently-asked-questions.md) |
+| -------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |

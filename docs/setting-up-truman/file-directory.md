@@ -98,3 +98,6 @@ Below is a breakdown of the project files, with the name of each file and a brie
 **Fomantic UI:** [https://fomantic-ui.com/](https://fomantic-ui.com/)
 
 - Fomantic UI is a front-end development framework that helps create beautiful, responsive layouts using human-friendly HTML. Almost all of our components are borrowed and customized from Fomantic UI.
+
+| [Previous<br>Frequently Asked Questions](/docs/setting-up-truman/defining-your-simulation/frequently-asked-questions.md) | [Next<br>Deploying Truman Online](/docs/setting-up-truman/deploying-truman-online.md) |
+| ------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------- |

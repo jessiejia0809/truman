@@ -51,3 +51,6 @@ Building a cover story for The Truman Platform is extremely important for reinfo
 ### Ethics
 
 Getting ethical approval for Truman studies is essential as Truman studies deal with deceiving participants into believing the actors on the site are real users of the site. A key element to getting ethical approval is to have a clear debrief in the post survey at the end of your study and allowing participants to make an informed consent after this debrief.
+
+| [Previous<br>The Truman Platform](/docs/index.md) | [Next<br>Developing Your Simulation](/docs/getting-started/developing-your-simulation.md) |
+| ------------------------------------------------- | ----------------------------------------------------------------------------------------- |

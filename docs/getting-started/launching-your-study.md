@@ -77,3 +77,6 @@ The _ResponseID_ is an ID Qualtrics uses to identify each survey response in the
 As a result, you can then match a participant's pre-study survey response (with`ResponseID`), behavioral data on Truman (with `ResponseID`), and post-study survey response (with the variable of your embedded data) together. Below is a diagram that describes how to integrate Qualtrics with The Truman Platform and outlines this mechanism more in detail:
 
 ![](qualtrics-workflow.png)
+
+| [Previous<br>Initial Experimental Design](/docs/getting-started/initial-experimental-design.md) | [Next<br>Exporting Study Data](/docs/getting-started/exporting-study-data.md) |
+| ----------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
