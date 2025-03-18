@@ -14,4 +14,4 @@ Also special thanks to Sahat Yalkabov and his [Hackathon Starter](https://github
 
 ## **Documentation**
 
-Please see **[https://truman.gitbook.io/the-truman-platform/](https://truman.gitbook.io/the-truman-platform)** for more details on how to use this tool.
+Please see the **[documentation](/docs/index.md)** for more details on how to use this tool.
