@@ -1,7 +1,7 @@
 # Frequently Asked Questions
 
 <details>
-<summary>I uploaded my new simulation pictures into the project file directory `**/input**` and the file names in my csv files exactly match the file names of my pictures, but I still don't see the new pictures loaded in my simulation. What should I do?</summary>
+<summary>I uploaded my new simulation pictures into the project file directory **`/scenarios/<scenario name>`** and the file names in my csv files exactly match the file names of my pictures, but I still don't see the new pictures loaded in my simulation. What should I do?</summary>
 
 Check that you have defined the CDN URL value properly.
 
@@ -19,7 +19,7 @@ Save the file, then restart your local environment. In the Terminal/Command prom
 </details>
 
 <details>
-<summary>I updated the simulation content by changing the csv files in the project file directory `**/input**`, but I don't see the new content in my simulation. What should I do?</summary>
+<summary>I updated the simulation content by changing the csv files in the project file directory **`/scenarios/<scenario name>`**, but I don't see the new content in my simulation. What should I do?</summary>
 
 Make sure you have repopulated the database with the new simulation content by entering the command in the terminal/command prompt: `node populate.js`, which runs the script populate.js.
 
@@ -45,7 +45,7 @@ So, the only way to assist them is to reset their account with a new temporary p
 
 To do this, you will need to run the script **updatePassword.js,** which connects to the database defined in the **.env** file, finds the right user, and updates their password.
 
-To run this script, enter in the terminal/command prompt from the root directory of your project: `node updatePassword.js <email> <password>` . Replace <email> and <password> with the email associated with the desired account and the new password (for example: `node updatePassword.js johndoe@gmail.com 12345`).
+To run this script, enter in the terminal/command prompt from the root directory of your project: `node updatePassword.js <email> <password>` . Replace &lt;email&gt; and &lt;password&gt; with the email associated with the desired account and the new password (for example: `node updatePassword.js johndoe@gmail.com 12345`).
 
 Ensure that that you run this command on your server if the account you are changing the password to is for your _deployed_ application (so that it finds and changes the account in the right database).
 
@@ -56,7 +56,7 @@ Afterwards, you will need to send the participant their new temporary password. 
 <details>
 <summary>How do I display different simulations for different experimental conditions?</summary>
 
-You can readily display different _**simulation content**_ (example: actors, posts, comments, notifications) for different experimental conditions by using the `**.env**` file and the input csv files.
+You can readily display different _**simulation content**_ (example: actors, posts, comments) for different experimental conditions by using the **`.env`** file and the input csv files.
 
 In the `.env` file,
 
@@ -65,8 +65,7 @@ In the `.env` file,
 2.  Define the environmental variable `EXP_CONDITIONS_NAMES` with the names of your experimental conditions. Each name should be separated with a comma, with no spaces in between. For example:
     EXP_CONDITIONS_NAMES=marginal,unambig_flag,troll,ambig_flag,unambig_none
 
-See [here](/docs/setting-up-truman/defining-your-simulation/basic-simulation-components.md)
-for more information about the environmental variables and how to change them.
+See [here](/docs/setting-up-truman/defining-your-simulation/basic-simulation-components.md) for more information about the environmental variables and how to change them.
 
 Then, in the input csv files, use the column **condition** to label which condition certain simulation content should be displayed in. The labels in this column must exactly match one of the experimental conditions names listed in `EXP_CONDITIONS_NAMES` in the `.env` file.
 

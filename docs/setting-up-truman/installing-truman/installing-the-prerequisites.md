@@ -4,8 +4,7 @@ Before beginning to use Truman, you will need to download all the prerequisite s
 
 Below is a list of all the software you will need to download:
 
-1.  [Homebrew](#homebrew-mac-only)
-    (Mac Only)
+1.  [Macports or Homebrew](#macports-or-homebrew-mac-only) (Mac Only)
 2.  [Node Version Manager (nvm)](#node-version-manager-nvm)
 3.  [Node.js and Node Package Manager (npm)](#nodejs-and-node-package-manager-npm)
 4.  [GitHub Desktop](#github-desktop)
@@ -13,13 +12,16 @@ Below is a list of all the software you will need to download:
 
 The instructions on how to install each prerequisite can be found below.
 
-## ![](homebrew.avif)Homebrew (Mac Only)
+## ![](macports.png)Macports or ![](homebrew.avif)Homebrew (Mac Only)
 
-Follow the instructions here to install Homebrew: [http://brew.sh](http://brew.sh).
+Macports is a free and open-source software package management system, and it simplifies software installation on Apple's macOS. Alternatively, you can use Homebrew if you prefer.
 
-Homebrew is a free and open-source software package management system, and it simplifies software installation on Apple's macOS. You will use Homebrew in the later steps to install the rest of the required software.
+You will use either Macports or Homebrew in the later steps to install the rest of the required software.
 
-This does not work for Windows.
+- Follow the instructions here to install Macports: [https://macports.org](https://macports.org).
+- Follow the instructions here to install Homebrew: [https://brew.sh](https://brew.sh).
+
+These package managers do not work for Windows.
 
 ## ![](nvm.avif)Node Version Manager (nvm)
 
@@ -31,14 +33,13 @@ If you already have Node.js installed on your local computer and you do not want
 2.  To uninstall:
 
 <details>
-<summary><b>Mac/Linux</b></summary>
-Enter the following command in the terminal:
+<summary><b>Mac</b></summary>
+To uninstall any versions of Node.js you currently have, enter the following command in the terminal:
+If using Macports:
+    sudo port uninstall node
 
-Uninstall any versions of Node.js you currently have:
-
-Copy
-
-    brew uninstall --force node
+If using Homebrew:
+brew uninstall --force node
 
 </details>
 
@@ -50,28 +51,30 @@ Follow the instructions in the first answer here: [https://stackoverflow.com/que
 3.  Then, install nvm.
 
 <details>
-<summary><b>Mac/Linux</b></summary>
-Enter the following commands in the terminal:
+<summary><b>Mac</b></summary>
+To install NVM, enter the following commands in the terminal:
 
-Install NVM via Homebrew:
+If using Macports:
+sudo port install nvm
 
-Copy
+If using Homebrew:
+brew install nvm
 
-    brew install nvm
-
-Create NVM's working directory if it doesn't exist:
-
-Copy
+Then create NVM's working directory if it doesn't exist:
 
     mkdir ~/.nvm
 
-Add the following to your shell profile e.g. ~/.profile or ~/.zshrc:
+Add the following to your shell profile e.g. ~/.bashrc or ~/.zshrc:
 
-Copy
+If using Macports:
+export NVM_DIR="$HOME/.nvm"
+[ -s "/opt/local/share/nvm/init-nvm.sh" ] && source "/opt/local/share/nvm/init-nvm.sh" # This loads nvm
+[ -s "/opt/local/share/bash-completion/completions/nvm" ] && source "/opt/local/share/bash-completion/completions/nvm" # This loads nvm bash_completion
 
-    export NVM_DIR="$HOME/.nvm"
-        [ -s "$HOMEBREW_PREFIX/opt/nvm/nvm.sh" ] && \. "$HOMEBREW_PREFIX/opt/nvm/nvm.sh" # This loads nvm
-        [ -s "$HOMEBREW_PREFIX/opt/nvm/etc/bash_completion.d/nvm" ] && \. "$HOMEBREW_PREFIX/opt/nvm/etc/bash_completion.d/nvm" # This loads nvm bash_completion
+If using Homebrew:
+export NVM_DIR="$HOME/.nvm"
+        [ -s "$HOMEBREW_PREFIX/opt/nvm/nvm.sh" ] && source "$HOMEBREW_PREFIX/opt/nvm/nvm.sh" # This loads nvm
+        [ -s "$HOMEBREW_PREFIX/opt/nvm/etc/bash_completion.d/nvm" ] && source "$HOMEBREW_PREFIX/opt/nvm/etc/bash_completion.d/nvm" # This loads nvm bash_completion
 
 </details>
 
@@ -119,7 +122,7 @@ If you already have a workflow for pulling/pushing code from GitHub, you can ski
 
 Visual Studio Code is a source-code editor, making it easier to make changes to the code in the codebase.
 
-If you already have a source-code editor that you use to (like Atom, Sublime Text), you can skip this step. Additionally, if you do not plan to make any changes to the code, you can also skip this step.
+If you already have a source-code editor that you use to (e.g. Kakoune, Zed, Sublime Text), you can skip this step. Additionally, if you do not plan to make any changes to the code, you can also skip this step.
 
 1.  Follow the instructions here to download Visual Studio Code: [https://code.visualstudio.com/](https://code.visualstudio.com/).
 

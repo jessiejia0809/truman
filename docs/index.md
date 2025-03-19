@@ -18,6 +18,8 @@ Researchers can create different social media environments with a repertoire of 
 Specifically, researchers can:
 
 - Simulate realistic and interactive timelines and newsfeeds, by curating, creating, and controlling every "actor" (a simulated user on the website), post, like, comment, notification, and interaction that appears on the platform
+  - "Actors" are fully controlled, while "Agents" are LLM-controlled
+- Allow multiple participants to interact on the same feed
 - Customize the social media simulation platform's interface and functionality
 - Create experiments with random assignment and exposure of participants' to different experimental conditions
 - Collect a variety of participant behavioral metrics on the platform (including how they interact with posts and comments, how long they are on the site, and more.)

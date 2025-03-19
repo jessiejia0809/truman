@@ -75,7 +75,7 @@ However, if you would like to use the original project repository, you can find 
 
 You will use the Truman codebase as a template to create your own code repository of Truman. This allows you to create your own projects without affecting the main Truman source code.
 
-1.  Go to [GitHub](https://github.com/), and sign into your account.
+1.  Go to [GitHub](https://github.coecis.cornell.com/), and sign into your account.
 2.  Then, go to [https://github.coecis.cornell.edu/sms-apps/truman](https://github.coecis.cornell.edu/sms-apps/truman).
 3.  Click the green button that says **Use This Template**.
     ![](github-template.png)
@@ -106,7 +106,7 @@ Now that you have a local copy of the Truman codebase on your own laptop, we wil
 ### Step 1: Install the project package dependencies
 
 1.  Open the terminal/command prompt.
-2.  `cd` (change directory) into the file directory you cloned the repository to by entering the command `cd <file-directory-path>` and replacing `<file-directory-path>` with the file directory path. For example, if you cloned the repository into C:\\Users\\JohnDoe\\Documents\\GitHub\\truman you would enter `cd C:\Users\JohnDoe\Documents\GitHub\truman` in the terminal/command prompt.
+2.  `cd` (change directory) into the file directory you cloned the repository to by entering the command `cd <file-directory-path>` and replacing `<file-directory-path>` with the file directory path. For example on Windows, if you cloned the repository into C:\\Users\\JohnDoe\\Documents\\GitHub\\truman you would enter `cd C:\Users\JohnDoe\Documents\GitHub\truman` in the terminal/command prompt.
 3.  Next, enter `npm install` in the terminal/command prompt. This installs all the external node libraries for Truman . You are going to see a bunch of lines of code come and go on the screen. This is completely normal. This may take a few minutes as the project needs to download and install a lot of libraries. Afterwards, you should see a screen similar to the one below, with a message like “added XXXX packages….”, indicating the installation was successful. Note: If the installation prompts you to update npm, you can update npm. However, it is not necessary.
     ![](npm-install.png)
 
@@ -140,7 +140,7 @@ An example **.env** file is provided in the codebase (**.env.example**) to help 
 <details>
 <summary><b>Mac/Linux</b></summary>
 
-1. Edit the .env file with nano by entering `nano .env` in the terminal.
+1. Edit the .env file with nano (or your favorite command line editor) by entering `nano .env` in the terminal.
 2. Replace the value of the key **MONGODB_URI=** with the URL that you recorded down earlier to tell the application which database to connect to (i.e. replace the value to the right of the equals signs with the connection string; see the screenshot below as an example). Make sure that there are no spaces between the key and the connection string.
 3. Exit the nano window with **CTRL+X.**
 4. Before exiting, you will be asked if you want to save your changes to the file. Press **Y** and hit **Enter** to save.

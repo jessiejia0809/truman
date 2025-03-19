@@ -2,7 +2,7 @@
 
 ## Best Practices for Simulation Building
 
-- Create the actors first.
+- Create the actors and agents first.
   - Be creative but not TOO creative. Aim for believability.
   - Remember who your target audience and participants will be.
   - Be consistent!
@@ -21,9 +21,6 @@
   - Role play as your actor, do all your comments for one actor at a time, role-playing as that actor.
   - Have some small conversations between actors in the comments.
   - This is where we create “community”.
-- Define actor behaviors (liking, reading, commenting) in response to participant behavior.
-  - When making comments in response to a participant's posts, make it super generic. It should be a comment that could apply to ANY photo.
-  - Make a few, but not too much (no more than what you have created as normal for other posts on the site already).
 - Write together as a research team.
   - If you are creating and writing a simulation collaboratively, upload the CSV files to Google Docs or Box. Makes it much easier to edit together.
 - Test test test!

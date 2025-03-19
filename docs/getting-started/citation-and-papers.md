@@ -1,6 +1,6 @@
 # Citation and Papers
 
-The Truman Platform was first created in 2018 by [Dominic DiFranzo](https://difranzo.com/) and [Natalie Bazarova](https://cals.cornell.edu/natalie-bazarova) to study [bystander interventions on cyberbullying](https://dl.acm.org/doi/10.1145/3173574.3173785).
+The Truman Platform was first created in 2018 by [Dominic DiFranzo](https://difranzo.com/) and [Natalie Bazarova](https://cals.cornell.edu/natalie-bazarova) to study [bystander interventions on cyberbullying](https://dl.acm.org/doi/10.1145/3173574.3173785). It was subsequently updated to support LLM-based agents and multiple users in the same session by [Nader Akoury](https://dojoteef.com).
 
 Since then, the platform has been generalized to provide social scientists a research infrastructure to explore and study a variety of research questions and topics.
 
