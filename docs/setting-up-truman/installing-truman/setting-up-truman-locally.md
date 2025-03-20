@@ -159,9 +159,9 @@ An example **.env** file is provided in the codebase (**.env.example**) to help 
 
 ### Step 3: Populate your database
 
-Now that you have indicated in your project which database to connect to, it is time to populate the database with the simulation content.
+Now that you have indicated in your project which database to connect to, it is time to populate the database with the simulation content. By default, the code has two scenarios that you can populate: the original food-based social meda feed built around a site named EatSnap.Love (in directory `scenarios/food` or a set of cyberbullying posts (in directory `scenarios/cyberbullying/`).
 
-1.  Enter `node populate.js` in the terminal/command prompt. This command runs the script **populate.js**, which connects to the MongoDB database you just defined in the **.env** file and uploads the simulation data found in the csv files in the **./input** folder in the project directory to the MongoDB database you created.
+1.  Enter `node populate.js <scenario directory>` in the terminal/command prompt, i.e. for EatSnap.Love type in `node populate.js scenarios/food`. This command runs the script **populate.js**, which connects to the MongoDB database you just defined in the **.env** file and uploads the simulation data found in the csv files in the **`scenarios/<scenario name>`** folder in the project directory to the MongoDB database you created.
 2.  You should see something printed similar to this.
     ![](populate-db.png)
 3.  After the script is done running, go to [https://cloud.mongodb.com/](https://cloud.mongodb.com/) to look at the database you just populated.
