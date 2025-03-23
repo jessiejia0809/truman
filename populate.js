@@ -1,4 +1,4 @@
-const { Actor } = require("./models/Actor.js");
+const { Actor, validateUsername } = require("./models/Actor.js");
 const Agent = require("./models/Agent.js");
 const Script = require("./models/Script.js");
 const Comment = require("./models/Comment.js");
@@ -82,28 +82,41 @@ async function doPopulate() {
    * Create all the Actors and Agents in the simulation
    * Must be done before creating any other instances
    */
-  const actors = actors_list.map(
-    (actor_raw) =>
-      new Actor({
-        actorType: "Actor",
-        username: actor_raw.username,
-        profile: {
-          name: actor_raw.name,
-          gender: actor_raw.gender,
-          age: actor_raw.age,
-          location: actor_raw.location,
-          bio: actor_raw.bio,
-          picture: actor_raw.picture,
-        },
-        class: actor_raw.class,
-      }),
-  );
+  const actors = actors_list.map((actor_raw) => {
+    const username = actor_raw.username;
+    if (!validateUsername(username)) {
+      throw new TypeError(
+        `Invalid username ${username}. Must contain only letters, numbers, or the following symbols: .-_`,
+      );
+    }
+
+    return new Actor({
+      actorType: "Actor",
+      username: username,
+      profile: {
+        name: actor_raw.name,
+        gender: actor_raw.gender,
+        age: actor_raw.age,
+        location: actor_raw.location,
+        bio: actor_raw.bio,
+        picture: actor_raw.picture,
+      },
+      class: actor_raw.class,
+    });
+  });
 
   const agents = await Promise.all(
     agents_list.map(async function (agent_raw) {
+      const username = agent_raw.username;
+      if (!validateUsername(username)) {
+        throw new TypeError(
+          `Invalid username ${username}. Must contain only letters, numbers, or the following symbols: .-_`,
+        );
+      }
+
       const agent = new Agent({
         actorType: "Agent",
-        username: agent_raw.username,
+        username: username,
         profile: {
           name: agent_raw.name,
           gender: agent_raw.gender,

@@ -114,8 +114,6 @@ exports.getFeed = async function (
     post.flagged = action?.flagged;
     post.read = !!action?.readTime[0];
     feed.push(post);
-
-    console.log(post);
   }
 
   if (order === "SHUFFLE") {

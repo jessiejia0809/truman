@@ -1,3 +1,4 @@
+const validator = require("validator");
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
@@ -97,8 +98,13 @@ const actorSchema = new mongoose.Schema(
   { timestamps: true, versionKey: false },
 );
 
+function validateUsername(username) {
+  return validator.isAlphanumeric(username, "en-US", { ignore: "-_." });
+}
+
 const Actor = mongoose.model("Actor", actorSchema);
 module.exports = {
   actorSchema,
   Actor,
+  validateUsername,
 };

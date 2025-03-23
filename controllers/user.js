@@ -3,7 +3,7 @@ const validator = require("validator");
 const dotenv = require("dotenv");
 dotenv.config({ path: ".env" }); // See the file .env.example for the structure of .env
 const helpers = require("./helpers");
-const { Actor } = require("../models/Actor");
+const { Actor, validateUsername } = require("../models/Actor");
 const Agent = require("../models/Agent");
 const User = require("../models/User");
 const Session = require("../models/Session");
@@ -129,6 +129,11 @@ exports.getSignup = (req, res, next) => {
  */
 exports.postSignup = async (req, res, next) => {
   const validationErrors = [];
+  if (!validateUsername(req.body.username)) {
+    validationErrors.push({
+      msg: "Invalid username. Must contain only letters, numbers, or the following symbols: .-_",
+    });
+  }
   if (!validator.isEmail(req.body.email))
     validationErrors.push({ msg: "Please enter a valid email address." });
   if (!validator.isLength(req.body.password, { min: 4 }))

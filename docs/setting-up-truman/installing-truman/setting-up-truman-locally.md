@@ -169,6 +169,7 @@ Now that you have indicated in your project which database to connect to, it is 
     2.  Click on the name of your cluster (the default name was Cluster0, if you did not change it).
     3.  Under Collections, you should now see 3 new collections in your database, called “actors”, “scripts”, “notifications”. These are the objects that form the simulation (actors, posts, comments, notifications etc.)
         ![](collections-mongodb.avif)
+4.  (Optional) Create a new admin account by running `node addNewAdmin.js <email> <username> <password>`. The script will output an API key which is required for using the REST API.
 
 > [!NOTE]
 > If you downloaded MongoDB Compass earlier (an optional step), you can also view your database via MongoDB Compass. This may be an easier interface to use than the web browser interface if you plan to manipulate and check the objects in your database often:

@@ -1,6 +1,7 @@
 function onBottomVisible(element) {
   const postParent = $(this).closest("[postID]");
   const commentParent = $(this).closest("[commentID]");
+
   const parent = commentParent.length ? commentParent : postParent;
   const timer = parent.children(".viewTimer");
   // Bottom of the element enters from bottom (scrolling down the feed; as normal)
@@ -38,9 +39,10 @@ function onBottomPassed(element) {
       duration: totalViewTime,
       _csrf: $('meta[name="csrf-token"]').attr("content"),
     });
-    // Reset Timer
-    timer.text("NaN");
   }
+
+  // Reset Timer
+  timer.text("NaN");
 }
 
 // Handling scrolling up
@@ -54,6 +56,10 @@ function onTopPassedReverse(element) {
   if (element.bottomVisible) {
     // Scrolling Up AND entire post is visible on the viewport
     timer.text(parseInt(timer.text()) || Date.now());
+  } else {
+    // Scrolling down and this event does not matter, since entire photo isn't visible anyways.
+    // Reset Timer
+    timer.text("NaN");
   }
 }
 
