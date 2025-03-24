@@ -3,7 +3,6 @@ const Agent = require("../models/Agent");
 const User = require("../models/User");
 const helpers = require("./helpers");
 const dotenv = require("dotenv");
-const _ = require("lodash");
 dotenv.config({ path: ".env" }); // See the file .env.example for the structure of .env
 
 /**

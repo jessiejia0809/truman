@@ -4,25 +4,6 @@ const User = require("../models/User.js");
 const Script = require("../models/Script.js");
 const _ = require("lodash");
 
-// From https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
-// Function shuffles the content of an array and returns the shuffled array.
-function shuffle(array) {
-  let currentIndex = array.length,
-    randomIndex;
-  // While there remain elements to shuffle.
-  while (currentIndex != 0) {
-    // Pick a remaining element.
-    randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex--;
-    // And swap it with the current element.
-    [array[currentIndex], array[randomIndex]] = [
-      array[randomIndex],
-      array[currentIndex],
-    ];
-  }
-  return array;
-}
-
 /**
  * This is a helper function, called in .getScript() (./script.js controller file), .getActor() (./actors.js controller file).
  * It takes in a User document, and other parameters, and it processes and generates a final feed of posts for the user based on these parameters.
