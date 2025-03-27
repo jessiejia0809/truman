@@ -2,13 +2,14 @@
 
 ## Simulation Components
 
-There are 3 primary components to a simulation:
+There are 4 primary components to a simulation:
 
 1.  **Actors and agents:** Actors and agents are the simulated users on the website that the participant believes are real.
     1. All interactions by Actors are fully defined by the researcher.
     2. Agents dynamically perform actions via the [Truman World LLM simulation](https://github.coecis.cornell.edu/sms-apps/truman-world), based upon instructions provided by the researcher.
 2.  **Posts:** These are the simulated posts that the simulated actors have "posted"/"made", which appear on the timeline/feed.
 3.  **Replies:** These are the simulated comments that the simulated actors have "posted"/"made", which appear on the timeline/feed.
+4.  **Scenarios:** These define the instructions for how agents should behave in response to user actions on the timeline/feed.
 
 ### How to define the simulation components
 
@@ -75,6 +76,7 @@ To define an agent, go to the `agents.csv` file. For each agent, add a new row, 
 - **age** is the agent's age. (optional)
 - **location** is the agent's location. (optional)
 - **bio** is the agent's bio. (optional)
+- **behavior** are instructions for how the agent should behave. (optional)
 - **picture** is the file path/ file name of the agent's profile photo, relative to the folder `/profile_pictures`. See below for more information:
   - Place all agent profile photos into the `/profile_pictures` folder. When filling out the `agents.csv` file, the value that is inputted into the 'picture' column for an agent should **exactly match** the file path and file name of the same agent's profile photo, relative to the folder `/profile_pictures`. See the current csv file for examples.
   - The Truman template currently has 76 profile photos in the `/profile_pictures` folder and more to choose from in the subfolder `/profile_pictures/unused`.
@@ -92,8 +94,6 @@ The **`posts.csv`** file defines the basic content of the **simulation posts** (
 
 To define a post, go to the `posts.csv` file. For each post, add a new row, and define the following fields under their respective columns:
 
-- **id** is the _unique_ identifier id of the post. These are numerical values. They could be any arbitrary number, but the base template has assigned posts with ids sequentially starting from 0. (required field)
-  - Note: No 2 posts can share the same id.
 - **body** is the caption text of the post. It is displayed under the post's photo on the Truman Platform, similar to Instagram. (required field)
 - **picture** is the file path/ file name of the post's photo, relative to the folder `/post_pictures`. (required field) See below for more information:
   - Place all post photos into the `/post_pictures` folder. When filling out the `posts.csv` file, the value that is inputted into the 'picture' column for a post should **exactly match** the file path and the file name of the same post's photo, relative to the folder `/post_pictures`. See the current csv file for examples.
@@ -119,11 +119,9 @@ The **`replies.csv`** file defines the **comments** on the simulation posts. One
 
 To define a comment on a post, go to the `replies.csv` file. For each comment, add a new row, and define the following fields under their respective columns:
 
-- **id** is the _unique_ identifier id of the comment. These are numerical values. They could be any arbitrary number, but the base template has assigned comments with ids sequentially starting from 0. (required field)
-  - Note: No 2 comments can share the same id.
 - **body** is the text of the comment. (required field)
 - **actor** is the username of the actor who "posts" this comment. This value must match a username value in `/scenarios/<scenario name>/actors.csv` exactly. (required field)
-- **postID** is the ‘id’ of the post that the comment will appear on. This value must match a id value in `/scenarios/<scenario name>/posts.csv` exactly. (required field)
+- **postID** is the ‘id’ of the post that the comment will appear on. This value must match the row of the post in `/scenarios/<scenario name>/posts.csv`. (required field)
 - **likes** is the # of likes this comment is simulated to have. If a value is not given, then a random value will be generated for the comment. (optional)
 - **time** is the timestamp the comment should be simulated to have been posted, relative to the moment the participant joined the website. It can be defined as before or after the participant joined using the format (+/-)HH:MM. (required field)
   - For example:
@@ -132,6 +130,18 @@ To define a comment on a post, go to the `replies.csv` file. For each comment, a
   - When defining comments, ensure that comments always appear "after" a post is made, for continuity purposes. So for example, if a post is simulated to appear at 04:10 (4 hours and 10 minutes after a participant creates their account), all comments on this post should be simulated to appear after 04:10 (i.e. times after 04:10).
 - **condition** indicates which experimental condition this comment should be displayed in. If this value is left blank, this comment will be displayed in **all** experimental conditions. Otherwise, this comment will be displayed only participants in the defined experimental condition. Ensure that the value here exactly matches one of the experimental conditions labels as defined in the **`.env`** file variable `EXP_CONDITIONS_NAMES` (see [here](/docs/setting-up-truman/defining-your-simulation/basic-simulation-components.md) for more info).
 - **class** can be used as a label for experimental purposes. It is not used in the database. For example, you can label certain comments as "bully" or "victim". (optional)
+</details>
+
+<details>
+<summary><code>scenarios/&lt;scenario name&gt;/scenarios.csv</code></summary>
+<a name="input-scenarios"></a>
+
+The **`scenarios.csv`** file defines the social media **scenarios**. These provide feed-wide instructions for how virtual agents should behave. Mulitple users can join a session tied to a specific scenario. Each user can only be part of a single session, though each session can be tied to a different scenario. You can also have multiple sessions tied to the same scenario (e.g. you have five groups of students in a classroom all using Truman as part of an assignment, each group would have it's own session and see a separate version of the same scenario).
+
+To define a scenario, go to the `scenarios.csv` file. For each scenario, add a new row, and define the following fields under their respective columns:
+
+- **name** The name of the scenario. (required field)
+- **description** Instructions for how the scenario should unfold. (required field)
 </details>
 
 ### Populate your database with your simulation

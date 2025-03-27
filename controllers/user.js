@@ -156,6 +156,18 @@ exports.postSignup = async (req, res, next) => {
   });
 
   try {
+    const session = await Session.findOne({
+      name: req.body.sessionName,
+    }).exec();
+    if (!session) {
+      req.flash("errors", [
+        {
+          msg: `Unknown session ${req.body.sessionName}.`,
+        },
+      ]);
+      return res.redirect("/signup");
+    }
+
     const existingActor = await Actor.findOne({
       username: req.body.username,
     }).exec();
@@ -208,12 +220,6 @@ exports.postSignup = async (req, res, next) => {
           ? req.query.r_id
           : "")
       : "";
-
-    let session = await Session.findOne({ name: req.body.sessionName }).exec();
-    if (!session) {
-      session = new Session({ name: req.body.sessionName });
-      await session.save();
-    }
 
     const currDate = Date.now();
     const user = new User({

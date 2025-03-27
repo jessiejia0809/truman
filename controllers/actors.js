@@ -179,10 +179,11 @@ exports.getNewActor = async (req, res, next) => {
 
 /**
  * POST /actors/new
- * Create new user with name, gender, age, location, bio, picture, class.
+ * Create new user with name, gender, age, location, bio, behavior, picture, class.
  */
 exports.postNewActor = async (req, res, next) => {
-  const { name, gender, age, location, bio, username, actorType } = req.body;
+  const { name, gender, age, location, bio, behavior, username, actorType } =
+    req.body;
   const picture = req.file ? req.file.filename : null; // Handle file upload (if using multer)
 
   const existingActor = await Actor.findOne({
@@ -219,7 +220,12 @@ exports.postNewActor = async (req, res, next) => {
   };
 
   const actor =
-    actorType === "Agent" ? new Agent(actorDetail) : new Actor(actorDetail);
+    actorType === "Agent"
+      ? new Agent({
+          ...actorDetail,
+          behaviorPrompt: behavior,
+        })
+      : new Actor(actorDetail);
   try {
     await actor.save();
   } catch (err) {

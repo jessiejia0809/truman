@@ -4,7 +4,7 @@ block content
   .twelve.wide.computer.tablet.sixteen.wide.mobile.column(style="margin-top: 2em; margin-bottom: 2em;")
     h2(style="text-align: center;") Create New Actor
 
-    form.ui.large.form(action='/actors/new', method='POST', enctype='multipart/form-data')
+    form#newactor.ui.large.form(action='/actors/new', method='POST', enctype='multipart/form-data')
       input(type='hidden', name='_csrf', value=_csrf)
       .field.image-upload
         p(style="font-weight: bold; font-size: medium; margin-bottom: 0.2em") Profile Picture
@@ -41,5 +41,22 @@ block content
       .field
         label(for='bio') Bio
         textarea(rows='2', name='bio', id='bio')=user.profile.bio
+      .field
+        label(for='behavior') Behavior
+        textarea(rows='2', name='behavior', id='behavior', disabled=true)=user.behaviorPrompt
       .ui.buttons
         button.ui.large.positive.button(type='submit') Save
+
+block scripts
+  script.
+    $(window).on("load", function () {
+      $("form#newactor select#actorType").on("change", function (e) {
+        const actorType = e.target.value;
+        const behaviorElement = $("form#newactor textarea#behavior");
+        if (actorType === "Agent" && behaviorElement.prop("disabled")) {
+          behaviorElement.prop("disabled", false);
+        } else if (actorType !== "Agent" && !behaviorElement.prop("disabled")) {
+          behaviorElement.prop("disabled", true);
+        }
+      });
+    });

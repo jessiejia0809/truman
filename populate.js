@@ -2,6 +2,7 @@ const { Actor, validateUsername } = require("./models/Actor.js");
 const Agent = require("./models/Agent.js");
 const Script = require("./models/Script.js");
 const Comment = require("./models/Comment.js");
+const Scenario = require("./models/Scenario.js");
 const fs = require("fs/promises");
 const dotenv = require("dotenv");
 const mongoose = require("mongoose");
@@ -42,6 +43,7 @@ async function doPopulate() {
   const agent_inputFile = `${path}/agents.csv`;
   const posts_inputFile = `${path}/posts.csv`;
   const replies_inputFile = `${path}/replies.csv`;
+  const scenarios_inputFile = `${path}/scenarios.csv`;
 
   await fs.mkdir(postImageDir, { recursive: true });
   await fs.mkdir(profileImageDir, { recursive: true });
@@ -62,6 +64,10 @@ async function doPopulate() {
   await db.collections["comments"].drop();
   console.log(color_success, "Comments collection dropped");
 
+  console.log(color_start, "Dropping scenarios...");
+  await db.collections["scenarios"].drop();
+  console.log(color_success, "Scenarios collection dropped");
+
   console.log(color_start, "Reading actors list...");
   const actors_list = await CSVToJSON().fromFile(actor_inputFile);
   console.log(color_success, "Finished getting the actors_list");
@@ -77,6 +83,10 @@ async function doPopulate() {
   console.log(color_start, "Reading comment list...");
   const comments_list = await CSVToJSON().fromFile(replies_inputFile);
   console.log(color_success, "Finished getting the comment list");
+
+  console.log(color_start, "Reading scenario list...");
+  const scenarios_list = await CSVToJSON().fromFile(scenarios_inputFile);
+  console.log(color_success, "Finished getting the scenario list");
 
   /*
    * Create all the Actors and Agents in the simulation
@@ -125,6 +135,7 @@ async function doPopulate() {
           bio: agent_raw.bio,
           picture: agent_raw.picture,
         },
+        behaviorPrompt: agent_raw.behavior,
         class: agent_raw.class,
       });
 
@@ -230,6 +241,17 @@ async function doPopulate() {
     return comment;
   });
 
+  /*
+   * Creates the list of scenarios
+   */
+  const scenarios = scenarios_list.map(
+    (scenario_raw) =>
+      new Scenario({
+        name: scenario_raw.name,
+        description: scenario_raw.description,
+      }),
+  );
+
   try {
     console.log(color_start, "Starting to populate actors collection...");
     await Actor.bulkSave(Object.values(actors));
@@ -246,6 +268,10 @@ async function doPopulate() {
     console.log(color_start, "Starting to populate post replies...");
     await Comment.bulkSave(comments);
     console.log(color_success, "All replies added to database!");
+
+    console.log(color_start, "Starting to populate scenarios...");
+    await Scenario.bulkSave(scenarios);
+    console.log(color_success, "All scenarios added to database!");
   } catch (err) {
     console.error(
       color_error,
