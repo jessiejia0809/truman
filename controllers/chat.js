@@ -67,7 +67,7 @@ exports.postChatAction = async (req, res, next) => {
         messages: [],
       });
     }
-    const actor = await helpers.lookupActorByName(req.query.chatId);
+    const actor = await helpers.lookupActorByName(req.body.username);
     actor.chatAction.push(chat.id);
 
     const cat = {
