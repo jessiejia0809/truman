@@ -338,7 +338,7 @@ function addComment(e) {
                   </div> 
               </div>
           </div>`;
-      $(this).siblings(".ui.form").find("textarea.newcomment").val("");
+      target.siblings(".ui.form").find("textarea.newcomment").val("");
       comments.append(mess);
     });
   }
