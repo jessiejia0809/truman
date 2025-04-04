@@ -23,6 +23,7 @@ html
   script(src='https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/3.0.0/handlebars.min.js')
   script(src='/socket.io/socket.io.js')
   script(src='https://cdnjs.cloudflare.com/ajax/libs/fomantic-ui/2.9.2/semantic.min.js')
+  script(src='/public/js/chat.js')  
   script(src='/public/js/main.js')
   block scripts
 
@@ -42,3 +43,10 @@ html
             .ui.green.ok.inverted.button
               i.checkmark.icon
               | Done
+
+    button#newPostButton.ui.circular.icon.button(
+      onClick="openChatbot()",
+      style="position: fixed; bottom: 20px; right: 20px; z-index: 1000; padding: 0; width: 60px; height: 60px;")
+      img(src='public/chatbot.png', style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;")
+
+

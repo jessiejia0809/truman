@@ -19,7 +19,7 @@ function toggleChatOpen() {
   }
 }
 
-async function openActorChat(username) {
+async function openActorChat(username, name = null, isBot = false) {
   // Update chat instance
   const chat = $(".actor-chat.container.clearfix").data("chatInstance");
   chat.chatId = username.trim();
@@ -28,11 +28,21 @@ async function openActorChat(username) {
   chat.typingTimeout = null;
   chat.resetChat();
 
-  // Get previous messages in #USERNAME chat and update chat messages
-  const data = await $.getJSON("/chat", {
-    chatFullId: getChatFullId(username, chat.userId),
-    chatId: username,
-  });
+  let data;
+  if (isBot) {
+    data = {
+      username: username,
+      name: name,
+      picture: "public/chatbot.png",
+      messages: [],
+    };
+  } else {
+    // Get previous messages in #USERNAME chat and update chat messages
+    data = await $.getJSON("/chat", {
+      chatFullId: getChatFullId(username, chat.userId),
+      chatId: username,
+    });
+  }
 
   // Update chat header with given actor metadata
   $(".actor-chat").attr("id", data["username"]);
@@ -65,11 +75,60 @@ function clickMessageUser(event) {
   openActorChat(username);
 }
 
+function openChatbot() {
+  console.log("opening chatbot");
+  const id = "chatbot";
+  const name = "ChatBot";
+  openActorChat(id, name, true);
+}
+window.openChatbot = openChatbot;
+
 // Handles clicking the "Message (actor)" button from actor's profile
 function messageFromProfile(event) {
   const target = $(event.target);
   const username = target.attr("actor_un").trim();
   openActorChat(username);
+}
+async function sendFunInit(message) {
+  window.IP_address = "localhost";
+  window.dtid = "dt-1";
+  window.backend_secret = "";
+  window.nodeId = "dc-1";
+
+  window.chatMessages = window.chatMessages || [];
+  window.chatMessages.push({ role: "student", message: message });
+
+  const url = `http://${window.IP_address}:5000/dialogue/${window.dtid}/chat/${window.nodeId}?backend_secret=${window.backend_secret}`;
+
+  try {
+    const response = await $.ajax({
+      url: url,
+      method: "POST",
+      contentType: "application/json",
+      data: JSON.stringify({ messages: window.chatMessages }),
+    });
+
+    if (!response.success) {
+      const errorMsg =
+        "Unfortunately, an error occurred: " + response.error_message;
+      const chat = $(".actor-chat.container.clearfix").data("chatInstance");
+      chat.addMessageExternal(errorMsg, Date.now(), "ChatBot");
+      return;
+    }
+
+    window.nodeId = response.data.next_id;
+
+    const chat = $(".actor-chat.container.clearfix").data("chatInstance");
+    for (let i = 0; i < response.data.responses.length; i++) {
+      chat.addMessageExternal(
+        response.data.responses[i],
+        Date.now(),
+        "ChatBot",
+      );
+    }
+  } catch (err) {
+    console.warn("sendFunInit error:", err);
+  }
 }
 
 $(window).on("load", function () {
@@ -81,6 +140,7 @@ $(window).on("load", function () {
     if (msg.chatId == $(".actor-chat").attr("userId")) {
       const chat = $(".actor-chat.container.clearfix").data("chatInstance");
       if (chat) {
+        //TODO: do i need to modify this
         //- If message received is to a new actor
         if (chat.chatId != msg.senderUsername) {
           await openActorChat(
@@ -239,24 +299,30 @@ $(window).on("load", function () {
         const username = this.userId;
         const message = this.$textarea.val();
         const absTime = Date.now();
+        console.log("got here");
+        if (this.chatId === "chatbot") {
+          console.log("sendfuninit");
+          await sendFunInit(message);
+          this.render(message, absTime, username, false, false);
+          toggleChatOpen();
+        } else {
+          await $.post("/chat", {
+            chatFullId: getChatFullId(this.chatId, username),
+            body: message,
+            absTime: absTime,
+            username: username,
+            _csrf: $('meta[name="csrf-token"]').attr("content"),
+          });
 
-        // Save the message to the database
-        await $.post("/chat", {
-          chatFullId: getChatFullId(this.chatId, username),
-          body: message,
-          absTime: absTime,
-          username: username,
-          _csrf: $('meta[name="csrf-token"]').attr("content"),
-        });
-
-        socket.emit("chat message", {
-          chatId: this.chatId, // To whom is the message for
-          body: message,
-          absTime: absTime,
-          senderUsername: username, // From whom is the message from
-        });
-        this.render(message, absTime, username, false, false);
-        toggleChatOpen();
+          socket.emit("chat message", {
+            chatId: this.chatId, // To whom is the message for
+            body: message,
+            absTime: absTime,
+            senderUsername: username, // From whom is the message from
+          });
+          this.render(message, absTime, username, false, false);
+          toggleChatOpen();
+        }
       },
 
       // Handles the addition of an incoming message to chat history

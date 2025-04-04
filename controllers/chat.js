@@ -7,47 +7,57 @@ const helpers = require("./helpers.js");
  */
 exports.getChat = async (req, res, next) => {
   try {
-    // Retrieve the chat by ID, populating messenger field in messages
-    const chat = await Chat.findOne({ chat_id: req.query.chatFullId })
-      .populate("messages.messenger")
-      .exec();
-
-    const actor = await helpers.lookupActorByName(req.query.chatId);
-
-    // If actor or chat is not found, return an empty message array with the actor
-    if (!actor) return next(new Error("Actor not found"));
-
-    // Find profile photo of actor
-    let picture;
-    if (actor.actorType == "User" || actor.actorType == "Agent") {
-      if (actor.profile.picture)
-        picture = "/user_avatar/" + actor.profile.picture;
-      else picture = actor.gravatar(60);
-    } else {
-      picture = "/profile_pictures/" + actor.profile.picture;
-    }
-    if (!chat) {
+    if (req.query.chatId === "chatbot") {
       return res.send({
         messages: [],
+        actorType: "ChatBot",
+        username: "chatbot",
+        picture: "public/chatbot.png",
+        name: "ChatBot",
+      });
+    } else {
+      // Retrieve the chat by ID, populating messenger field in messages
+      const chat = await Chat.findOne({ chat_id: req.query.chatFullId })
+        .populate("messages.messenger")
+        .exec();
+
+      const actor = await helpers.lookupActorByName(req.query.chatId);
+
+      // If actor or chat is not found, return an empty message array with the actor
+      if (!actor) return next(new Error("Actor not found"));
+
+      // Find profile photo of actor
+      let picture;
+      if (actor.actorType == "User" || actor.actorType == "Agent") {
+        if (actor.profile.picture)
+          picture = "/user_avatar/" + actor.profile.picture;
+        else picture = actor.gravatar(60);
+      } else {
+        picture = "/profile_pictures/" + actor.profile.picture;
+      }
+      if (!chat) {
+        return res.send({
+          messages: [],
+          actorType: actor.actorType,
+          username: actor.username,
+          picture: picture,
+          name: actor.profile.name,
+        });
+      }
+
+      // Map messages to plain JavaScript objects
+      const messages = chat.messages.length
+        ? chat.messages.map((msg) => msg.toObject())
+        : [];
+
+      res.send({
+        messages: messages,
         actorType: actor.actorType,
         username: actor.username,
         picture: picture,
         name: actor.profile.name,
       });
     }
-
-    // Map messages to plain JavaScript objects
-    const messages = chat.messages.length
-      ? chat.messages.map((msg) => msg.toObject())
-      : [];
-
-    res.send({
-      messages: messages,
-      actorType: actor.actorType,
-      username: actor.username,
-      picture: picture,
-      name: actor.profile.name,
-    });
   } catch (err) {
     console.error(err);
     next(err);
@@ -60,28 +70,35 @@ exports.getChat = async (req, res, next) => {
  */
 exports.postChatAction = async (req, res, next) => {
   try {
-    let chat = await Chat.findOne({ chat_id: req.body.chatFullId }).exec();
-    if (!chat) {
-      chat = new Chat({
-        chat_id: req.body.chatFullId,
-        messages: [],
+    if (req.body.chatFullId === "chatbot") {
+      return res.send({
+        result: "success",
+        message: "Chatbot conversation not saved",
       });
+    } else {
+      let chat = await Chat.findOne({ chat_id: req.body.chatFullId }).exec();
+      if (!chat) {
+        chat = new Chat({
+          chat_id: req.body.chatFullId,
+          messages: [],
+        });
+      }
+      const actor = await helpers.lookupActorByName(req.body.username);
+      actor.chatAction.push(chat.id);
+
+      const cat = {
+        messageType: actor.actorType,
+        messenger: req.user.id,
+        body: req.body.body,
+        absTime: req.body.absTime,
+      };
+      chat.messages.push(cat);
+
+      await chat.save();
+      await actor.save();
+      let returningJson = { result: "success" };
+      res.send(returningJson);
     }
-    const actor = await helpers.lookupActorByName(req.body.username);
-    actor.chatAction.push(chat.id);
-
-    const cat = {
-      messageType: actor.actorType,
-      messenger: req.user.id,
-      body: req.body.body,
-      absTime: req.body.absTime,
-    };
-    chat.messages.push(cat);
-
-    await chat.save();
-    await actor.save();
-    let returningJson = { result: "success" };
-    res.send(returningJson);
   } catch (err) {
     console.log(err);
     next(err);
