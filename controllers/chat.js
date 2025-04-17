@@ -1,5 +1,7 @@
 const Chat = require("../models/Chat.js");
 const helpers = require("./helpers.js");
+const { OpenAI } = require("openai");
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 /**
  * GET /chat
@@ -71,10 +73,19 @@ exports.getChat = async (req, res, next) => {
 exports.postChatAction = async (req, res, next) => {
   try {
     if (req.body.chatFullId === "chatbot") {
-      return res.send({
-        result: "success",
-        message: "Chatbot conversation not saved",
+      // forward user message to OpenAI instead of saving to DB
+      const userMsg = req.body.body;
+      const completion = await openai.chat.completions.create({
+        model: "gpt-4",
+        messages: [
+          { role: "system", content: "You are a helpful chatbot assistant." },
+          { role: "user", content: userMsg },
+        ],
+        max_tokens: 300,
+        temperature: 0.7,
       });
+      const reply = completion.choices[0].message.content.trim();
+      return res.send({ result: "success", reply });
     } else {
       let chat = await Chat.findOne({ chat_id: req.body.chatFullId }).exec();
       if (!chat) {

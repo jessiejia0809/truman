@@ -299,13 +299,25 @@ $(window).on("load", function () {
         const username = this.userId;
         const message = this.$textarea.val();
         const absTime = Date.now();
-        console.log("got here");
+
         if (this.chatId === "chatbot") {
-          console.log("sendfuninit");
-          await sendFunInit(message);
+          // Send user message to OpenAI-backed endpoint
+          const resp = await $.post("/chat", {
+            chatFullId: "chatbot",
+            body: message,
+            absTime: absTime,
+            username: username,
+            _csrf: $('meta[name="csrf-token"]').attr("content"),
+          });
+
+          // Render user message
           this.render(message, absTime, username, false, false);
+
+          // Render chatbot reply
+          this.render(resp.reply, Date.now(), "chatbot", true, false);
           toggleChatOpen();
         } else {
+          // Existing non-bot behavior
           await $.post("/chat", {
             chatFullId: getChatFullId(this.chatId, username),
             body: message,
@@ -315,10 +327,10 @@ $(window).on("load", function () {
           });
 
           socket.emit("chat message", {
-            chatId: this.chatId, // To whom is the message for
+            chatId: this.chatId,
             body: message,
             absTime: absTime,
-            senderUsername: username, // From whom is the message from
+            senderUsername: username,
           });
           this.render(message, absTime, username, false, false);
           toggleChatOpen();
