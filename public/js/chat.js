@@ -297,44 +297,40 @@ $(window).on("load", function () {
       // Handles the addition of outgoing message (by the user) to chat history
       addMessage: async function () {
         const username = this.userId;
-        const message = this.$textarea.val();
+        const message = this.$textarea.val().trim();
         const absTime = Date.now();
 
-        if (this.chatId === "chatbot") {
-          // Send user message to OpenAI-backed endpoint
-          const resp = await $.post("/chat", {
-            chatFullId: "chatbot",
-            body: message,
-            absTime: absTime,
-            username: username,
-            _csrf: $('meta[name="csrf-token"]').attr("content"),
-          });
+        if (!message) return;
 
-          // Render user message
-          this.render(message, absTime, username, false, false);
+        // render user message
+        this.render(message, absTime, username, false, false);
+        toggleChatOpen();
 
-          // Render chatbot reply
-          this.render(resp.reply, Date.now(), "chatbot", true, false);
-          toggleChatOpen();
-        } else {
-          // Existing non-bot behavior
-          await $.post("/chat", {
-            chatFullId: getChatFullId(this.chatId, username),
-            body: message,
-            absTime: absTime,
-            username: username,
-            _csrf: $('meta[name="csrf-token"]').attr("content"),
-          });
+        // TODO: not working, the other typing and immediate response render
+        this.addTypingAnimationExternal(this.chatId);
 
-          socket.emit("chat message", {
-            chatId: this.chatId,
-            body: message,
-            absTime: absTime,
-            senderUsername: username,
-          });
-          this.render(message, absTime, username, false, false);
-          toggleChatOpen();
-        }
+        const postData = {
+          chatFullId: getChatFullId(this.chatId, username),
+          body: message,
+          absTime: absTime,
+          username: username,
+          _csrf: $('meta[name="csrf-token"]').attr("content"),
+        };
+        console.log("[chat.js] ▶︎ POST /chat with", postData);
+
+        let resp;
+        resp = await $.post("/chat", postData);
+
+        this.removeTypingAnimationExternal(this.chatId);
+        this.render(resp.reply, Date.now(), this.chatId, true, false);
+        toggleChatOpen();
+
+        socket.emit("chat message", {
+          chatId: this.chatId,
+          body: message,
+          absTime: absTime,
+          senderUsername: username,
+        });
       },
 
       // Handles the addition of an incoming message to chat history
