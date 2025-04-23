@@ -44,6 +44,7 @@ exports.getChat = async (req, res, next) => {
           username: actor.username,
           picture: picture,
           name: actor.profile.name,
+          isLLMDriven: actor.isLLMDriven,
         });
       }
 
@@ -58,6 +59,7 @@ exports.getChat = async (req, res, next) => {
         username: actor.username,
         picture: picture,
         name: actor.profile.name,
+        isLLMDriven: actor.isLLMDriven,
       });
     }
   } catch (err) {
@@ -89,59 +91,62 @@ exports.postChatAction = async (req, res, next) => {
     } else {
       let chat = await Chat.findOne({ chat_id: req.body.chatFullId }).exec();
       if (!chat) {
-        chat = new Chat({
-          chat_id: req.body.chatFullId,
-          messages: [],
-        });
+        chat = new Chat({ chat_id: req.body.chatFullId, messages: [] });
       }
-      const [a, b] = req.body.chatFullId.split("-");
-      const otherUsername = a === req.body.username ? b : a;
-      const recipient = await helpers.lookupActorByName(otherUsername);
 
-      // push user input to mongoDB
+      // push & save the USER message
       const sender = await helpers.lookupActorByName(req.body.username);
+      sender.chatAction.push(chat.id);
       chat.messages.push({
         messageType: sender.actorType,
         messenger: sender._id,
         body: req.body.body,
         absTime: req.body.absTime,
       });
-      sender.chatAction.push(chat.id);
-      console.log("here's sending");
-      // call openai
-      const actorDescription = "you are an bully";
-      const systemPrompt = `
-      You are now acting as a user in the social media. :
-        Name: ${otherUsername}
-        Description: ${actorDescription}
-
-      Answer the user as this character.
-      `;
-      const completion = await openai.chat.completions.create({
-        model: "gpt-4",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: req.body.body },
-        ],
-        max_tokens: 300,
-        temperature: 0.7,
-      });
-      const reply = completion.choices[0].message.content.trim();
-
-      console.log("here's returning");
-      res.send({ result: "success", reply });
-
-      chat.messages.push({
-        messageType: recipient.actorType,
-        messenger: recipient._id,
-        body: reply,
-        absTime: new Date(),
-      });
-      recipient.chatAction.push(chat.id);
-
       await chat.save();
       await sender.save();
-      await recipient.save();
+
+      // recipient
+      const [a, b] = req.body.chatFullId.split("-");
+      const otherUsername = a === req.body.username ? b : a;
+      const recipient = await helpers.lookupActorByName(otherUsername);
+
+      // call openai is llmDriven
+      if (recipient.isLLMDriven) {
+        const behavior = recipient.behaviorPrompt || "";
+        const systemPrompt = `
+          You are now role-playing as ${otherUsername}:
+          ${behavior}
+
+          Answer the user as this character.
+                `.trim();
+
+        const completion = await openai.chat.completions.create({
+          model: "gpt-4",
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: req.body.body },
+          ],
+          max_tokens: 300,
+          temperature: 0.5,
+        });
+        const reply = completion.choices[0].message.content.trim();
+
+        res.send({ result: "success", reply });
+
+        recipient.chatAction.push(chat.id);
+        chat.messages.push({
+          messageType: recipient.actorType,
+          messenger: recipient._id,
+          body: reply,
+          absTime: new Date(),
+        });
+        await chat.save();
+        await recipient.save();
+      } else {
+        // not LLM-driven -> no extra message
+        return res.send({ result: "success" });
+      }
     }
   } catch (err) {
     console.log(err);

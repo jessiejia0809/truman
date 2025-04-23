@@ -89,47 +89,6 @@ function messageFromProfile(event) {
   const username = target.attr("actor_un").trim();
   openActorChat(username);
 }
-async function sendFunInit(message) {
-  window.IP_address = "localhost";
-  window.dtid = "dt-1";
-  window.backend_secret = "";
-  window.nodeId = "dc-1";
-
-  window.chatMessages = window.chatMessages || [];
-  window.chatMessages.push({ role: "student", message: message });
-
-  const url = `http://${window.IP_address}:5000/dialogue/${window.dtid}/chat/${window.nodeId}?backend_secret=${window.backend_secret}`;
-
-  try {
-    const response = await $.ajax({
-      url: url,
-      method: "POST",
-      contentType: "application/json",
-      data: JSON.stringify({ messages: window.chatMessages }),
-    });
-
-    if (!response.success) {
-      const errorMsg =
-        "Unfortunately, an error occurred: " + response.error_message;
-      const chat = $(".actor-chat.container.clearfix").data("chatInstance");
-      chat.addMessageExternal(errorMsg, Date.now(), "ChatBot");
-      return;
-    }
-
-    window.nodeId = response.data.next_id;
-
-    const chat = $(".actor-chat.container.clearfix").data("chatInstance");
-    for (let i = 0; i < response.data.responses.length; i++) {
-      chat.addMessageExternal(
-        response.data.responses[i],
-        Date.now(),
-        "ChatBot",
-      );
-    }
-  } catch (err) {
-    console.warn("sendFunInit error:", err);
-  }
-}
 
 $(window).on("load", function () {
   // Socket listening to broadcasts

@@ -8,6 +8,12 @@ const agentSchema = new mongoose.Schema(
 
     // Instructions on how to behave
     behaviorPrompt: String,
+
+    //if powered by LLM conversation
+    isLLMDriven: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true, versionKey: false },
 );
