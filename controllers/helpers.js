@@ -3,6 +3,13 @@ const Agent = require("../models/Agent.js");
 const User = require("../models/User.js");
 const Script = require("../models/Script.js");
 const _ = require("lodash");
+const fs = require("fs");
+const path = require("path");
+const { exec } = require("child_process");
+const util = require("util");
+const execPromise = util.promisify(exec);
+
+require("dotenv").config();
 
 /**
  * This is a helper function, called in .getScript() (./script.js controller file), .getActor() (./actors.js controller file).
@@ -135,3 +142,77 @@ exports.lookupActorByName = async function (username) {
 
   throw new Error("Actor not found");
 };
+
+exports.runFeedAndRead = async function (
+  sessionName,
+  schemaPath = path.resolve(
+    __dirname,
+    "../../truman-world/backend/configs/feed_schema.json",
+  ),
+) {
+  const dbUri = process.env.MONGODB_URI;
+  const workingDir = path.resolve(
+    __dirname,
+    "../../truman-world/backend/sessions",
+    sessionName,
+  );
+  const feedScript = path.resolve(
+    __dirname,
+    "../../truman-world/backend/feed.py",
+  );
+
+  const cmd =
+    `python "${feedScript}" ` +
+    `--db-uri "${dbUri}" ` +
+    `--schema "${schemaPath}" ` +
+    `--session-name ${sessionName} ` +
+    `--working-dir "${workingDir}"`;
+
+  try {
+    const { stdout, stderr } = await execPromise(cmd);
+    if (stderr) console.error("stderr:", stderr);
+    if (stdout) console.log("stdout:", stdout);
+
+    const feed = JSON.parse(
+      fs.readFileSync(path.join(workingDir, "feed.json")),
+    );
+    const state = JSON.parse(
+      fs.readFileSync(path.join(workingDir, "feed_state.json")),
+    );
+    return { feed, state };
+  } catch (error) {
+    console.error("read feed failed", error);
+    return null;
+  }
+};
+
+/**
+ * Filter the full feed object down to only the posts, comments, and likes
+ * related to a single actor.
+ */
+function getActorRelevantFeed(feed, actorId) {
+  const relevantPosts = (feed.posts || []).filter(
+    (post) => post.poster === actorId,
+  );
+
+  const relevantComments = (feed.comments || []).filter(
+    (comment) => comment.commentor === actorId,
+  );
+
+  const relevantLikes = (feed.posts || []).flatMap((post) =>
+    (post.liked || [])
+      .filter((like) => like.username === actorId)
+      .map((like) => ({
+        postId: post.id,
+        timestamp: like.timestamp,
+      })),
+  );
+
+  return {
+    posts: relevantPosts,
+    comments: relevantComments,
+    likes: relevantLikes,
+  };
+}
+
+exports.getActorRelevantFeed = getActorRelevantFeed;
