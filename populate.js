@@ -138,7 +138,8 @@ async function doPopulate() {
 
         role: agent_raw.role,
         isLLMDriven:
-          agent_raw.isLLMDriven === "true" || agent_raw.isLLMDriven === "1",
+          String(agent_raw.isLLMDriven).toLowerCase() ||
+          agent_raw.isLLMDriven === "1",
         behaviorPrompt: agent_raw.behaviorPrompt,
         class: agent_raw.class,
       });
