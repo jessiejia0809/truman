@@ -13,6 +13,7 @@ const Session = require("../models/Session");
 exports.getChat = async (req, res, next) => {
   try {
     if (req.query.chatId === "chatbot") {
+      //if chatbot, returns empty history chat
       return res.send({
         messages: [],
         actorType: "ChatBot",
@@ -78,9 +79,10 @@ exports.getChat = async (req, res, next) => {
 exports.postChatAction = async (req, res, next) => {
   try {
     const sender = await helpers.lookupActorByName(req.body.username);
+
+    //loads feed
     const sessionDoc = await Session.findById(sender.session).exec();
     const sessionName = sessionDoc.name;
-    //loads feed
     const { feed, state } = await runFeedAndRead(sessionName);
     const feedContext = JSON.stringify(feed, null, 2);
 
@@ -89,13 +91,16 @@ exports.postChatAction = async (req, res, next) => {
       let chat = await Chat.findOne({ chat_id: req.body.chatFullId }).exec();
       if (!chat)
         chat = new Chat({ chat_id: req.body.chatFullId, messages: [] });
+      //add this chat id to the sender's chatAction array
       sender.chatAction.push(chat.id);
+      //add the message of this chat created with the specific chat_id
       chat.messages.push({
         messageType: sender.actorType,
         messenger: sender._id,
         body: req.body.body,
         absTime: req.body.absTime,
       });
+      //save the changes to mongoDB
       await chat.save();
       await sender.save();
 

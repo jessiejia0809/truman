@@ -19,7 +19,7 @@ function toggleChatOpen() {
   }
 }
 
-async function openActorChat(username, name = null, isBot = false) {
+async function openActorChat(username) {
   // Update chat instance
   const chat = $(".actor-chat.container.clearfix").data("chatInstance");
   chat.chatId = username.trim();
@@ -28,21 +28,11 @@ async function openActorChat(username, name = null, isBot = false) {
   chat.typingTimeout = null;
   chat.resetChat();
 
-  let data;
-  if (isBot) {
-    data = {
-      username: username,
-      name: name,
-      picture: "public/chatbot.png",
-      messages: [],
-    };
-  } else {
-    // Get previous messages in #USERNAME chat and update chat messages
-    data = await $.getJSON("/chat", {
-      chatFullId: getChatFullId(username, chat.userId),
-      chatId: username,
-    });
-  }
+  // Get previous messages in #USERNAME chat and update chat messages
+  const data = await $.getJSON("/chat", {
+    chatFullId: getChatFullId(username, chat.userId),
+    chatId: username,
+  });
 
   // Update chat header with given actor metadata
   $(".actor-chat").attr("id", data["username"]);
@@ -63,6 +53,13 @@ async function openActorChat(username, name = null, isBot = false) {
   // Set focus on message input
   $("#message-to-send").focus();
 }
+function openChatbot() {
+  console.log("opening chatbot");
+  const id = "chatbot";
+  const name = "ChatBot";
+  openActorChat(id, name, true);
+}
+window.openChatbot = openChatbot;
 
 // Handles clicking the "Message (actor)" button from username hover
 function clickMessageUser(event) {
@@ -74,14 +71,6 @@ function clickMessageUser(event) {
     .trim();
   openActorChat(username);
 }
-
-function openChatbot() {
-  console.log("opening chatbot");
-  const id = "chatbot";
-  const name = "ChatBot";
-  openActorChat(id, name, true);
-}
-window.openChatbot = openChatbot;
 
 // Handles clicking the "Message (actor)" button from actor's profile
 function messageFromProfile(event) {
@@ -99,7 +88,6 @@ $(window).on("load", function () {
     if (msg.chatId == $(".actor-chat").attr("userId")) {
       const chat = $(".actor-chat.container.clearfix").data("chatInstance");
       if (chat) {
-        //TODO: do i need to modify this
         //- If message received is to a new actor
         if (chat.chatId != msg.senderUsername) {
           await openActorChat(
@@ -256,40 +244,32 @@ $(window).on("load", function () {
       // Handles the addition of outgoing message (by the user) to chat history
       addMessage: async function () {
         const username = this.userId;
-        const message = this.$textarea.val().trim();
+        const message = this.$textarea.val();
         const absTime = Date.now();
 
-        if (!message) return;
-
-        // render user message
         this.render(message, absTime, username, false, false);
         toggleChatOpen();
-
-        // TODO: not working, the other typing and immediate response render
+        socket.emit("chat message", {
+          chatId: this.chatId, // To whom is the message for
+          body: message,
+          absTime: absTime,
+          senderUsername: username, // From whom is the message from
+        });
         this.addTypingAnimationExternal(this.chatId);
 
-        const postData = {
+        // Save the message to the database
+        const json = await $.post("/chat", {
           chatFullId: getChatFullId(this.chatId, username),
           body: message,
           absTime: absTime,
           username: username,
           _csrf: $('meta[name="csrf-token"]').attr("content"),
-        };
-        console.log("[chat.js] ▶︎ POST /chat with", postData);
-
-        let resp;
-        resp = await $.post("/chat", postData);
-
-        this.removeTypingAnimationExternal(this.chatId);
-        this.render(resp.reply, Date.now(), this.chatId, true, false);
-        toggleChatOpen();
-
-        socket.emit("chat message", {
-          chatId: this.chatId,
-          body: message,
-          absTime: absTime,
-          senderUsername: username,
         });
+
+        if (json.reply) {
+          this.render(json.reply, Date.now(), this.chatId, true, false);
+          toggleChatOpen();
+        }
       },
 
       // Handles the addition of an incoming message to chat history
