@@ -1,4 +1,4 @@
-username,name,gender,age,location,bio,picture,behavior,class
+username,name,gender,age,location,bio,picture,behavior,class,role,isLLMDriven,behaviorPrompt
 melaniemartinez,Melanie,Female,,,,user22.jpeg,,
 fearlesstaylor,Chao,Female,,,,user14.jpg,,
 amie_barrie,Amie,Female,,,,user25.jpg,,

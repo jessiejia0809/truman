@@ -6,16 +6,14 @@ const agentSchema = new mongoose.Schema(
     // Extend the actor schema
     ...actorSchema.obj,
 
-    // Instructions on how to behave
-    behaviorPrompt: String,
-
-    //if powered by LLM conversation
-    isLLMDriven: {
-      type: Boolean,
-      default: false,
-    },
+    role: { type: String, default: "user" },
+    isLLMDriven: { type: Boolean, default: false },
+    behaviorPrompt: { type: String, default: "" },
   },
-  { timestamps: true, versionKey: false },
+  {
+    timestamps: true,
+    versionKey: false,
+  },
 );
 
 /**

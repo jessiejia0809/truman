@@ -135,7 +135,11 @@ async function doPopulate() {
           bio: agent_raw.bio,
           picture: agent_raw.picture,
         },
-        behaviorPrompt: agent_raw.behavior,
+
+        role: agent_raw.role,
+        isLLMDriven:
+          agent_raw.isLLMDriven === "true" || agent_raw.isLLMDriven === "1",
+        behaviorPrompt: agent_raw.behaviorPrompt,
         class: agent_raw.class,
       });
 
