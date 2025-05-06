@@ -194,7 +194,7 @@ exports.postChatAction = async (req, res, next) => {
     }
 
     // Not LLM-driven -> just return success
-    return res.send({ result: "success" });
+    return res.send({ result: "success", reply: "look somewhere else" });
   } catch (err) {
     console.log(err);
     next(err);
