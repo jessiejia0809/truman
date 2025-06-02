@@ -1,4 +1,4 @@
-@import "themes/default/variables";
+@import "themes/game/variables";
 
 @import "lib/bootstrap/bootstrap";
 @import "lib/font-awesome/font-awesome";
@@ -7,7 +7,7 @@
 
 // Scaffolding
 // -------------------------
-
+/*
 html {
   position: relative;
   min-height: 100%;
@@ -70,4 +70,59 @@ textarea {
 
 .fa {
   margin-right: 6px;
+}
+*/
+
+body {
+  background-color: #f5f8fa;
+  padding: 0em;
+}
+
+/*Page Container*/
+
+#pagegrid {
+  justify-content: center;
+}
+
+#pagecontainer {
+  padding-top: 50px;
+  justify-content: center;
+}
+
+/*General CSS*/
+
+.hidden {
+  display: none;
+}
+
+a,
+button,
+.ui.button {
+  cursor: pointer;
+}
+
+/* Header CSS */
+
+.ui.menu .item > i.icon {
+  margin: 0 !important;
+}
+
+.ui.mini.image {
+  height: 35px;
+}
+
+/*Other*/
+
+.ui.fluid.card > .content > .description {
+  font-size: 1.05em;
+}
+
+/* Image Upload*/
+
+.image-upload > input {
+  display: none;
+}
+
+.image-upload img {
+  cursor: pointer;
 }

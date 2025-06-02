@@ -1,0 +1,106 @@
+/* Hitman Style Overrides */
+body {
+  background-color: #1a0005; /* deep red-black */
+  color: #ffffff;
+  font-family: "Courier New", monospace; /* tech-style font */
+  margin: 0;
+  padding: 0em;
+}
+
+/*Page Container*/
+#pagegrid {
+  justify-content: center;
+}
+
+#pagecontainer {
+  padding-top: 50px;
+  justify-content: center;
+}
+
+/* General CSS */
+
+.hidden {
+  display: none;
+}
+
+/* Card / Content Box */
+
+.ui.fluid.card {
+  background-color: #2d0009;
+  border: 1px solid #aa0000;
+  border-radius: 4px;
+  box-shadow: 0 0 8px rgba(170, 0, 0, 0.6);
+  padding: 10px;
+}
+
+.ui.fluid.card > .content > .description {
+  font-size: 1.05em;
+  color: #ffffff;
+}
+.ui.menu .item > i.icon {
+  margin: 0 !important;
+}
+.ui.mini.image {
+  height: 35px;
+}
+/* Header */
+
+.ui.menu {
+  background-color: #1a0005 !important;
+  border-bottom: 1px solid #aa0000;
+}
+
+/* Comment section */
+
+.ui.comments {
+  background-color: #2d0009;
+  border-top: 1px solid #aa0000;
+  padding: 1em;
+}
+
+.ui.comments .comment {
+  border-bottom: 1px solid #3a000a;
+  padding-bottom: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+/* Buttons, Likes, Dislikes */
+.ui.button,
+button {
+  background-color: transparent;
+  border: 1px solid #aa0000;
+  color: #ffffff;
+}
+
+.ui.button:hover {
+  background-color: #aa0000;
+  color: #000;
+}
+
+/* Reply/Input Areas */
+
+textarea,
+input {
+  background-color: #100002;
+  color: #fff;
+  border: 1px solid #aa0000;
+}
+
+.image-upload img {
+  border: 2px solid #aa0000;
+}
+
+.image-upload > input {
+  display: none;
+}
+
+.ui.comments .comment .content > .text {
+  color: #ffffff !important;
+}
+
+.ui.comments .comment .author,
+.ui.comments .comment .metadata,
+.ui.comments .comment .actions,
+.ui.comments .comment .actions a {
+  color: #dddddd !important;
+}
