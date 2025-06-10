@@ -49,13 +49,15 @@ exports.getScript = async (req, res, next) => {
       user.study_days[current_day] += 1;
       user.save();
     }
-
+    const level = parseInt(req.query.level) || 1;
     // Get the newsfeed and render it.
     const finalfeed = await helpers.getFeed(
       user,
       process.env.FEED_ORDER,
       process.env.REMOVE_FLAGGED_CONTENT === "TRUE",
       true,
+      null, // actor is null
+      level,
     );
     res.render("script", { script: finalfeed, showNewPostIcon: true });
   } catch (err) {

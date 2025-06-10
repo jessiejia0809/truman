@@ -29,6 +29,7 @@ exports.getFeed = async function (
   removeFlaggedContent,
   removeBlockedUserContent,
   actor,
+  level = 1,
 ) {
   const commonQuery = {
     $or: [{ session: null }, { session: user.session }],
@@ -53,6 +54,7 @@ exports.getFeed = async function (
 
   // Array of actor and other user's posts that match the user's experimental condition, within the past 24 hours, sorted by time.
   const posts = await Script.find({
+    level: level,
     _id: { $nin: flaggedPosts },
     ...(actor ? { poster: actor.id } : {}),
     ...makeBlockedQuery("poster"),

@@ -34,6 +34,7 @@ exports.getActors = async (req, res, next) => {
  */
 exports.getActor = async (req, res, next) => {
   try {
+    const level = parseInt(req.query.level, 10) || 1;
     const user = await User.findById(req.user.id).exec();
     const actor = await helpers.lookupActorByName(req.params.username);
 
@@ -49,6 +50,7 @@ exports.getActor = async (req, res, next) => {
       process.env.REMOVE_FLAGGED_CONTENT === "TRUE",
       false,
       actor,
+      level,
     );
 
     res.render("actor", {
