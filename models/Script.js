@@ -22,6 +22,7 @@ const scriptSchema = new mongoose.Schema(
     updateTime: Date, // Update Time; Indicates the exact time the comment was last updated
     picture: String, // Picture (file path) for post
     comments: [{ type: Schema.ObjectId, ref: "Comment" }], // Comments on post
+    level: { type: Number, required: true, enum: [1, 2, 3] }, // ensures level is 1, 2, or 3
   },
   { versionKey: false },
 );

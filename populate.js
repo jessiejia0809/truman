@@ -34,39 +34,12 @@ const currDateAtPopulate = Date.now();
 const postImageDir = "uploads/user_post/";
 const profileImageDir = "uploads/user_avatar/";
 
-async function doPopulate() {
-  const args = process.argv.slice(2);
-
-  //Input Files
-  const path = args[0];
+async function doPopulate(path, level) {
   const actor_inputFile = `${path}/actors.csv`;
   const agent_inputFile = `${path}/agents.csv`;
   const posts_inputFile = `${path}/posts.csv`;
   const replies_inputFile = `${path}/replies.csv`;
   const scenarios_inputFile = `${path}/scenarios.csv`;
-
-  await fs.mkdir(postImageDir, { recursive: true });
-  await fs.mkdir(profileImageDir, { recursive: true });
-
-  console.log(color_start, "Dropping actors...");
-  await db.collections["actors"].drop();
-  console.log(color_success, "Actors collection dropped");
-
-  console.log(color_start, "Dropping agents...");
-  await db.collections["agents"].drop();
-  console.log(color_success, "Agents collection dropped");
-
-  console.log(color_start, "Dropping scripts...");
-  await db.collections["scripts"].drop();
-  console.log(color_success, "Scripts collection dropped");
-
-  console.log(color_start, "Dropping comments...");
-  await db.collections["comments"].drop();
-  console.log(color_success, "Comments collection dropped");
-
-  console.log(color_start, "Dropping scenarios...");
-  await db.collections["scenarios"].drop();
-  console.log(color_success, "Scenarios collection dropped");
 
   console.log(color_start, "Reading actors list...");
   const actors_list = await CSVToJSON().fromFile(actor_inputFile);
@@ -185,6 +158,7 @@ async function doPopulate() {
           absTime: postTime,
           updateTime: postTime,
           class: post.class,
+          level: level,
         });
         actor.posts.push(script._id);
 
@@ -284,8 +258,6 @@ async function doPopulate() {
     );
     console.error(err);
   }
-
-  mongoose.connection.close();
 }
 
 //Transforms a time like -12:32 (minus 12 hours and 32 minutes) into a time in milliseconds
@@ -326,4 +298,31 @@ function getLikesComment() {
 }
 
 // Call the populate function
-doPopulate();
+mongoose.connection.once("open", async () => {
+  await fs.mkdir(postImageDir, { recursive: true });
+  await fs.mkdir(profileImageDir, { recursive: true });
+
+  console.log(color_start, "Dropping all collections...");
+  await Promise.all([
+    db.collections["actors"].drop(),
+    db.collections["agents"].drop(),
+    db.collections["scripts"].drop(),
+    db.collections["comments"].drop(),
+    db.collections["scenarios"].drop(),
+  ]);
+  console.log(color_success, "All collections dropped.");
+
+  const folders = process.argv.slice(2);
+  if (folders.length < 1 || folders.length > 3) {
+    console.error("you are allow 1-3 folders");
+    process.exit(1);
+  }
+
+  let level = 1;
+  for (const folder of folders) {
+    await doPopulate(folder, level);
+    level += 1;
+  }
+
+  mongoose.connection.close();
+});
