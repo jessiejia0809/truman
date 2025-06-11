@@ -122,6 +122,7 @@ const performFeedAction = async (userId, isAgent, body, session) => {
       absTime: body.new_comment,
       updateTime: body.new_comment,
       comments: [],
+      logs: body.logs || [], // Add the logs array from the request
     });
     await comment.save();
 

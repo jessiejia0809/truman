@@ -294,7 +294,12 @@ function shareComment(e) {
   });
 }
 
+// Track writing sessions
+let currentLogs = [];
+let previousText = ""; // Keep track of previous text to detect what was deleted
+
 function addComment(e) {
+  console.log("Current logs before submission:", currentLogs); // Debug log
   const target = $(e.target);
   const text = target
     .siblings(".ui.form")
@@ -320,8 +325,10 @@ function addComment(e) {
       postID: postID,
       new_comment: currDate,
       comment_text: text,
+      logs: currentLogs,
       _csrf: $('meta[name="csrf-token"]').attr("content"),
     }).then(function (json) {
+      console.log("Comment submitted with logs:", currentLogs); // Debug log
       const mess = `
           <div class="comment" commentID=${json.commentID}>
               <a class="avatar"><img src="${ava_img}"></a>
@@ -338,8 +345,10 @@ function addComment(e) {
                   </div> 
               </div>
           </div>`;
-      $(this).siblings(".ui.form").find("textarea.newcomment").val("");
+      target.siblings(".ui.form").find("textarea.newcomment").val("");
       comments.append(mess);
+      // Reset logs after successful comment submission
+      currentLogs = [];
     });
   }
 }
@@ -402,6 +411,11 @@ $(window).on("load", () => {
   $(".reply.button").on("click", function () {
     let parent = $(this).closest(".ui.fluid.card");
     parent.find("textarea.newcomment").focus();
+  });
+
+  // Log each key press in comment textarea
+  $("textarea.newcomment").on("keydown", function (e) {
+    console.log("Key pressed:", e.key);
   });
 
   // Press enter to submit a comment
@@ -478,5 +492,52 @@ $(window).on("load", () => {
     onBottomPassed,
     onTopPassedReverse,
     onTopVisibleReverse,
+  });
+
+  // Track comment writing sessions
+  $("textarea.newcomment").on("input", function (e) {
+    const inputType = e.originalEvent?.inputType;
+    const currentText = this.value;
+    const eventName = inputType?.startsWith("delete")
+      ? "text-delete"
+      : "text-insert";
+
+    // Create text delta based on the operation
+    let textDelta;
+    if (eventName === "text-delete") {
+      // Find what text was deleted by comparing with previous state
+      const deletedText = previousText.slice(
+        this.selectionStart,
+        this.selectionStart + 1,
+      );
+      textDelta = {
+        ops: [
+          {
+            delete: deletedText,
+          },
+        ],
+      };
+    } else {
+      textDelta = {
+        ops: [
+          {
+            insert: e.originalEvent?.data || "",
+          },
+        ],
+      };
+    }
+
+    const logEntry = {
+      eventName: eventName,
+      eventTimestamp: Date.now(),
+      textDelta: textDelta,
+      currentCursor: this.selectionStart,
+    };
+
+    currentLogs.push(logEntry);
+    console.log("Log entry:", logEntry); // Debug log
+
+    // Update previous text for next comparison
+    previousText = currentText;
   });
 });

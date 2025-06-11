@@ -3,6 +3,23 @@ const Schema = mongoose.Schema;
 const dotenv = require("dotenv");
 dotenv.config({ path: ".env" });
 
+const logSchema = new mongoose.Schema(
+  {
+    eventName: String,
+    eventTimestamp: Number,
+    textDelta: {
+      ops: [
+        {
+          insert: String,
+          delete: String,
+        },
+      ],
+    },
+    currentCursor: Number,
+  },
+  { _id: true },
+);
+
 const commentSchema = new mongoose.Schema(
   {
     session: { type: Schema.ObjectId, ref: "Session" }, // session the post was made in
@@ -23,6 +40,7 @@ const commentSchema = new mongoose.Schema(
     likes: { type: Number, default: 0 }, // Indicates the total # of likes on the comment
     absTime: Date, // Absolute Time; Indicates the exact time the comment was made on the post
     updateTime: Date, // Update Time; Indicates the exact time the comment was last updated
+    logs: [logSchema],
   },
   { timestamps: true, versionKey: false },
 );
