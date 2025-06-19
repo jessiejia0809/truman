@@ -9,6 +9,17 @@ const agentSchema = new mongoose.Schema(
     role: { type: String, default: "user" },
     isLLMDriven: { type: Boolean, default: false },
     behaviorPrompt: { type: String, default: "" },
+    // —— benevolence (7-point scale)
+    PRS: { type: Number, min: 0, max: 7, default: null },
+    CNT: { type: Number, min: 0, max: 7, default: null },
+    ANX: { type: Number, min: 0, max: 7, default: null },
+    VisitFreq: { type: Number, min: 0, max: 7, default: null },
+
+    // —— bullying (5-point scale)
+    AT: { type: Number, min: 1, max: 5, default: null },
+    PBC: { type: Number, min: 1, max: 5, default: null },
+    EMP: { type: Number, min: 1, max: 5, default: null },
+    TIN: { type: Number, min: 1, max: 5, default: null },
   },
   {
     timestamps: true,

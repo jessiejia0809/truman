@@ -96,7 +96,7 @@ async function doPopulate(path, level) {
           `Invalid username ${username}. Must contain only letters, numbers, or the following symbols: .-_`,
         );
       }
-
+      console.log("Row values:", agent_raw);
       const agent = new Agent({
         actorType: "Agent",
         username: username,
@@ -115,6 +115,15 @@ async function doPopulate(path, level) {
           agent_raw.isLLMDriven === "1",
         behaviorPrompt: agent_raw.behaviorPrompt,
         class: agent_raw.class,
+        // ← ADD THESE:
+        PRS: Number(agent_raw.PRS),
+        CNT: Number(agent_raw.CNT),
+        ANX: Number(agent_raw.ANX),
+        VisitFreq: Number(agent_raw.VisitFreq),
+        AT: Number(agent_raw.AT),
+        PBC: Number(agent_raw.PBC),
+        EMP: Number(agent_raw.EMP),
+        TIN: Number(agent_raw.TIN),
       });
 
       if (agent_raw.picture) {
