@@ -21,6 +21,8 @@ const util = require("util");
 fs.readFileAsync = util.promisify(fs.readFile);
 const http = require("http");
 const { Server } = require("socket.io");
+const ScoreController = require("./controllers/ScoreController");
+const SimulationStats = require("./models/SimulationStats");
 
 /**
  * Middleware for handling multipart/form-data, which is primarily used for uploading files.
@@ -111,7 +113,16 @@ rule3.minute = 30;
 schedule.scheduleJob(rule3, function () {
   userController.stillActive();
 });
-
+//every ten seconds calculate updated system score
+schedule.scheduleJob("*/10 * * * * *", async () => {
+  try {
+    const allScores = await ScoreController.getAllScores();
+    await SimulationStats.create(allScores);
+    io.emit("scoreUpdate", allScores);
+  } catch (err) {
+    console.error("Score update error:", err);
+  }
+});
 /**
  * Express configuration.
  */
