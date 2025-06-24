@@ -80,13 +80,28 @@ const io = new Server(server);
 /**
  * Connect to MongoDB.
  */
-mongoose.connect(process.env.MONGODB_URI);
+mongoose.connect(process.env.MONGODB_URI, {
+  /* your options */
+});
+
+mongoose.connection.once("open", () => {
+  console.log("MongoDB is connected, setting up change stream…");
+
+  const actionColl = mongoose.connection.db.collection("actions");
+  const changeStream = actionColl.watch([], { fullDocument: "updateLookup" });
+
+  changeStream.on("change", (change) => {
+    io.emit("new action", change.fullDocument);
+  });
+
+  changeStream.on("error", (err) => {
+    console.error("Change stream error:", err);
+  });
+});
+
 mongoose.connection.on("error", (err) => {
-  console.error(err);
-  console.error(
-    "MongoDB connection error. Please make sure MongoDB is running.",
-  );
-  process.exit();
+  console.error("MongoDB connection error:", err);
+  process.exit(1);
 });
 
 /**
