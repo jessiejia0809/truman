@@ -23,6 +23,8 @@ const http = require("http");
 const { Server } = require("socket.io");
 const ScoreController = require("./controllers/ScoreController");
 const SimulationStats = require("./models/SimulationStats");
+const Grader = require("./controllers/Grader");
+const pendingActions = [];
 
 /**
  * Middleware for handling multipart/form-data, which is primarily used for uploading files.
@@ -85,17 +87,32 @@ mongoose.connect(process.env.MONGODB_URI, {
 });
 
 mongoose.connection.once("open", () => {
-  console.log("MongoDB is connected, setting up change stream…");
-
-  const actionColl = mongoose.connection.db.collection("actions");
-  const changeStream = actionColl.watch([], { fullDocument: "updateLookup" });
+  console.log("MongoDB connected, watching agents, chats, and comments…");
+  const changeStream = mongoose.connection.db.watch(
+    [
+      {
+        $match: {
+          "ns.coll": { $in: ["agents", "chats", "comments"] },
+        },
+      },
+    ],
+    { fullDocument: "updateLookup" },
+  );
 
   changeStream.on("change", (change) => {
-    io.emit("new action", change.fullDocument);
+    const entry = {
+      op: change.operationType,
+      coll: change.ns.coll,
+      doc: change.fullDocument || change.documentKey,
+    };
+
+    console.log("DB Change:", entry);
+    pendingActions.push(entry);
+    io.emit("db-change", entry);
   });
 
   changeStream.on("error", (err) => {
-    console.error("Change stream error:", err);
+    console.error("Database change stream error:", err);
   });
 });
 
@@ -103,6 +120,14 @@ mongoose.connection.on("error", (err) => {
   console.error("MongoDB connection error:", err);
   process.exit(1);
 });
+//TODO: placeholder for now, later we would need to separate the levels
+const solutionsPath = path.join(
+  __dirname,
+  "scenarios",
+  "jessie-level1",
+  "solutions.json",
+);
+const grader = new Grader(solutionsPath);
 
 /**
  * Cron Jobs:
@@ -136,6 +161,27 @@ schedule.scheduleJob("*/10 * * * * *", async () => {
     io.emit("scoreUpdate", allScores);
   } catch (err) {
     console.error("Score update error:", err);
+  }
+});
+/**
+ * Every 30 seconds, pop pendingActions and run the grader
+ */
+schedule.scheduleJob("*/10 * * * * *", async () => {
+  try {
+    console.log(
+      "Pending actions before grading:",
+      JSON.stringify(pendingActions, null, 2),
+    );
+    const toGrade = pendingActions.splice(0, pendingActions.length);
+    if (toGrade.length === 0) return;
+    const classified = await grader.classifyActionsWithLLM(toGrade);
+    console.log(
+      "Grader → classified actions:",
+      JSON.stringify(classified, null, 2),
+    );
+    await grader.applyDeltas(classified);
+  } catch (err) {
+    console.error("Grader job error:", err);
   }
 });
 /**
