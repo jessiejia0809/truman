@@ -9,7 +9,7 @@
           a.item(href=process.env.POST_SURVEY_WITH_QUALTRICS ? `/signup?r_id=${r_id}`: '/signup') Create Account
         else
           if user.consent
-            if(showNewPostIcon)
+            //if(showNewPostIcon)
               a.item.newpost
                 i.big.write.square.icon
           .ui.simple.dropdown.item
