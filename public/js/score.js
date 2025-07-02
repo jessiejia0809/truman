@@ -1,9 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   let scoreValue = 0;
 
-  // Replace this with your server-side injected ID
-  //const currentUserId = window.currentUserId;
-
   // Create wrapper
   const scoreWrapper = document.createElement("div");
   scoreWrapper.style.position = "fixed";
@@ -50,6 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
   window.updateScore = function (score) {
     scoreValue = Math.max(0, Math.min(100, score));
     const percent = scoreValue;
+    window.currentScore = scoreValue;
     scoreBar.style.width = `${percent}%`;
     scoreBar.style.backgroundColor = getGradientColor(scoreValue);
     scoreText.textContent = `${scoreValue}/100`;

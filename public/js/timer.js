@@ -1,3 +1,9 @@
+import { checkWinCondition } from "./level.js";
+
+function onTimerEnd() {
+  checkWinCondition(0); // 0 means time’s up
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   let timeLeft = 60;
   const totalTime = timeLeft;
@@ -51,7 +57,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (timeLeft <= 0) {
       timeLeft = 0;
       clearInterval(timerInterval);
-      showTransitionPopup();
     }
 
     timeLeft--;
