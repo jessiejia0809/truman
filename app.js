@@ -116,7 +116,7 @@ rule3.minute = 30;
 schedule.scheduleJob(rule3, function () {
   userController.stillActive();
 });
-//every ten seconds calculate updated system score
+//every second calculate updated system score
 schedule.scheduleJob("*/1 * * * * *", async () => {
   try {
     const allScores = await ScoreController.getAllScores();
