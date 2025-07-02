@@ -4,8 +4,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const wrapperDiv = document.createElement("div");
   wrapperDiv.style.position = "fixed";
-  wrapperDiv.style.top = "100px";
-  wrapperDiv.style.left = "100px";
+  wrapperDiv.style.top = "140px";
+  wrapperDiv.style.left = "125px";
   wrapperDiv.style.zIndex = "1000";
 
   const timerContainer = document.createElement("div");

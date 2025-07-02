@@ -7,9 +7,9 @@ document.addEventListener("DOMContentLoaded", () => {
   // Create wrapper
   const scoreWrapper = document.createElement("div");
   scoreWrapper.style.position = "fixed";
-  scoreWrapper.style.top = "120px";
-  scoreWrapper.style.left = "100px";
-  scoreWrapper.style.width = "400px";
+  scoreWrapper.style.top = "100px";
+  scoreWrapper.style.left = "130px";
+  scoreWrapper.style.width = "300px";
   scoreWrapper.style.height = "30px";
   scoreWrapper.style.backgroundColor = "#222";
   scoreWrapper.style.borderRadius = "10px";
@@ -70,4 +70,20 @@ document.addEventListener("DOMContentLoaded", () => {
     scoreBar.style.backgroundColor = getGradientColor(0);
     scoreText.textContent = "0/100";
   };
+
+  const socket = io();
+
+  // Listen for score updates from server
+  socket.on("scoreUpdate", (allScores) => {
+    console.log("Received scores:", allScores);
+
+    // Example: log all bystander usernames and scores
+    for (const [username, score] of Object.entries(allScores.bystanderScores)) {
+      console.log(`Bystander: ${username} - ${score}`);
+    }
+
+    // Example: get overall health score
+    console.log("Health score:", allScores.healthScore);
+    window.updateScore(allScores.healthScore);
+  });
 });

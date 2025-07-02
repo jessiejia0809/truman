@@ -41,8 +41,8 @@
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 60px !important;
-  height: 60px !important;
+  width: 50% !important;
+  height: 50% !important;
   border-radius: 50%;
   object-fit: cover;
   transform: translate(-50%, -50%);
