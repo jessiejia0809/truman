@@ -1,14 +1,11 @@
-const ScoreController = require("./score");
-const TimerController = require("./timer");
-
-const LEVEL_THRESHOLDS = { 1: 90, 2: 120, 3: 150 };
+const LEVEL_THRESHOLDS = 90;
 const MAX_TIME_MS = 3 * 60 * 1000;
 
-exports.evaluateLevel = async (sessionId, level, io) => {
+window.evaluateLevel = async (sessionId, level, io) => {
   try {
-    const score = await ScoreController.getCurrentScore(sessionId);
-    const elapsed = await TimerController.getElapsedTime(sessionId);
-    const threshold = LEVEL_THRESHOLDS[level] || Infinity;
+    const score = window.currentScore || 0;
+    const elapsed = 10 - window.timeLeft || 0; // Assuming timeLeft is in seconds
+    const threshold = LEVEL_THRESHOLDS;
 
     if (elapsed >= MAX_TIME_MS) {
       const outcome = score >= threshold ? "win" : "lose";

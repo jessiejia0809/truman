@@ -44,6 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ✅ Global method to update score
+
   window.updateScore = function (score) {
     scoreValue = Math.max(0, Math.min(100, score));
     const percent = scoreValue;

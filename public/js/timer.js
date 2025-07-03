@@ -1,11 +1,5 @@
-import { checkWinCondition } from "./level.js";
-
-function onTimerEnd() {
-  checkWinCondition(0); // 0 means time’s up
-}
-
 document.addEventListener("DOMContentLoaded", () => {
-  let timeLeft = 60;
+  let timeLeft = 300;
   const totalTime = timeLeft;
 
   const wrapperDiv = document.createElement("div");
@@ -53,7 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
     timeText.textContent = `${minutes}:${seconds.toString().padStart(2, "0")}`;
     const percent = (timeLeft / totalTime) * 100;
     progressBar.style.width = `${percent}%`;
-
+    window.checkWinCondition(window.currentScore, timeLeft);
     if (timeLeft <= 0) {
       timeLeft = 0;
       clearInterval(timerInterval);

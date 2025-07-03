@@ -1,5 +1,9 @@
-export function showTransitionPopup(result = "lose") {
-  const file = result === "win" ? "/win_screen.json" : "/lose_screen.json";
+window.showTransitionPopup = function (result = "lose") {
+  console.log("Transition result:", result);
+  const file =
+    result === "win"
+      ? "/public/js/win_screen.json"
+      : "/public/js/lose_screen.json";
 
   fetch(file)
     .then((res) => res.json())
@@ -42,15 +46,15 @@ export function showTransitionPopup(result = "lose") {
       button.style.cursor = "pointer";
       button.onclick = () => {
         modalOverlay.remove();
-        if (typeof window.resetTimer === "function") resetTimer();
-        if (typeof window.resetScore === "function") resetScore();
         // optionally trigger level progression
         if (result === "win" && typeof window.goToNextLevel === "function")
           goToNextLevel();
+        if (typeof window.resetTimer === "function") resetTimer();
+        if (typeof window.resetScore === "function") resetScore();
       };
 
       modalBox.appendChild(button);
       modalOverlay.appendChild(modalBox);
       document.body.appendChild(modalOverlay);
     });
-}
+};
