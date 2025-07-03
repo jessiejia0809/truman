@@ -83,6 +83,10 @@ exports.postChatAction = async (req, res, next) => {
     //loads feed
     const sessionDoc = await Session.findById(sender.session).exec();
     const sessionName = sessionDoc.name;
+
+    console.log("Sender object:", sender);
+    console.log("Sender.session:", sender?.session);
+
     const { feed, state } = await runFeedAndRead(sessionName);
     const feedContext = JSON.stringify(feed, null, 2);
 

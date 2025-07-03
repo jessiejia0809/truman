@@ -6,6 +6,49 @@
 
 /* POST */
 
+.ui.card.fixed-profile {
+  position: fixed;
+  top: 80px;
+  left: 20px;
+  z-index: 999;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+  border: none;
+  width: auto;
+  height: auto;
+}
+
+/* Container around both frame and profile picture */
+.frame-wrapper {
+  position: relative;
+  width: 100px; /* Size of the full frame */
+  height: 100px;
+}
+
+/* Frame image as background */
+.frame-wrapper img.frame {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+
+/* Profile picture on top of the frame */
+.frame-wrapper img.profile-picture {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 50% !important;
+  height: 50% !important;
+  border-radius: 50%;
+  object-fit: cover;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+}
+
 .ui.fluid.card > .content.dimmable.dimmed {
   min-height: 300px;
 }

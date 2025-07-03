@@ -1,6 +1,9 @@
 /**
  * Module dependencies.
  */
+
+require("dotenv").config();
+
 const express = require("express");
 const compression = require("compression");
 const session = require("express-session");
@@ -153,8 +156,8 @@ rule3.minute = 30;
 schedule.scheduleJob(rule3, function () {
   userController.stillActive();
 });
-//every ten seconds calculate updated system score
-schedule.scheduleJob("*/10 * * * * *", async () => {
+//every second calculate updated system score
+schedule.scheduleJob("*/1 * * * * *", async () => {
   try {
     const allScores = await ScoreController.getAllScores();
     await SimulationStats.create(allScores);

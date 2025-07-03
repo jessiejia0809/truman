@@ -8,10 +8,10 @@ block content
   .computer.only.tablet.only.four.wide.column
     include ./partials/userCard
   #loading.eight.wide.computer.ten.wide.tablet.sixteen.wide.mobile.column
-    img.ui.centered.small.image(src='/public/heart.svg')
+    img.ui.centered.small.image(src='/public/heart_white.svg')
   #content.eight.wide.computer.ten.wide.tablet.sixteen.wide.mobile.column.hidden
     //- Input for creating new post at top of feed
-    #newpost.ui.fluid.left.labeled.right.icon.input
+    //-#newpost.ui.fluid.left.labeled.right.icon.input
       .ui.label
         if user.profile.picture
           img.ui.avatar.image(src='/user_avatar/'+user.profile.picture)
@@ -36,7 +36,7 @@ block content
             .ui.header There is some new activity!
             p Click to reload feed.
   .computer.only.tablet.only.four.wide.column
-    button.ui.icon.generate.post.button(type='button') Generate Post
+    //-button.ui.icon.generate.post.button(type='button') Generate Post
   .ui.tiny.post.modal
     i.close.icon
     .header Add a New Post
@@ -57,4 +57,8 @@ block scripts
   script(src='/public/js/script.js')
   script(src='/public/js/postFunctionalities.js')
   script(src='/public/js/chat.js')
+  script(src='/public/js/level.js')
+  script(src='/public/js/transitionModal.js')
+  script(src='/public/js/levelClient.js')
   script(src='/public/js/timer.js')
+  script(src='/public/js/score.js')
