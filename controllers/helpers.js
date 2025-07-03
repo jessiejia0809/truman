@@ -34,7 +34,7 @@ exports.getFeed = async function (
   const commonQuery = {
     $or: [{ session: null }, { session: user.session }],
     class: { $in: ["", user.experimentalCondition] },
-    absTime: { $lte: Date.now() },
+    // absTime: { $lte: Date.now() },
   };
   const makeBlockedQuery = (field) => {
     return removeBlockedUserContent

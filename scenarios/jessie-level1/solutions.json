@@ -1,0 +1,117 @@
+[
+  {
+    "category": "VictimSupport",
+    "description": "Provide victims with autonomy to choose needed support",
+    "keywords": [
+      "how can I help",
+      "here if you need",
+      "support you",
+      "help you decide"
+    ],
+    "deltas": [{ "field": "SupportLevel", "value": 1.0 }],
+    "agents": ["Kelly890"]
+  },
+  {
+    "category": "VictimSupport",
+    "description": "Informational support: testimonials from other victims; helplines; support organizations",
+    "keywords": [
+      "testimonial",
+      "helpline",
+      "support organization",
+      "victim support"
+    ],
+    "deltas": [{ "field": "SupportLevel", "value": 1.0 }],
+    "agents": ["Kelly890"]
+  },
+  {
+    "category": "VictimSupport",
+    "description": "Peer support: anonymous peer support channels",
+    "keywords": ["anonymous peer support", "peer group", "confidential chat"],
+    "deltas": [{ "field": "SupportLevel", "value": 1.0 }],
+    "agents": ["Kelly890"]
+  },
+  {
+    "category": "VictimSupport",
+    "description": "Psychological support: encourage professional counseling or therapy",
+    "keywords": [
+      "counseling",
+      "therapy",
+      "psychological support",
+      "mental health"
+    ],
+    "deltas": [{ "field": "SupportLevel", "value": 1.0 }],
+    "agents": ["Kelly890"]
+  },
+  {
+    "category": "DiscloserEducation",
+    "description": "Ensure disclosers understand the sensitive nature of information received",
+    "keywords": [
+      "sensitive nature",
+      "non-consensual",
+      "privacy",
+      "responsibility"
+    ],
+    "deltas": [{ "field": "BIS", "value": -1.0 }],
+    "agents": ["kylex_football"]
+  },
+  {
+    "category": "DiscloserEducation",
+    "description": "Remind disclosers of data privacy laws and legal consequences",
+    "keywords": ["data privacy law", "legal", "legislation", "consequence"],
+    "deltas": [{ "field": "BIS", "value": -1.0 }],
+    "agents": ["kylex_football"]
+  },
+  {
+    "category": "AttackerAccountability",
+    "description": "Address attackers with legal risks of disclosing personal information without consent",
+    "keywords": ["legal risk", "lawsuit", "non-consensual sharing", "illegal"],
+    "deltas": [{ "field": "AAS", "value": -1.0 }],
+    "agents": ["justAGuy"]
+  },
+  {
+    "category": "AttackerAccountability",
+    "description": "Have the user discover that the anonymous sharer is James and confront him",
+    "keywords": ["find out", "confront", "anonymous user", "James"],
+    "deltas": [{ "field": "AAS", "value": -1.0 }],
+    "agents": ["justAGuy"]
+  },
+  {
+    "category": "AttackerAccountability",
+    "description": "Encourage watching victim testimonies and empathy-building materials",
+    "keywords": [
+      "watch video",
+      "read testimony",
+      "empathy",
+      "understand impact"
+    ],
+    "deltas": [{ "field": "AAS", "value": -1.0 }],
+    "agents": ["justAGuy"]
+  },
+  {
+    "category": "AuthorityTraining",
+    "description": "Inform school authorities and parents about risky conduct and underlying dynamics",
+    "keywords": [
+      "inform parents",
+      "school authority",
+      "Ms. Miller",
+      "report to teacher"
+    ],
+    "deltas": [{ "field": "TIN", "value": 1.0 }],
+    "agents": ["msmiller_teacher"]
+  },
+  {
+    "category": "BystanderEmpowerment",
+    "description": "Convince bystanders to become upstanders and publicly defend the victim",
+    "keywords": ["stand with", "support Kelly", "upstander", "defend victim"],
+    "deltas": [{ "field": "CNT", "value": 1.0 }],
+    "agents": [
+      "its.kat",
+      "omar007",
+      "emfan_kelly",
+      "real_jane",
+      "jackyates33",
+      "jamie4real",
+      "charlem"
+    ]
+  }
+]
