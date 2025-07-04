@@ -115,7 +115,6 @@ async function doPopulate(path, level) {
           agent_raw.isLLMDriven === "1",
         behaviorPrompt: agent_raw.behaviorPrompt,
         class: agent_raw.class,
-        // ← ADD THESE:
         PRS: Number(agent_raw.PRS),
         CNT: Number(agent_raw.CNT),
         ANX: Number(agent_raw.ANX),
@@ -124,6 +123,10 @@ async function doPopulate(path, level) {
         PBC: Number(agent_raw.PBC),
         EMP: Number(agent_raw.EMP),
         TIN: Number(agent_raw.TIN),
+        UES: Number(agent_raw.UES),
+        URA: Number(agent_raw.URA),
+        UAD: Number(agent_raw.UAD),
+        UPS: Number(agent_raw.UPS),
       });
 
       if (agent_raw.picture) {

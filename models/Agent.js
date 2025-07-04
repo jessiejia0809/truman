@@ -1,6 +1,12 @@
 const mongoose = require("mongoose");
 const { actorSchema } = require("./Actor");
 
+const clamp = (v, min, max) => {
+  if (v == null) return null; // preserve null/default
+  v = Math.floor(v); // or Math.round(v) if you prefer nearest
+  return Math.min(max, Math.max(min, v));
+};
+
 const agentSchema = new mongoose.Schema(
   {
     // Extend the actor schema
@@ -9,17 +15,95 @@ const agentSchema = new mongoose.Schema(
     role: { type: String, default: "user" },
     isLLMDriven: { type: Boolean, default: false },
     behaviorPrompt: { type: String, default: "" },
-    // —— benevolence (7-point scale)
-    PRS: { type: Number, min: 0, max: 7, default: null },
-    CNT: { type: Number, min: 0, max: 7, default: null },
-    ANX: { type: Number, min: 0, max: 7, default: null },
-    VisitFreq: { type: Number, min: 0, max: 7, default: null },
+    // —— bystander (7-point scale)
+    PRS: {
+      type: Number,
+      default: null,
+      set: (v) => clamp(v, 0, 7),
+      min: 0,
+      max: 7,
+    },
+    CNT: {
+      type: Number,
+      default: null,
+      set: (v) => clamp(v, 0, 7),
+      min: 0,
+      max: 7,
+    },
+    ANX: {
+      type: Number,
+      default: null,
+      set: (v) => clamp(v, 0, 7),
+      min: 0,
+      max: 7,
+    },
+    VisitFreq: {
+      type: Number,
+      default: null,
+      set: (v) => clamp(v, 0, 7),
+      min: 0,
+      max: 7,
+    },
 
-    // —— bullying (5-point scale)
-    AT: { type: Number, min: 1, max: 5, default: null },
-    PBC: { type: Number, min: 1, max: 5, default: null },
-    EMP: { type: Number, min: 1, max: 5, default: null },
-    TIN: { type: Number, min: 1, max: 5, default: null },
+    // —— bullying (1–5 integer scale)
+    AT: {
+      type: Number,
+      default: null,
+      set: (v) => clamp(v, 1, 5),
+      min: 1,
+      max: 5,
+    },
+    PBC: {
+      type: Number,
+      default: null,
+      set: (v) => clamp(v, 1, 5),
+      min: 1,
+      max: 5,
+    },
+    EMP: {
+      type: Number,
+      default: null,
+      set: (v) => clamp(v, 1, 5),
+      min: 1,
+      max: 5,
+    },
+    TIN: {
+      type: Number,
+      default: null,
+      set: (v) => clamp(v, 1, 5),
+      min: 1,
+      max: 5,
+    },
+
+    // —— victim support (0–1 scale)
+    UES: {
+      type: Number,
+      default: null,
+      set: (v) => clamp(v, 0, 1),
+      min: 0,
+      max: 1,
+    },
+    URA: {
+      type: Number,
+      default: null,
+      set: (v) => clamp(v, 0, 1),
+      min: 0,
+      max: 1,
+    },
+    UAD: {
+      type: Number,
+      default: null,
+      set: (v) => clamp(v, 0, 1),
+      min: 0,
+      max: 1,
+    },
+    UPS: {
+      type: Number,
+      default: null,
+      set: (v) => clamp(v, 0, 1),
+      min: 0,
+      max: 1,
+    },
   },
   {
     timestamps: true,

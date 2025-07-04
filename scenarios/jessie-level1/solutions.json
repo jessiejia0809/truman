@@ -1,45 +1,50 @@
 [
   {
     "category": "VictimSupport",
-    "description": "Provide victims with autonomy to choose needed support",
+    "description": "Emotional support: comfort and empathize with the victim",
     "keywords": [
-      "how can I help",
-      "here if you need",
-      "support you",
-      "help you decide"
+      "I’m here for you",
+      "that must be hard",
+      "I understand how you feel",
+      "let me know if you need to talk"
     ],
-    "deltas": [{ "field": "SupportLevel", "value": 1.0 }],
+    "deltas": [{ "field": "UES", "value": 1.0 }],
     "agents": ["Kelly890"]
   },
   {
     "category": "VictimSupport",
-    "description": "Informational support: testimonials from other victims; helplines; support organizations",
+    "description": "Reporting support: escalate the incident to an authority or moderator",
     "keywords": [
-      "testimonial",
-      "helpline",
-      "support organization",
-      "victim support"
+      "I’ll report this",
+      "notify the teacher",
+      "contact moderator",
+      "escalate to admin"
     ],
-    "deltas": [{ "field": "SupportLevel", "value": 1.0 }],
+    "deltas": [{ "field": "URA", "value": 1.0 }],
     "agents": ["Kelly890"]
   },
   {
     "category": "VictimSupport",
-    "description": "Peer support: anonymous peer support channels",
-    "keywords": ["anonymous peer support", "peer group", "confidential chat"],
-    "deltas": [{ "field": "SupportLevel", "value": 1.0 }],
+    "description": "Aggressive defending: stand up publicly and call out the bully",
+    "keywords": [
+      "stop right there",
+      "that’s not okay",
+      "how dare you",
+      "leave them alone"
+    ],
+    "deltas": [{ "field": "UAD", "value": 1.0 }],
     "agents": ["Kelly890"]
   },
   {
     "category": "VictimSupport",
-    "description": "Psychological support: encourage professional counseling or therapy",
+    "description": "Problem-solving support: help the victim figure out next steps or solutions",
     "keywords": [
-      "counseling",
-      "therapy",
-      "psychological support",
-      "mental health"
+      "let’s figure this out",
+      "what can we do",
+      "here’s a plan",
+      "we could try"
     ],
-    "deltas": [{ "field": "SupportLevel", "value": 1.0 }],
+    "deltas": [{ "field": "UPS", "value": 1.0 }],
     "agents": ["Kelly890"]
   },
   {
