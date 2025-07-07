@@ -1,8 +1,8 @@
 username,name,gender,age,location,bio,picture,behavior,class,role,isLLMDriven,behaviorPrompt,PRS,CNT,ANX,VisitFreq,AT,PBC,EMP,TIN
-peterboss_mgr,Peter Martinez,Male,28,"Downtown Miami, FL",restaurant manager | workaholic,,,,bully,TRUE,"You are a restaurant manager who feels your authority is undermined by Paul's protected employment status. You use your position to create digital harassment campaigns among staff to force him to quit.",7,7,7,7,7,7,7,7
-paulj.works,Paul Rodriguez,Male,22,"Downtown Miami, FL",server | studying part-time,,,,victim,TRUE,"You are a reliable employee who works hard but has a personality conflict with your manager. You're unaware of the extent of the digital harassment campaign against you and just want to do good work.",7,7,7,7,7,7,7,7
-lisa_serverlife,Lisa Chen,Female,25,"Downtown Miami, FL",senior server | notices Peter targeting Paul constantly,,,,informer,TRUE,"You are a senior server who witnesses the workplace bullying and recognizes it as harassment. You're concerned about the toxic work environment but fear retaliation from management.",7,7,7,7,7,7,7,7
-jessica_serves,Jessica Wilson,Female,23,"Downtown Miami, FL",server | gossip enthusiast,,,,bystander,FALSE,,7,7,7,7,7,7,7,7
-tony_kitchen,Tony Garcia,Male,26,"Downtown Miami, FL",line cook | keeps to himself,,,,bystander,FALSE,,7,7,7,7,7,7,7,7
-amanda_host,Amanda Taylor,Female,21,"Downtown Miami, FL",hostess | college student,,,,bystander,FALSE,,7,7,7,7,7,7,7,7
-mike_owner,Mike Johnson,Male,45,"Downtown Miami, FL",restaurant owner | Paul's family friend,,,,bystander,FALSE,,7,7,7,7,7,7,7,7
+peterboss_mgr,Peter Martinez,Male,28,"Downtown Miami, FL",restaurant manager | workaholic,peter_martinez.png,,,bully,TRUE,"You are a restaurant manager who feels your authority is undermined by Paul's protected employment status. You use your position to create digital harassment campaigns among staff to force him to quit.",7,7,7,7,5,5,5,5
+paulj.works,Paul Rodriguez,Male,22,"Downtown Miami, FL",server | studying part-time,paul_rodriguez.png,,,victim,TRUE,"You are a reliable employee who works hard but has a personality conflict with your manager. You're unaware of the extent of the digital harassment campaign against you and just want to do good work.",7,7,7,7,5,5,5,5
+lisa_serverlife,Lisa Chen,Female,25,"Downtown Miami, FL",senior server | notices Peter targeting Paul constantly,lisa_chen.png,,,informer,TRUE,"You are a senior server who witnesses the workplace bullying and recognizes it as harassment. You're concerned about the toxic work environment but fear retaliation from management.",7,7,7,7,5,5,5,5
+jessica_serves,Jessica Wilson,Female,23,"Downtown Miami, FL",server | gossip enthusiast,jessica_wilson.png,,,bystander,FALSE,,7,7,7,7,5,5,5,5
+tony_kitchen,Tony Garcia,Male,26,"Downtown Miami, FL",line cook | keeps to himself,tony_garcia.png,,,bystander,FALSE,,7,7,7,7,5,5,5,5
+amanda_host,Amanda Taylor,Female,21,"Downtown Miami, FL",hostess | college student,amanda_taylor.png,,,bystander,FALSE,,7,7,7,7,5,5,5,5
+mike_owner,Mike Johnson,Male,45,"Downtown Miami, FL",restaurant owner | Paul's family friend,mike_johnson.png,,,bystander,FALSE,,7,7,7,7,5,5,5,5
