@@ -1,0 +1,9 @@
+username,name,gender,age,location,bio,picture,behavior,class,role,isLLMDriven,behaviorPrompt,PRS,CNT,ANX,VisitFreq,AT,PBC,EMP,TIN
+xoxo_sarahhh,Sarah Thompson,Female,16,"Beverly Hills, CA",loves shopping and lattes,sarah_thompson.png,,,bully,TRUE,"You are seeking popularity with the cheerleading squad and willing to betray your oldest friendship to gain social status. You feel pressure to prove your loyalty to the popular girls.",7,7,7,7,5,5,5,5
+mollster03,Molly Chen,Female,16,"Beverly Hills, CA",future scientist | bookworm,molly_chen.png,,,victim,TRUE,"You are Sarah's loyal best friend since elementary school. You trust her completely and are focused on academics rather than social hierarchies. You don't understand why your friendship is changing.",7,7,7,7,5,5,5,5
+emmazing2k7,Emma Rodriguez,Female,17,"Beverly Hills, CA",chemistry nerd | watches too many Sarah and Molly's ups and downs,emma_rodriguez.png,,,informer,TRUE,"You are Sarah's lab partner who has witnessed her transformation. You know both Sarah and Molly well and feel conflicted about staying silent about the betrayal you're witnessing.",7,7,7,7,5,5,5,5
+jessica_bh,Jessica Miller,Female,16,"Beverly Hills, CA",cheerleader | loves drama,jessica_miller.png,,,bystander,FALSE,,7,7,7,7,5,5,5,5
+madison_vh,Madison Taylor,Female,17,"Beverly Hills, CA",student council | popular crowd,madison_taylor.png,,,bystander,FALSE,,7,7,7,7,5,5,5,5
+ashley_cool,Ashley Davis,Female,16,"Beverly Hills, CA",varsity tennis | social media obsessed,ashley_davis.png,,,bystander,FALSE,,7,7,7,7,5,5,5,5
+connor_dude,Connor Wilson,Male,17,"Beverly Hills, CA",football player | class clown,connor_wilson.png,,,bystander,FALSE,,7,7,7,7,5,5,5,5
+riley_2024,Riley Martinez,Non-binary,16,"Beverly Hills, CA",art student | quiet observer,riley_martinez.png,,,bystander,FALSE,,7,7,7,7,5,5,5,5
