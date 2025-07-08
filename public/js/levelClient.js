@@ -1,3 +1,7 @@
+const {
+  analyzeFailedLevelActions,
+} = require("../../controllers/feedbackService");
+
 let currentLevel =
   parseInt(new URLSearchParams(window.location.search).get("level")) || 1;
 
@@ -24,5 +28,23 @@ window.checkWinCondition = function (score, remainingTime) {
     window.showTransitionPopup("win");
   } else if (remainingTime <= 0) {
     window.showTransitionPopup("lose");
+  }
+};
+
+window.fetchFeedback = async function (userActions) {
+  try {
+    const res = await fetch("/api/feedback", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ actions: userActions }),
+    });
+
+    if (!res.ok) throw new Error("Failed to fetch feedback");
+
+    const { feedback } = await res.json();
+    return feedback;
+  } catch (err) {
+    console.error("Feedback error:", err);
+    return [];
   }
 };

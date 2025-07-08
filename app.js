@@ -65,6 +65,7 @@ const actorsController = require("./controllers/actors");
 const scriptController = require("./controllers/script");
 const userController = require("./controllers/user");
 const chatController = require("./controllers/chat");
+const feedbackService = require("./controllers/feedbackService");
 
 /**
  * API keys and Passport configuration.
@@ -432,6 +433,28 @@ app.get("/test", passportConfig.isAuthenticated, function (req, res) {
   res.render("test", {
     title: "Test",
   });
+});
+
+app.post("/api/feedback", passportConfig.isAuthenticated, async (req, res) => {
+  try {
+    const user = req.user;
+    const actions = req.body.actions;
+
+    if (!Array.isArray(actions)) {
+      return res
+        .status(400)
+        .json({ error: "Missing or invalid actions array" });
+    }
+
+    const feedback = await feedbackService.analyzeFailedLevelActions(
+      actions,
+      user,
+    );
+    res.json({ feedback });
+  } catch (err) {
+    console.error("Feedback analysis error:", err);
+    res.status(500).json({ error: "Failed to analyze actions" });
+  }
 });
 
 /**
