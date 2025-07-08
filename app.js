@@ -242,6 +242,7 @@ app.use(
       "/actors/new",
       "/account/profile",
       "/account/signup_info_post",
+      "/api/feedback",
     ],
   }),
 );
@@ -435,7 +436,8 @@ app.get("/test", passportConfig.isAuthenticated, function (req, res) {
   });
 });
 
-app.post("/api/feedback", passportConfig.isAuthenticated, async (req, res) => {
+app.post("/api/feedback", async (req, res) => {
+  //app.post("/api/feedback", passportConfig.isAuthenticated, async (req, res) => {
   try {
     const user = req.user;
     const actions = req.body.actions;

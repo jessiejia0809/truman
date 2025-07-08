@@ -74,15 +74,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Listen for score updates from server
   socket.on("scoreUpdate", (allScores) => {
-    console.log("Received scores:", allScores);
+    //console.log("Received scores:", allScores);
 
     // Example: log all bystander usernames and scores
     for (const [username, score] of Object.entries(allScores.bystanderScores)) {
-      console.log(`Bystander: ${username} - ${score}`);
+      //console.log(`Bystander: ${username} - ${score}`);
     }
 
     // Example: get overall health score
-    console.log("Health score:", allScores.healthScore);
+    //console.log("Health score:", allScores.healthScore);
     window.updateScore(allScores.healthScore);
   });
 });

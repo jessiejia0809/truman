@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-  let timeLeft = 300;
+  let timeLeft = 10;
   const totalTime = timeLeft;
 
   const wrapperDiv = document.createElement("div");
@@ -47,7 +47,17 @@ document.addEventListener("DOMContentLoaded", () => {
     timeText.textContent = `${minutes}:${seconds.toString().padStart(2, "0")}`;
     const percent = (timeLeft / totalTime) * 100;
     progressBar.style.width = `${percent}%`;
-    window.checkWinCondition(window.currentScore, timeLeft);
+
+    if (typeof window.checkWinCondition === "function") {
+      window.checkWinCondition(
+        window.currentScore || 0,
+        timeLeft,
+        window.userActions || [],
+      );
+    } else {
+      console.warn("⚠️ window.checkWinCondition is not yet defined.");
+    }
+
     if (timeLeft <= 0) {
       timeLeft = 0;
       clearInterval(timerInterval);

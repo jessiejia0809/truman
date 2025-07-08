@@ -1,7 +1,3 @@
-const {
-  analyzeFailedLevelActions,
-} = require("../../controllers/feedbackService");
-
 let currentLevel =
   parseInt(new URLSearchParams(window.location.search).get("level")) || 1;
 
@@ -18,16 +14,25 @@ window.retryLevel = function () {
   window.location.reload();
 };
 
-window.checkWinCondition = function (score, remainingTime) {
+window.checkWinCondition = async function (score, remainingTime, userActions) {
   console.log("Checking win condition for level", currentLevel);
-  if (currentLevel == 1 && score >= 50) {
+  if (currentLevel == 1 && score >= 90) {
     console.log("Level 1 complete!");
     window.showTransitionPopup("win");
   } else if (currentLevel == 2 && score >= 90) {
     console.log("Level 2 complete!");
     window.showTransitionPopup("win");
   } else if (remainingTime <= 0) {
-    window.showTransitionPopup("lose");
+    console.log("Time's up! Checking for win condition.");
+    if (!userActions) {
+      console.warn("No userActions provided for feedback analysis.");
+      window.showTransitionPopup("lose", [], score);
+      return;
+    }
+    console.log("Fetching feedback for user actions");
+    const feedback = await window.fetchFeedback(userActions);
+    console.log("Feedback received:", feedback);
+    window.showTransitionPopup("lose", feedback, score);
   }
 };
 

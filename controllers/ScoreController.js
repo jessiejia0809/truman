@@ -24,10 +24,10 @@ class ScoreController {
         0.23 * (a.CNT ?? 0) +
         0.07 * (a.VisitFreq ?? 0);
 
-      console.log(
+      /*console.log(
         `[Score][BYSTANDER] ${a.username}: PLS=${PLS.toFixed(2)}, ` +
           `PNV=${PNV.toFixed(2)}, INT=${INT.toFixed(3)}`,
-      );
+      );*/
 
       const normINT = Math.max(0, Math.min(1, INT / 7));
       bystanderScores[a.username] = normINT;
@@ -36,10 +36,10 @@ class ScoreController {
 
     const avgINT = bys.length ? sumINT / bys.length : 0;
     const bystanderScore = Math.max(0, Math.min(1, avgINT / 7));
-    console.log(
+    /*console.log(
       `[Score][BYSTANDER] avgINT=${avgINT.toFixed(3)}, ` +
         `bystanderScore=${bystanderScore.toFixed(3)}`,
-    );
+    );*/
 
     // Bully
     const bullies = agents.filter((a) => a.role === "bully");
@@ -56,11 +56,11 @@ class ScoreController {
 
       const AAS = 0.423 * BIS - 0.138 * EMP - 0.129 * (TIN * BIS);
 
-      console.log(
+      /*console.log(
         `[Score][BULLY] ${a.username}: AT=${AT}, PBC=${PBC}, ` +
           `EMP=${EMP}, TIN=${TIN}, BIS=${BIS.toFixed(3)}, ` +
           `AAS=${AAS.toFixed(3)}`,
-      );
+      );*/
 
       // clamp then normalize
       const clamped = Math.max(1, Math.min(5, AAS));
@@ -72,18 +72,18 @@ class ScoreController {
     const avgAAS = bullies.length ? sumAAS / bullies.length : 1;
     const clampedAAS = Math.max(1, Math.min(5, avgAAS));
     const bullyScore = (clampedAAS - 1) / 4;
-    console.log(
+    /*console.log(
       `[Score][BULLY] avgAAS=${avgAAS.toFixed(3)}, ` +
         `clamped=${clampedAAS.toFixed(3)}, ` +
         `bullyScore=${bullyScore.toFixed(3)}`,
-    );
+    );*/
 
     // Health
     const healthScore = Math.round(100 * bystanderScore * (1 - bullyScore));
-    console.log(
+    /*console.log(
       `[Score][HEALTH] bystanderScore=${bystanderScore.toFixed(3)}, ` +
         `bullyScore=${bullyScore.toFixed(3)}, healthScore=${healthScore}`,
-    );
+    );*/
 
     return {
       bystanderScores,

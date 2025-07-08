@@ -45,7 +45,8 @@ window.showTransitionPopup = function (
 
         // Score circle
         const scoreCircle = document.createElement("div");
-        const scoreValue = finalScore?.healthScore ?? 0;
+        const scoreValue = finalScore ?? 0;
+        console.log("Final score:", scoreValue);
 
         scoreCircle.innerHTML = `
           <svg viewBox="0 0 36 36" width="100" height="100" style="margin: 10px auto; display: block;">
