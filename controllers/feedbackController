@@ -1,0 +1,43 @@
+// controllers/feedbackController.js
+const ScoreController = require('./ScoreController');
+const Grader = require('./Grader');
+const Agent = require('../models/Agent');
+
+exports.handleFeedbackRequest = async (req, res) => {
+  try {
+    const { actions, score } = req.body;
+    const feedback = await analyzeFailedLevelActions(actions, score);
+    res.json(feedback);
+  } catch (err) {
+    console.error("FeedbackController error:", err);
+    res.status(500).json({ error: "Failed to analyze level" });
+  }
+};
+
+exports.analyzeFailedLevelActions = async function (actions, score) {
+  const grader = new Grader('/scenarios/jessie-level1/solutions.json');
+
+  const agentsBefore = await Agent.find().lean();
+  const scoreBefore = ScoreController.computeScores(agentsBefore);
+
+  const classified = await grader.classifyActionsWithLLM(actions);
+  const fieldChanges = await grader.applyDeltas(classified);
+
+  const agentsAfter = await Agent.find().lean();
+  const scoreAfter = ScoreController.computeScores(agentsAfter);
+
+  const healthImpact = scoreAfter.healthScore - scoreBefore.healthScore;
+
+  const harmfulActions = classified
+    .map((action, i) => ({
+      ...action,
+      impact: fieldChanges[i]?.impact || 0,
+    }))
+    .filter((a) => a.impact < 0)
+    .sort((a, b) => a.impact - b.impact);
+
+  return {
+    healthImpact,
+    harmfulActions,
+  };
+};

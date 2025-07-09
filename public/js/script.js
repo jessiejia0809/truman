@@ -55,7 +55,14 @@ $(window).on("load", function () {
     location.reload();
   });
   setInterval(function () {
-    console.log(`Feed auto-reloading at ${new Date().toLocaleTimeString()}`);
-    location.reload();
-  }, 10000); //every 10 seconds
+    console.log(`🔄 Refreshing feed at ${new Date().toLocaleTimeString()}`);
+
+    // Reload only the content inside #feed-container
+    $("#feed-container").load(
+      location.href + " #feed-container > *",
+      function () {
+        console.log("✅ Feed refreshed without full reload");
+      },
+    );
+  }, 10000);
 });

@@ -19,39 +19,40 @@ block content
           img.ui.avatar.image(src=user.gravatar(60))
       input(type='text', placeholder='Create a post')
       i.big.photo.link.icon
-    each val in script
-      include partials/post
-    #content.six.wide.computer.six.wide.tablet.column
-      include partials/chat
-    .ui.fluid.card
-      .content
-        .description
-        |  End of Posts for the last 24 hours.
-    .ui.one.column.centered.grid#newActivityMessage
-      .ui.fixed.bottom.sticky.hidden
-        .ui.icon.message.info
-          i.close.icon
-          i.undo.icon.float
-          .content
-            .ui.header There is some new activity!
-            p Click to reload feed.
-  .computer.only.tablet.only.four.wide.column
-    //-button.ui.icon.generate.post.button(type='button') Generate Post
-  .ui.tiny.post.modal
-    i.close.icon
-    .header Add a New Post
-    .scrolling.content
-      form#postform.ui.feed.form(action='/post/new', method='POST', enctype='multipart/form-data')
-        input(type='hidden', name='_csrf', value=_csrf)
-        .field
-          textarea(rows='2', placeholder='Share your meal', name='body')
-        .field.image-upload
-          label(for='picinput')
-            .image.content
-              img#imgInp.ui.fluid.image(src='/public/photo-camera.svg')
-          input#picinput(type='file', accept='image/*', name='picinput')
-    .actions
-      input.ui.green.button(type='submit', form='postform', value='Submit')
+    #feed-container
+      each val in script
+        include partials/post
+      #content.six.wide.computer.six.wide.tablet.column
+        include partials/chat
+      .ui.fluid.card
+        .content
+          .description
+          |  End of Posts for the last 24 hours.
+      .ui.one.column.centered.grid#newActivityMessage
+        .ui.fixed.bottom.sticky.hidden
+          .ui.icon.message.info
+            i.close.icon
+            i.undo.icon.float
+            .content
+              .ui.header There is some new activity!
+              p Click to reload feed.
+    //-.computer.only.tablet.only.four.wide.column
+      button.ui.icon.generate.post.button(type='button') Generate Post
+    //-.ui.tiny.post.modal
+      i.close.icon
+      .header Add a New Post
+      .scrolling.content
+        form#postform.ui.feed.form(action='/post/new', method='POST', enctype='multipart/form-data')
+          input(type='hidden', name='_csrf', value=_csrf)
+          .field
+            textarea(rows='2', placeholder='Share your meal', name='body')
+          .field.image-upload
+            label(for='picinput')
+              .image.content
+                img#imgInp.ui.fluid.image(src='/public/photo-camera.svg')
+            input#picinput(type='file', accept='image/*', name='picinput')
+      .actions
+        input.ui.green.button(type='submit', form='postform', value='Submit')
 
 block scripts
   script(src='/public/js/script.js')
