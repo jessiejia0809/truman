@@ -484,6 +484,10 @@ exports.joinRooms = async (socket) => {
   const passport = req.session.passport;
   if (passport) {
     const user = await User.findById(passport.user).exec();
+    if (!user) {
+      console.warn("joinRooms called with null user");
+      return; // avoid crashing the server
+    }
     if (user.session) {
       // Join a socket.io room for the session the user is in
       socket.join(user.session._id.toString());

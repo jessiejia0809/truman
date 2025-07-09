@@ -54,4 +54,15 @@ $(window).on("load", function () {
   $("#newActivityMessage .ui.fixed.bottom.sticky").on("click", function () {
     location.reload();
   });
+  setInterval(function () {
+    console.log(`🔄 Refreshing feed at ${new Date().toLocaleTimeString()}`);
+
+    // Reload only the content inside #feed-container
+    $("#feed-container").load(
+      location.href + " #feed-container > *",
+      function () {
+        console.log("✅ Feed refreshed without full reload");
+      },
+    );
+  }, 10000);
 });
