@@ -1,0 +1,62 @@
+[
+  {
+    "category": "DefendTargetPublicly",
+    "description": "Publicly support Paul and highlight his contributions",
+    "keywords": [
+      "Paul works hard",
+      "he deserves respect",
+      "not cool to gang up",
+      "we need more like him"
+    ],
+    "deltas": [{ "field": "EMP", "value": 0.9 }],
+    "agents": ["emfan_kelly", "real_jane"]
+  },
+  {
+    "category": "RefuseToParticipate",
+    "description": "Leave or refuse to contribute to bullying in group chats",
+    "keywords": [
+      "leaving this chat",
+      "this is toxic",
+      "don’t be part of this",
+      "I’m out"
+    ],
+    "deltas": [{ "field": "AT", "value": 0.8 }],
+    "agents": ["charlem", "omar007"]
+  },
+  {
+    "category": "DocumentHarassment",
+    "description": "Privately screenshot and save messages for documentation",
+    "keywords": [
+      "saving this",
+      "for HR later",
+      "evidence saved",
+      "will report this"
+    ],
+    "deltas": [{ "field": "PBC", "value": 0.7 }],
+    "agents": ["jamie4real", "mariam_m"]
+  },
+  {
+    "category": "CallOutHarassment",
+    "description": "Create or share posts that name workplace harassment for what it is",
+    "keywords": [
+      "this is workplace bullying",
+      "harassment isn’t funny",
+      "no excuse for abuse",
+      "we deserve safe spaces"
+    ],
+    "deltas": [{ "field": "CNT", "value": 1.0 }],
+    "agents": ["jackyates33", "its.kat"]
+  },
+  {
+    "category": "ModelRespect",
+    "description": "Post about professional respect and empathy at work",
+    "keywords": [
+      "respect everyone",
+      "professionalism matters",
+      "lead with empathy",
+      "uplift, don’t shame"
+    ],
+    "deltas": [{ "field": "TIN", "value": 0.6 }],
+    "agents": ["mariam_m", "real_jane"]
+  }
+]

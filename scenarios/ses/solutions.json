@@ -1,0 +1,62 @@
+[
+  {
+    "category": "CallOutClassism",
+    "description": "Publicly call out classist behavior and highlight its harm",
+    "keywords": [
+      "this is classist",
+      "stop judging by money",
+      "being poor isn't a crime",
+      "not everyone has the same privileges"
+    ],
+    "deltas": [{ "field": "CNT", "value": 1.0 }],
+    "agents": ["jackyates33", "its.kat"]
+  },
+  {
+    "category": "CelebrateMerit",
+    "description": "Share posts celebrating achievement regardless of financial background",
+    "keywords": [
+      "earned it fair and square",
+      "hard work matters",
+      "not handed everything",
+      "respect hustle"
+    ],
+    "deltas": [{ "field": "AT", "value": 0.9 }],
+    "agents": ["emfan_kelly", "charlem"]
+  },
+  {
+    "category": "ReportFraudAndAbuse",
+    "description": "Report harassment and fake charity accounts meant to mock the victim",
+    "keywords": [
+      "reporting this now",
+      "fake and harmful",
+      "TOS violation",
+      "this needs to go"
+    ],
+    "deltas": [{ "field": "PBC", "value": 0.8 }],
+    "agents": ["jamie4real", "mariam_m"]
+  },
+  {
+    "category": "PromoteEconomicDiversity",
+    "description": "Create posts uplifting economic diversity and earned opportunity",
+    "keywords": [
+      "diversity = strength",
+      "we all belong here",
+      "background doesn’t define worth",
+      "celebrate effort, not privilege"
+    ],
+    "deltas": [{ "field": "TIN", "value": 0.7 }],
+    "agents": ["real_jane", "omar007"]
+  },
+  {
+    "category": "SupportVictimOpenly",
+    "description": "Openly support the target with kind comments or financial solidarity",
+    "keywords": [
+      "you deserve better",
+      "this isn’t okay",
+      "you’re not alone",
+      "happy to help"
+    ],
+    "deltas": [{ "field": "EMP", "value": 0.9 }],
+    "agents": ["charlem", "mariam_m"]
+  }
+]

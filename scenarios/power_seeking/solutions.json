@@ -1,0 +1,85 @@
+[
+  {
+    "category": "DemonstratingSocialDisapproval",
+    "description": "Peers publicly disapprove of bullying, undermining the social reinforcement bullies rely on.",
+    "keywords": [
+      "this isn't funny",
+      "stop encouraging this",
+      "we don’t support bullies here",
+      "not cool at all"
+    ],
+    "deltas": [
+      {
+        "field": "AAS",
+        "value": -1.0
+      }
+    ],
+    "agents": ["mariam_m", "charlem", "its.kat"]
+  },
+  {
+    "category": "SupportiveCommenting",
+    "description": "Leave a visible message supporting the victim and validating their experience.",
+    "keywords": [
+      "you didn’t deserve that",
+      "we’ve got your back",
+      "ignore them, you matter",
+      "that was harsh and wrong"
+    ],
+    "deltas": [
+      {
+        "field": "UES",
+        "value": 1.0
+      }
+    ],
+    "agents": ["jackyates33", "real_jane"]
+  },
+  {
+    "category": "EmpathyBuilding",
+    "description": "Post stories or memories that humanize the victim and promote understanding.",
+    "keywords": [
+      "remember when they helped me",
+      "they’ve always been kind",
+      "you don’t know what they’re going through"
+    ],
+    "deltas": [
+      {
+        "field": "EMP",
+        "value": 0.8
+      }
+    ],
+    "agents": ["jamie4real", "omar007"]
+  },
+  {
+    "category": "NarrativeRedirection",
+    "description": "Share posts that shift the conversation away from mockery to positive traits.",
+    "keywords": [
+      "being kind is cool",
+      "confidence comes from lifting others",
+      "build, don’t break"
+    ],
+    "deltas": [
+      {
+        "field": "CNT",
+        "value": 0.6
+      }
+    ],
+    "agents": ["emfan_kelly", "charlem"]
+  },
+  {
+    "category": "BystanderSupport",
+    "description": "Support anti-bullying posts and reinforce norms against cruelty.",
+    "keywords": [
+      "facts",
+      "completely agree",
+      "this needed to be said",
+      "thank you for speaking up"
+    ],
+    "deltas": [
+      {
+        "field": "TIN",
+        "value": 0.5
+      }
+    ],
+    "agents": ["its.kat", "real_jane"]
+  }
+]

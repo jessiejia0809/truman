@@ -1,0 +1,62 @@
+[
+  {
+    "category": "CallOutAbuse",
+    "description": "Publicly call out humiliating behavior in the relationship as abusive",
+    "keywords": [
+      "this is abusive",
+      "emotional abuse is real",
+      "humiliation is not love",
+      "this isn’t okay"
+    ],
+    "deltas": [{ "field": "CNT", "value": 1.0 }],
+    "agents": ["real_jane", "mariam_m"]
+  },
+  {
+    "category": "HealthyRelationshipEducation",
+    "description": "Share resources and posts about what healthy relationships look like",
+    "keywords": [
+      "respect your partner",
+      "boundaries matter",
+      "healthy love means support",
+      "relationship red flags"
+    ],
+    "deltas": [{ "field": "UES", "value": 0.8 }],
+    "agents": ["jackyates33", "emfan_kelly"]
+  },
+  {
+    "category": "PrivateSupport",
+    "description": "Privately message the victim offering emotional support and resources",
+    "keywords": [
+      "hey I saw that post…",
+      "you don’t deserve that",
+      "if you need to talk I’m here",
+      "check out this support group"
+    ],
+    "deltas": [{ "field": "EMP", "value": 0.9 }],
+    "agents": ["its.kat", "charlem"]
+  },
+  {
+    "category": "NormalizeRespect",
+    "description": "Create posts promoting respectful relationship behaviors as the norm",
+    "keywords": [
+      "this is what love should look like",
+      "mutual respect > public shaming",
+      "uplift your partner",
+      "healthy = kind + honest"
+    ],
+    "deltas": [{ "field": "AT", "value": 0.7 }],
+    "agents": ["jamie4real", "omar007"]
+  },
+  {
+    "category": "JoinSupportiveVoices",
+    "description": "Echo others calling out abuse to show consensus and reduce silence",
+    "keywords": [
+      "yes! abuse isn’t okay",
+      "totally agree",
+      "thank you for speaking out",
+      "more people need to see this"
+    ],
+    "deltas": [{ "field": "TIN", "value": 0.5 }],
+    "agents": ["real_jane", "mariam_m"]
+  }
+]

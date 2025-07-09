@@ -1,0 +1,61 @@
+[
+  {
+    "category": "PublicIntervention",
+    "description": "Publicly comment on hazing posts calling it dangerous and unacceptable",
+    "keywords": [
+      "this is not okay",
+      "this could seriously hurt someone",
+      "stop hazing",
+      "why is this even allowed"
+    ],
+    "deltas": [{ "field": "CNT", "value": 1.0 }],
+    "agents": ["real_jane", "mariam_m", "jamie4real"]
+  },
+  {
+    "category": "ReportContent",
+    "description": "Report harmful hazing content to platform administrators",
+    "keywords": [
+      "reported",
+      "I’m flagging this",
+      "violates guidelines",
+      "platform needs to remove this"
+    ],
+    "deltas": [{ "field": "PBC", "value": 1.0 }],
+    "agents": ["its.kat", "omar007"]
+  },
+  {
+    "category": "CounterMessaging",
+    "description": "Share anti-hazing resources and messages that promote safety and dignity",
+    "keywords": [
+      "hazing kills",
+      "respect all teammates",
+      "join campaigns against hazing",
+      "there are better team traditions"
+    ],
+    "deltas": [{ "field": "UES", "value": 0.7 }],
+    "agents": ["jackyates33", "emfan_kelly"]
+  },
+  {
+    "category": "PositiveTeamCelebration",
+    "description": "Create posts that celebrate team members without involving humiliation",
+    "keywords": [
+      "so proud of our team",
+      "celebrating achievements not pain",
+      "this is how we build community"
+    ],
+    "deltas": [{ "field": "EMP", "value": 0.6 }],
+    "agents": ["charlem", "real_jane"]
+  },
+  {
+    "category": "SupportiveAgreement",
+    "description": "Join others in condemning hazing and showing public support",
+    "keywords": [
+      "agreed",
+      "facts",
+      "this isn’t funny",
+      "thank you for saying this"
+    ],
+    "deltas": [{ "field": "TIN", "value": 0.4 }],
+    "agents": ["omar007", "jamie4real"]
+  }
+]

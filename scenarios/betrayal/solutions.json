@@ -1,0 +1,135 @@
+[
+  {
+    "category": "PublicCounterNarrative",
+    "description": "Publicly express support and loyalty to the victim over social status",
+    "keywords": [
+      "you deserve better",
+      "real friends don’t do that",
+      "I’ve got your back",
+      "you’re not alone"
+    ],
+    "deltas": [
+      {
+        "field": "UES",
+        "value": 1.0
+      }
+    ],
+    "agents": ["real_jane", "charlem", "emfan_kelly"]
+  },
+  {
+    "category": "PublicCounterNarrative",
+    "description": "Celebrate true friendship and discourage clout-chasing or betrayal",
+    "keywords": [
+      "clout isn’t worth it",
+      "stay loyal",
+      "friendship over fame",
+      "not everything is about followers"
+    ],
+    "deltas": [
+      {
+        "field": "CNT",
+        "value": 0.5
+      }
+    ],
+    "agents": ["its.kat", "omar007", "jackyates33"]
+  },
+  {
+    "category": "PublicCounterNarrative",
+    "description": "Call out betrayal and create a norm that shaming or exclusion isn’t acceptable",
+    "keywords": [
+      "that’s a betrayal",
+      "not cool to ditch your friends",
+      "fake friends be like",
+      "we see you"
+    ],
+    "deltas": [
+      {
+        "field": "AAS",
+        "value": -1.0
+      }
+    ],
+    "agents": ["jamie4real", "charlem"]
+  },
+  {
+    "category": "SupportiveCommenting",
+    "description": "Leave a comment defending the victim publicly",
+    "keywords": [
+      "don’t listen to them",
+      "you did nothing wrong",
+      "ignore the haters",
+      "you’re amazing the way you are"
+    ],
+    "deltas": [
+      {
+        "field": "UES",
+        "value": 1.0
+      }
+    ],
+    "agents": ["mariam_m", "jamie4real"]
+  },
+  {
+    "category": "NarrativeRedirection",
+    "description": "Share a post or story that reframes the situation positively for the victim",
+    "keywords": [
+      "true friends stick around",
+      "being real is better than being liked",
+      "kindness > popularity"
+    ],
+    "deltas": [
+      {
+        "field": "CNT",
+        "value": 0.8
+      }
+    ],
+    "agents": ["emfan_kelly", "its.kat"]
+  },
+  {
+    "category": "CallOut",
+    "description": "Publicly challenge those who betrayed or excluded the victim",
+    "keywords": [
+      "you dropped her the second it was convenient",
+      "loyalty matters",
+      "fake friends exposed"
+    ],
+    "deltas": [
+      {
+        "field": "AAS",
+        "value": -1.0
+      }
+    ],
+    "agents": ["charlem", "real_jane"]
+  },
+  {
+    "category": "EmpathyBuilding",
+    "description": "Share a memory or positive experience involving the victim to humanize them",
+    "keywords": [
+      "remember when she helped me out",
+      "she’s always been there for us",
+      "people forget the good things"
+    ],
+    "deltas": [
+      {
+        "field": "EMP",
+        "value": 0.7
+      }
+    ],
+    "agents": ["mariam_m", "jackyates33"]
+  },
+  {
+    "category": "BystanderSupport",
+    "description": "Join in on supportive threads instead of staying silent",
+    "keywords": [
+      "I agree",
+      "couldn’t have said it better",
+      "yes this",
+      "facts"
+    ],
+    "deltas": [
+      {
+        "field": "TIN",
+        "value": 0.5
+      }
+    ],
+    "agents": ["omar007", "jamie4real"]
+  }
+]

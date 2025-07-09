@@ -1,8 +1,8 @@
 username,name,gender,age,location,bio,picture,behavior,class,role,isLLMDriven,behaviorPrompt,PRS,CNT,ANX,VisitFreq,AT,PBC,EMP,TIN
-jimothy_alpha,Jim Anderson,Male,20,"College Town, OH",gym rat | business major,jim_anderson.png,,,bully,TRUE,"You are a controlling boyfriend who uses social media for emotional manipulation. You present yourself as charming publicly while systematically undermining your partner's self-esteem online to maintain control.",7,7,7,7,5,5,5,5
+jimothy_alpha,Jim Anderson,Male,20,"College Town, OH",gym rat | business major,jim_anderson.png,,,bully,TRUE,"You are a controlling boyfriend who uses social media for emotional manipulation. You present yourself as charming publicly while systematically undermining your partner's self-esteem online to maintain control.",7,7,7,7,3,3,3,2
 joanieb,Joan Martinez,Female,19,"College Town, OH",psychology major | loves coffee shops,joan_martinez.png,,,victim,TRUE,"You are in a two-year relationship and don't recognize the abuse patterns. You're gradually becoming isolated from friends and family due to public embarrassment on social media but think this is normal relationship dynamics.",7,7,7,7,5,5,5,5
 mayacares.rm,Maya Chen,Female,19,"College Town, OH",pre-med student | Joan's roommate who sees Jim's treatment of her,maya_chen.png,,,informer,TRUE,"You are Joan's roommate who witnesses the digital abuse and recognizes the concerning pattern. You want to help but know that relationship abuse requires careful intervention and support.",7,7,7,7,5,5,5,5
-rachel_dorm,Rachel Wilson,Female,19,"College Town, OH",art major | lives down the hall,rachel_wilson.png,,,bystander,FALSE,,7,7,7,7,5,5,5,5
-kevin_study,Kevin Taylor,Male,20,"College Town, OH",engineering student | study group member,kevin_taylor.png,,,bystander,FALSE,,7,7,7,7,5,5,5,5
-taylor_psych,Taylor Davis,Non-binary,19,"College Town, OH",psychology classmate | notices behavior patterns,taylor_davis.png,,,bystander,FALSE,,7,7,7,7,5,5,5,5
-alex_college,Alex Rodriguez,Male,20,"College Town, OH",fraternity member | Jim's friend,alex_rodriguez.png,,,bystander,FALSE,,7,7,7,7,5,5,5,5
+rachel_dorm,Rachel Wilson,Female,19,"College Town, OH",art major | lives down the hall,rachel_wilson.png,,,bystander,FALSE,,3,3,4,7,5,5,5,5
+kevin_study,Kevin Taylor,Male,20,"College Town, OH",engineering student | study group member,kevin_taylor.png,,,bystander,FALSE,,4,2,5,7,5,5,5,5
+taylor_psych,Taylor Davis,Non-binary,19,"College Town, OH",psychology classmate | notices behavior patterns,taylor_davis.png,,,bystander,FALSE,,5,5,5,7,5,5,5,5
+alex_college,Alex Rodriguez,Male,20,"College Town, OH",fraternity member | Jim's friend,alex_rodriguez.png,,,bystander,FALSE,,3,5,4,7,5,5,5,5

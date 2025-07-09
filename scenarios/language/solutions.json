@@ -1,0 +1,61 @@
+[
+  {
+    "category": "CulturalSupport",
+    "description": "Publicly defend Mark by praising his efforts to learn a new language and celebrating multilingualism",
+    "keywords": [
+      "so brave to learn",
+      "multilingualism is a strength",
+      "respect for trying",
+      "language is culture"
+    ],
+    "deltas": [{ "field": "EMP", "value": 0.9 }],
+    "agents": ["emfan_kelly", "real_jane", "charlem"]
+  },
+  {
+    "category": "CallOutXenophobia",
+    "description": "Call out xenophobic or mocking comments as unacceptable",
+    "keywords": [
+      "that’s xenophobic",
+      "don’t mock people for accents",
+      "this is racist",
+      "stop bullying based on language"
+    ],
+    "deltas": [{ "field": "CNT", "value": 1.0 }],
+    "agents": ["mariam_m", "jackyates33"]
+  },
+  {
+    "category": "PositiveReframing",
+    "description": "Reframe the situation by emphasizing the value of cultural diversity",
+    "keywords": [
+      "diversity makes us stronger",
+      "we need more languages",
+      "learning languages is cool"
+    ],
+    "deltas": [{ "field": "AT", "value": 0.6 }],
+    "agents": ["jamie4real", "its.kat"]
+  },
+  {
+    "category": "SupportiveCommenting",
+    "description": "Join supportive threads and encourage others to respect language learners",
+    "keywords": [
+      "keep going Mark",
+      "this is so encouraging",
+      "ignore the haters",
+      "we see your effort"
+    ],
+    "deltas": [{ "field": "TIN", "value": 0.5 }],
+    "agents": ["charlem", "omar007"]
+  },
+  {
+    "category": "AllyResourceSharing",
+    "description": "Share resources on allyship, cultural learning, and inclusion",
+    "keywords": [
+      "learn to be an ally",
+      "inclusive language tips",
+      "support your peers",
+      "respect all backgrounds"
+    ],
+    "deltas": [{ "field": "UES", "value": 0.8 }],
+    "agents": ["jackyates33", "emfan_kelly"]
+  }
+]
