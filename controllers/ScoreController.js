@@ -10,6 +10,9 @@ class ScoreController {
    *  - healthScore:     0-100 multiplicative health metric
    */
   static computeScores(agents) {
+    const MAX_PLS = 0.62 * 7;
+    const MAX_PNV = 0.33 * MAX_PLS + 0.18 * 7 - 0.16 * 0;
+    const MAX_INT = 0.48 * MAX_PNV + 0.18 * MAX_PLS + 0.23 * 7 + 0.07 * 7;
     // Bystander
     const bys = agents.filter((a) => a.role === "bystander");
     const bystanderScores = {};
@@ -24,13 +27,14 @@ class ScoreController {
         0.23 * (a.CNT ?? 0) +
         0.07 * (a.VisitFreq ?? 0);
 
-      const normINT = Math.max(0, Math.min(1, INT / 7));
+      // normalize against MAX_INT
+      const normINT = Math.max(0, Math.min(1, INT / MAX_INT));
       bystanderScores[a.username] = normINT;
       sumINT += INT;
     });
 
     const avgINT = bys.length ? sumINT / bys.length : 0;
-    const bystanderScore = Math.max(0, Math.min(1, avgINT / 7));
+    const bystanderScore = Math.max(0, Math.min(1, avgINT / MAX_INT));
 
     // Bully
     const bulls = agents.filter((a) => a.role === "bully");
@@ -68,7 +72,7 @@ class ScoreController {
     const victimSupportScore = den > 0 ? num / den : 0;
 
     // Health Score
-    const α = 0.6;
+    const α = 0.5;
     const β = 1 - α;
     const γ = 1.0;
 
