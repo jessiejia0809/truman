@@ -74,13 +74,13 @@ window.showTransitionPopup = function (
 
         // Score breakdown
         const by = document.createElement("p");
-        by.innerText = `Bystander Score: ${finalScore?.bystanderScore ?? "?"}%`;
+        by.innerText = `Bystander Score: ${Math.trunc(window.bystanderScore * 100) ?? "?"}%`;
         const bu = document.createElement("p");
-        bu.innerText = `Bully Score: ${finalScore?.bullyScore ?? "?"}%`;
+        bu.innerText = `Bully Score: ${Math.trunc(window.bullyScore * 100) ?? "?"}%`;
         modalBox.appendChild(by);
         modalBox.appendChild(bu);
 
-        // Harmful actions
+        /*// Harmful actions
         const actionHeader = document.createElement("h3");
         actionHeader.innerText = "ACTIONS THAT CONTRIBUTED TO FAILURE";
         actionHeader.style.marginTop = "15px";
@@ -95,7 +95,7 @@ window.showTransitionPopup = function (
           ul.appendChild(li);
         });
 
-        modalBox.appendChild(ul);
+        modalBox.appendChild(ul);*/
 
         // Hint
         const hint = document.createElement("p");
@@ -120,17 +120,29 @@ window.showTransitionPopup = function (
         modalBox.appendChild(retryBtn);
       } else {
         // Default win screen logic using JSON
-        const label = Object.values(root).find((el) => el.type === "Label");
-        if (label) {
-          const h1 = document.createElement("h1");
-          h1.innerText = label.data.text || "Session Complete";
-          modalBox.appendChild(h1);
-        }
+        modalBox.style.backgroundColor = "#720000";
+        modalBox.style.border = "5px solid #ab0909";
 
-        const button = document.createElement("button");
-        button.innerText = "Continue";
-        button.onclick = () => window.goToNextLevel();
-        modalBox.appendChild(button);
+        const title = document.createElement("h1");
+        title.innerText = "You Passed";
+        title.style.color = "#fff";
+        title.style.fontFamily = "'Courier New', monospace";
+        title.style.fontSize = "3em";
+        modalBox.appendChild(title);
+
+        const arrowBtn = document.createElement("button");
+        arrowBtn.innerText = "➔";
+        arrowBtn.style.backgroundColor = "#fff";
+        arrowBtn.style.color = "#b20000";
+        arrowBtn.style.fontSize = "2em";
+        arrowBtn.style.border = "none";
+        arrowBtn.style.borderRadius = "50%";
+        arrowBtn.style.width = "65px";
+        arrowBtn.style.height = "65px";
+        arrowBtn.style.cursor = "pointer";
+        arrowBtn.onclick = () => window.goToNextLevel();
+
+        modalBox.appendChild(arrowBtn);
       }
 
       modalOverlay.appendChild(modalBox);

@@ -83,6 +83,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Example: get overall health score
     //console.log("Health score:", allScores.healthScore);
+    window.bystanderScore = allScores.bystanderScore;
+    window.bullyScore = allScores.bullyScore;
     window.updateScore(allScores.healthScore);
   });
 });
