@@ -54,4 +54,8 @@ $(window).on("load", function () {
   $("#newActivityMessage .ui.fixed.bottom.sticky").on("click", function () {
     location.reload();
   });
+  setInterval(function () {
+    console.log(`Feed auto-reloading at ${new Date().toLocaleTimeString()}`);
+    location.reload();
+  }, 10000); //every 10 seconds
 });
