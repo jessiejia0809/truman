@@ -5,6 +5,9 @@ block styles
   link(type='text/css', rel='stylesheet', href='/public/css/chat.css')
 
 block content
+  .score-container
+    .score-bar
+    .score-text
   .computer.only.tablet.only.four.wide.column
     include ./partials/userCard
   #loading.eight.wide.computer.ten.wide.tablet.sixteen.wide.mobile.column
@@ -61,5 +64,5 @@ block scripts
   script(src='/public/js/level.js')
   script(src='/public/js/transitionModal.js')
   script(src='/public/js/levelClient.js')
-  script(src='/public/js/timer.js')
-  script(src='/public/js/score.js')
+  script(src='/public/js/score.js', defer)
+  script(src='/public/js/timer.js', defer)

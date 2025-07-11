@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-  let timeLeft = 10;
+  let timeLeft = 60;
   const totalTime = timeLeft;
 
   const wrapperDiv = document.createElement("div");
@@ -41,10 +41,11 @@ document.addEventListener("DOMContentLoaded", () => {
   wrapperDiv.appendChild(timerContainer);
   document.body.appendChild(wrapperDiv);
 
-  function updateTimer() {
+  function renderTimer(timeLeft) {
     const minutes = Math.floor(timeLeft / 60);
     const seconds = timeLeft % 60;
     timeText.textContent = `${minutes}:${seconds.toString().padStart(2, "0")}`;
+
     const percent = (timeLeft / totalTime) * 100;
     progressBar.style.width = `${percent}%`;
 
@@ -54,25 +55,17 @@ document.addEventListener("DOMContentLoaded", () => {
         timeLeft,
         window.userActions || [],
       );
-    } else {
-      console.warn("⚠️ window.checkWinCondition is not yet defined.");
     }
-
-    if (timeLeft <= 0) {
-      timeLeft = 0;
-      clearInterval(timerInterval);
-    }
-
-    timeLeft--;
   }
 
-  const timerInterval = setInterval(updateTimer, 1000);
-  updateTimer();
+  const socket = io();
+  socket.on("scoreUpdate", (allScores) => {
+    if (typeof allScores.timeLeft === "number") {
+      renderTimer(allScores.timeLeft);
+    }
+  });
 
   window.resetTimer = function () {
-    timeLeft = totalTime;
-    clearInterval(timerInterval);
-    updateTimer();
-    timerInterval = setInterval(updateTimer, 1000);
+    renderTimer(totalTime); // just draw full timer bar and text
   };
 });

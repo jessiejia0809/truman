@@ -336,5 +336,17 @@ mongoose.connection.once("open", async () => {
     level += 1;
   }
 
+  const levelOrder = folders.map((folder, i) => ({
+    level: i + 1,
+    folder,
+  }));
+
+  await fs.writeFile(
+    "scenarios/level_order.json",
+    JSON.stringify(levelOrder, null, 2),
+  );
+
+  console.log(color_success, "✅ Saved level_order.json");
+
   mongoose.connection.close();
 });

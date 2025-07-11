@@ -1,4 +1,8 @@
 const Agent = require("../models/Agent");
+let lastHealthScore = 0;
+let lastDecayTime = Date.now();
+const TOTAL_DURATION = 60;
+const levelStartTime = Date.now();
 
 class ScoreController {
   /**
@@ -101,8 +105,43 @@ class ScoreController {
 
   static async getAllScores() {
     const agents = await Agent.find().lean();
-    return ScoreController.computeScores(agents);
+    const scores = ScoreController.computeScores(agents);
+
+    const now = Date.now();
+    const secondsSinceStart = Math.floor((now - levelStartTime) / 1000);
+    const timeLeft = Math.max(0, TOTAL_DURATION - secondsSinceStart);
+
+    // 💡 Decay healthScore strictly based on time passed since levelStart
+    const decayedScore = Math.max(
+      0,
+      scores.healthScore - (TOTAL_DURATION - timeLeft),
+    );
+
+    scores.healthScore = decayedScore;
+    scores.timeLeft = timeLeft;
+
+    return scores;
   }
+
+  /*static async getAllScores() {
+    const agents = await Agent.find().lean();
+    //return ScoreController.computeScores(agents);
+    const scores = ScoreController.computeScores(agents);
+
+    // Decay logic
+    const now = Date.now();
+    const elapsed = now - lastDecayTime;
+
+    if (elapsed >= 1000 && lastHealthScore > 0) {
+      lastHealthScore -= 1;
+      lastDecayTime = now;
+    }
+
+    // Replace computed healthScore with decayed one
+    scores.healthScore = lastHealthScore;
+
+    return scores;
+  }*/
 
   static async getScore(req, res, next) {
     try {
