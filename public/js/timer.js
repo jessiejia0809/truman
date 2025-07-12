@@ -58,7 +58,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  const socket = io();
+  const socket = window.socket || io("http://localhost:3000");
+  window.socket = socket;
+
   socket.on("scoreUpdate", (allScores) => {
     if (typeof allScores.timeLeft === "number") {
       renderTimer(allScores.timeLeft);

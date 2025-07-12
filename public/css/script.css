@@ -144,3 +144,49 @@ textarea.newcomment {
 #newActivityMessage .ui.icon.message.info .content {
   margin-right: 20px;
 }
+
+.large-post {
+  font-size: 1.2rem; /* Increase text size */
+  padding: 20px;
+}
+
+.large-post .content {
+  font-size: 1.2em;
+}
+
+.large-post img {
+  max-width: 100%;
+  height: auto;
+}
+
+.large-post textarea.newcomment {
+  font-size: 1rem;
+}
+
+#feed-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#feed-container > .ui.card {
+  width: 100%;
+  max-width: 700px;
+}
+
+.post-image {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.5rem 0;
+}
+
+.resized-post-image {
+  max-width: 100%;
+  max-height: 400px; /* or whatever you want */
+  object-fit: contain;
+  width: auto;
+  height: auto;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}

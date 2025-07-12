@@ -1,4 +1,4 @@
-.ui.fluid.card(postID=val.id)
+.ui.fluid.card.large-post(postID=val.id)
   .viewTimer.hidden NaN
   .content
     .right.floated.time.meta=(val.absTime.getTime())
@@ -29,7 +29,7 @@
           if val.postType == 'User' || val.postType == 'Agent'
             img(src='/user_post/'+val.picture)
           else
-            img(src='/public/picture.svg', data-src=cdn+"/post_pictures/"+val.picture, style="max-width:100%; width:100%;")
+            img(src='/public/picture.svg', data-src=cdn+"/post_pictures/"+val.picture, style="max-width:100%; width:100%;", class="resized-post-image")
       .description=val.body
   .four.ui.bottom.attached.icon.buttons
     .ui.reply.button(tabindex='0')
@@ -91,5 +91,5 @@
           img.ui.avatar.image.small(src=user.gravatar(60), name=user.profile.name || user.username || user.id)
       .ui.form
         .field
-          textarea.newcomment(type='text', placeholder='Write a Comment' rows='1')
+          textarea.newcomment(type='text', placeholder='Write a Comment' rows='1', data-post-id=val.id)
       i.big.send.link.icon

@@ -115,7 +115,22 @@ window.showTransitionPopup = function (
         retryBtn.style.padding = "10px 14px";
         retryBtn.style.cursor = "pointer";
 
-        retryBtn.onclick = () => window.retryLevel();
+        retryBtn.onclick = () => {
+          // Emit level reset
+          console.log("Retrying level...");
+          window.retryLevel();
+
+          // Hide modal
+          const modal = document.querySelector(".transition.modal.active");
+          if (modal) {
+            modal.classList.remove("active");
+          }
+
+          // Optional: visually reset timer immediately
+          if (typeof renderTimer === "function") {
+            renderTimer(60); // or your total time
+          }
+        };
 
         modalBox.appendChild(retryBtn);
       } else {

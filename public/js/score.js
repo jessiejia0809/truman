@@ -183,6 +183,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
+  window.freezeScore = function () {
+    // 🆕 Prevent score decay
+    window.levelOver = true;
+    console.log(
+      "Score freezing enabled. No further updates will be processed.",
+    );
+  };
+
   // ✅ Reset score if needed
   window.resetScore = function () {
     window.currentScore = 0;
@@ -192,13 +200,14 @@ document.addEventListener("DOMContentLoaded", () => {
     scoreText.textContent = "0/100";
   };
 
-  const socket = io();
+  const socket = window.socket || io("http://localhost:3000");
+  window.socket = socket;
 
   // ✅ Receive updated scores from server
   socket.on("scoreUpdate", (allScores) => {
     if (allScores.healthScore !== window.currentScore) {
       console.log("Received score update:", allScores.healthScore);
-      window.updateScore(allScores.healthScore);
+      if (!window.levelOver) window.updateScore(allScores.healthScore);
     }
   });
 });

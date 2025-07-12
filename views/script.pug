@@ -5,14 +5,54 @@ block styles
   link(type='text/css', rel='stylesheet', href='/public/css/chat.css')
 
 block content
-  .score-container
-    .score-bar
-    .score-text
-  .computer.only.tablet.only.four.wide.column
+  // 💡 Floating UserCard (desktop only)
+  .usercard-overlay
     include ./partials/userCard
-  #loading.eight.wide.computer.ten.wide.tablet.sixteen.wide.mobile.column
-    img.ui.centered.small.image(src='/public/heart_white.svg')
-  #content.eight.wide.computer.ten.wide.tablet.sixteen.wide.mobile.column.hidden
+
+  // 🔥 Centered Posts
+  .ui.centered.grid
+    .column(style="max-width: 700px; width: 100%;")
+      #feed-container
+        each val in script
+          include partials/post
+
+      .ui.fluid.card
+        .content
+          .description
+          | End of Posts for the last 24 hours.
+
+      .ui.one.column.centered.grid#newActivityMessage
+        .ui.fixed.bottom.sticky.hidden
+          .ui.icon.message.info
+            i.close.icon
+            i.undo.icon.float
+            .content
+              .ui.header There is some new activity!
+              p Click to reload feed.
+
+  
+  //-#content.ten.wide.computer.ten.wide.tablet.sixteen.wide.mobile.column.hidden
+    .ui.centered.stackable.grid
+      .column(style="max-width: 800px; width: 100%;")
+        #feed-container
+        .ui.centered.stackable.grid
+          .column(style="max-width: 800px;")
+            each val in script
+              include partials/post
+            #content.six.wide.computer.six.wide.tablet.column
+              include partials/chat
+            .ui.fluid.card
+              .content
+                .description
+                |  End of Posts for the last 24 hours.
+            .ui.one.column.centered.grid#newActivityMessage
+              .ui.fixed.bottom.sticky.hidden
+                .ui.icon.message.info
+                  i.close.icon
+                  i.undo.icon.float
+                  .content
+                    .ui.header There is some new activity!
+                    p Click to reload feed.
     //- Input for creating new post at top of feed
     //-#newpost.ui.fluid.left.labeled.right.icon.input
       .ui.label
@@ -22,23 +62,7 @@ block content
           img.ui.avatar.image(src=user.gravatar(60))
       input(type='text', placeholder='Create a post')
       i.big.photo.link.icon
-    #feed-container
-      each val in script
-        include partials/post
-      #content.six.wide.computer.six.wide.tablet.column
-        include partials/chat
-      .ui.fluid.card
-        .content
-          .description
-          |  End of Posts for the last 24 hours.
-      .ui.one.column.centered.grid#newActivityMessage
-        .ui.fixed.bottom.sticky.hidden
-          .ui.icon.message.info
-            i.close.icon
-            i.undo.icon.float
-            .content
-              .ui.header There is some new activity!
-              p Click to reload feed.
+    
     //-.computer.only.tablet.only.four.wide.column
       button.ui.icon.generate.post.button(type='button') Generate Post
     //-.ui.tiny.post.modal
@@ -64,5 +88,5 @@ block scripts
   script(src='/public/js/level.js')
   script(src='/public/js/transitionModal.js')
   script(src='/public/js/levelClient.js')
-  script(src='/public/js/score.js', defer)
-  script(src='/public/js/timer.js', defer)
+  script(src='/public/js/score.js')
+  script(src='/public/js/timer.js')

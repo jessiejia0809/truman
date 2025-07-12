@@ -54,15 +54,39 @@ $(window).on("load", function () {
   $("#newActivityMessage .ui.fixed.bottom.sticky").on("click", function () {
     location.reload();
   });
+
+  function saveTypedComments() {
+    document.querySelectorAll(".newcomment").forEach((textarea) => {
+      const postID = textarea.closest(".card")?.getAttribute("postid");
+      if (postID) {
+        localStorage.setItem(`draft-comment-${postID}`, textarea.value);
+      }
+    });
+  }
+
+  function restoreTypedComments() {
+    document.querySelectorAll(".newcomment").forEach((textarea) => {
+      const postID = textarea.closest(".card")?.getAttribute("postid");
+      if (postID) {
+        const saved = localStorage.getItem(`draft-comment-${postID}`);
+        if (saved !== null) textarea.value = saved;
+      }
+    });
+  }
+
   setInterval(function () {
     console.log(`🔄 Refreshing feed at ${new Date().toLocaleTimeString()}`);
-
+    saveTypedComments(); // Save comments before refresh
     // Reload only the content inside #feed-container
-    $("#feed-container").load(
-      location.href + " #feed-container > *",
-      function () {
-        console.log("✅ Feed refreshed without full reload");
-      },
-    );
+    $.get(location.href, function (data) {
+      // Extract new #feed-container from fetched HTML
+      const newFeed = $(data).find("#feed-container");
+
+      // Replace the entire current feed-container with the new one
+      $("#feed-container").replaceWith(newFeed);
+
+      console.log("✅ Feed refreshed with full container replacement");
+      restoreTypedComments();
+    });
   }, 10000);
 });

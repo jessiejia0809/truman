@@ -267,6 +267,7 @@ app.use(
       "/account/profile",
       "/account/signup_info_post",
       "/api/feedback",
+      "/score/reset",
     ],
   }),
 );

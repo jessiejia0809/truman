@@ -1,3 +1,6 @@
+const socket = window.socket || io("http://localhost:3000");
+window.socket = socket;
+
 let currentLevel =
   parseInt(new URLSearchParams(window.location.search).get("level")) || 1;
 
@@ -10,19 +13,23 @@ window.goToNextLevel = function () {
   window.location.href = `/feed?level=${nextLevel}`;
 };
 
-window.retryLevel = function () {
-  window.location.reload();
+window.retryLevel = async function () {
+  socket.emit("resetLevel");
+  console.log("Level reset requested via socket.");
 };
 
 window.checkWinCondition = async function (score, remainingTime, userActions) {
   console.log("Checking win condition for level", currentLevel);
   if (currentLevel == 1 && score >= 20) {
     console.log("Level 1 complete!");
+    window.freezeScore();
     window.showTransitionPopup("win");
   } else if (score >= 90) {
     console.log("Level complete!");
+    window.freezeScore();
     window.showTransitionPopup("win");
   } else if (remainingTime <= 0) {
+    window.freezeScore();
     console.log("Time's up! Checking for win condition.");
     if (!userActions) {
       console.warn("No userActions provided for feedback analysis.");
