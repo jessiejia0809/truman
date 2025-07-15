@@ -205,8 +205,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ✅ Receive updated scores from server
   socket.on("scoreUpdate", (allScores) => {
-    if (allScores.healthScore !== window.currentScore) {
-      console.log("Received score update:", allScores.healthScore);
+    if (
+      typeof window.currentScore !== "number" ||
+      isNaN(window.currentScore) ||
+      allScores.healthScore !== window.currentScore
+    ) {
+      console.log("Initializing score:", allScores.healthScore);
       if (!window.levelOver) window.updateScore(allScores.healthScore);
     }
   });
