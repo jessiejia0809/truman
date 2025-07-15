@@ -27,7 +27,6 @@ const { Server } = require("socket.io");
 const ScoreController = require("./controllers/ScoreController");
 const SimulationStats = require("./models/SimulationStats");
 const Grader = require("./controllers/Grader");
-const { getGraderForLevel } = require("./controllers/Grader"); // adjust path if needed
 const pendingActions = [];
 
 /**
@@ -138,22 +137,7 @@ const solutionsPath = path.join(
   "jessie-level1",
   "solutions.json",
 );
-/*
-const scenarioOrderPath = path.join(__dirname, "scenarios", "level_order.json");
-let scenarioFolders = [];
-
-try {
-  scenarioFolders = JSON.parse(fs.readFileSync(scenarioOrderPath));
-} catch (e) {
-  console.error("Error loading level order from scenarios/level_order.json:", e);
-}
-
-const getGraderForLevel = (level) => {
-  const folder = scenarioFolders.find((s) => s.level === level)?.folder;
-  if (!folder) throw new Error(`No folder found for level ${level}`);
-  const solutionsPath = path.join(__dirname, folder, "solutions.json");
-  return new Grader(solutionsPath);
-};*/
+const grader = new Grader(solutionsPath);
 
 /**
  * Cron Jobs:
@@ -200,14 +184,6 @@ schedule.scheduleJob("*/10 * * * * *", async () => {
     );
     const toGrade = pendingActions.splice(0, pendingActions.length);
     if (toGrade.length === 0) return;
-    /*const classified = await grader.classifyActionsWithLLM(toGrade);
-    console.log(
-      "Grader → classified actions:",
-      JSON.stringify(classified, null, 2),
-    );
-    await grader.applyDeltas(classified);*/
-
-    const grader = getGraderForLevel(level); //dynamically get grader per level
     const classified = await grader.classifyActionsWithLLM(toGrade);
     console.log(
       "Grader → classified actions:",
