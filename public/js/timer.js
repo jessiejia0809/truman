@@ -1,6 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-  let timeLeft = 60;
-  const totalTime = timeLeft;
+  const totalTime = 10;
 
   const wrapperDiv = document.createElement("div");
   wrapperDiv.style.position = "fixed";
@@ -71,3 +70,5 @@ document.addEventListener("DOMContentLoaded", () => {
     renderTimer(totalTime); // just draw full timer bar and text
   };
 });
+
+renderTimer(totalTime);

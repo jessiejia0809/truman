@@ -1,5 +1,4 @@
-const socket = window.socket || io("http://localhost:3000");
-window.socket = socket;
+window.socket = window.socket || io("http://localhost:3000");
 
 let currentLevel =
   parseInt(new URLSearchParams(window.location.search).get("level")) || 1;
@@ -13,9 +12,17 @@ window.goToNextLevel = function () {
   window.location.href = `/feed?level=${nextLevel}`;
 };
 
-window.retryLevel = async function () {
-  socket.emit("resetLevel");
-  console.log("Level reset requested via socket.");
+window.retryLevel = function () {
+  const currentLevel =
+    parseInt(new URLSearchParams(window.location.search).get("level")) || 1;
+
+  window.socket.emit("resetLevel", { level: currentLevel });
+  console.log("🔄 Level reset requested via socket.");
+
+  // Wait and reload the same level
+  setTimeout(() => {
+    window.location.href = `/feed?level=${currentLevel}`;
+  }, 300);
 };
 
 window.checkWinCondition = async function (score, remainingTime, userActions) {

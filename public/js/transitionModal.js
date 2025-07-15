@@ -116,20 +116,10 @@ window.showTransitionPopup = function (
         retryBtn.style.cursor = "pointer";
 
         retryBtn.onclick = () => {
-          // Emit level reset
-          console.log("Retrying level...");
-          window.retryLevel();
-
-          // Hide modal
-          const modal = document.querySelector(".transition.modal.active");
-          if (modal) {
-            modal.classList.remove("active");
-          }
-
-          // Optional: visually reset timer immediately
-          if (typeof renderTimer === "function") {
-            renderTimer(60); // or your total time
-          }
+          const currentLevel = window.getCurrentLevel
+            ? window.getCurrentLevel()
+            : 1;
+          window.location.href = `/reset-level?level=${currentLevel}`;
         };
 
         modalBox.appendChild(retryBtn);

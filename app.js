@@ -67,6 +67,12 @@ const scriptController = require("./controllers/script");
 const userController = require("./controllers/user");
 const chatController = require("./controllers/chat");
 const feedbackService = require("./controllers/feedbackService");
+const levelState = require("./controllers/levelState");
+
+/**
+ * Models.
+ */
+const Comment = require("./models/Comment");
 
 /**
  * API keys and Passport configuration.
@@ -212,6 +218,7 @@ schedule.scheduleJob("*/10 * * * * *", async () => {
     console.error("Grader job error:", err);
   }
 });
+
 /**
  * Express configuration.
  */
@@ -482,6 +489,18 @@ app.post("/api/feedback", async (req, res) => {
     console.error("Feedback analysis error:", err);
     res.status(500).json({ error: "Failed to analyze actions" });
   }
+});
+
+app.get("/reset-level", async (req, res) => {
+  const level = parseInt(req.query.level) || 1; // fallback to 1
+
+  console.log(`[RESET] Resetting level ${level}`);
+
+  levelState.resetLevelStartTime();
+
+  setTimeout(() => {
+    res.redirect(`/feed?level=${level}`);
+  }, 100);
 });
 
 /**

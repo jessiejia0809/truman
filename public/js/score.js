@@ -194,7 +194,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // ✅ Reset score if needed
   window.resetScore = function () {
     window.currentScore = 0;
-    sessionStorage.setItem("currentScore", 0);
+    sessionStorage.setItem("currentScore", "0");
     scoreBar.style.width = "0%";
     scoreBar.style.backgroundColor = getGradientColor(0);
     scoreText.textContent = "0/100";

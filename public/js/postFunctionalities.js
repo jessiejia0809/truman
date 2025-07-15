@@ -326,6 +326,8 @@ function addComment(e) {
       new_comment: currDate,
       comment_text: text,
       logs: currentLogs,
+      level: parseInt(req.query.level || req.body.level) || 1,
+      commentType: "User",
       _csrf: $('meta[name="csrf-token"]').attr("content"),
     }).then(function (json) {
       console.log("Comment submitted with logs:", currentLogs); // Debug log
