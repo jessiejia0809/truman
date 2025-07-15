@@ -87,6 +87,10 @@ $(window).on("load", function () {
 
       console.log("✅ Feed refreshed with full container replacement");
       restoreTypedComments();
+
+      if (typeof bindCommentHandlers === "function") {
+        bindCommentHandlers(); // <-- this is key
+      }
     });
   }, 10000);
 });

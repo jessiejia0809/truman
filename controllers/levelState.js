@@ -1,5 +1,5 @@
 let levelStartTime = Date.now();
-const TOTAL_DURATION = 10; // or 10 if testing
+const TOTAL_DURATION = 60; // or 10 if testing
 
 function resetLevelStartTime() {
   levelStartTime = Date.now();

@@ -299,60 +299,66 @@ let currentLogs = [];
 let previousText = ""; // Keep track of previous text to detect what was deleted
 
 function addComment(e) {
-  console.log("Current logs before submission:", currentLogs); // Debug log
-  const target = $(e.target);
-  const text = target
-    .siblings(".ui.form")
-    .find("textarea.newcomment")
-    .val()
-    .trim();
-  const card = target.parents(".ui.fluid.card");
-  let comments = card.find(".ui.comments");
-  // no comments area - add it
-  if (!comments.length) {
-    const buttons = card.find(".ui.bottom.attached.icon.buttons");
-    buttons.after('<div class="content"><div class="ui comments"></div>');
-    comments = card.find(".ui.comments");
-  }
-  if (text.trim() !== "") {
-    const currDate = Date.now();
-    const ava = target.siblings(".ui.label").find("img.ui.avatar.image");
-    const ava_img = ava.attr("src");
-    const ava_name = ava.attr("name");
-    const postID = card.attr("postID");
+  console.log("Clicked comment button at", new Date());
 
-    $.post("/feed", {
-      postID: postID,
-      new_comment: currDate,
-      comment_text: text,
-      logs: currentLogs,
-      level: parseInt(req.query.level || req.body.level) || 1,
-      commentType: "User",
-      _csrf: $('meta[name="csrf-token"]').attr("content"),
-    }).then(function (json) {
-      console.log("Comment submitted with logs:", currentLogs); // Debug log
+  e.preventDefault(); // Prevent default form/button behavior
+
+  const target = $(e.target);
+  const card = target.closest(".ui.fluid.card");
+  const comments = card.find(".ui.comments").length
+    ? card.find(".ui.comments")
+    : $('<div class="content"><div class="ui comments"></div>')
+        .insertAfter(card.find(".ui.bottom.attached.icon.buttons"))
+        .find(".ui.comments");
+
+  const textArea = target.siblings(".ui.form").find("textarea.newcomment");
+  const text = textArea.val().trim();
+
+  if (!text) return;
+
+  const currDate = Date.now();
+  const ava = target.siblings(".ui.label").find("img.ui.avatar.image");
+  const ava_img = ava.attr("src");
+  const ava_name = ava.attr("name");
+  const postID = card.attr("postID");
+
+  target.prop("disabled", true); // disable the button
+
+  $.post("/feed", {
+    postID,
+    new_comment: currDate,
+    comment_text: text,
+    logs: currentLogs,
+    _csrf: $('meta[name="csrf-token"]').attr("content"),
+  })
+    .then(function (json) {
       const mess = `
-          <div class="comment" commentID=${json.commentID}>
-              <a class="avatar"><img src="${ava_img}"></a>
-              <div class="content"> 
-                  <a href="/user/${ava_name}">${ava_name}</a>
-                  <div class="metadata"> 
-                      <span class="date">${humanized_time_span(currDate)}</span>
-                      <i class="heart icon"></i> 
-                      <span class="num"> 0 </span> Likes
-                  </div> 
-                  <div class="text">${text}</div>
-                  <div class="actions"> 
-                      <a class="like comment" onClick="likeComment(event)">Like</a> 
-                  </div> 
-              </div>
-          </div>`;
-      target.siblings(".ui.form").find("textarea.newcomment").val("");
+        <div class="comment" commentID=${json.commentID}>
+            <a class="avatar"><img src="${ava_img}"></a>
+            <div class="content"> 
+                <a href="/user/${ava_name}">${ava_name}</a>
+                <div class="metadata"> 
+                    <span class="date">${humanized_time_span(currDate)}</span>
+                    <i class="heart icon"></i> 
+                    <span class="num"> 0 </span> Likes
+                </div> 
+                <div class="text">${text}</div>
+                <div class="actions"> 
+                    <a class="like comment" onClick="likeComment(event)">Like</a> 
+                </div> 
+            </div>
+        </div>`;
+
       comments.append(mess);
-      // Reset logs after successful comment submission
-      currentLogs = [];
+      textArea.val(""); // clear input
+      currentLogs = []; // reset logs
+      target.prop("disabled", false); // re-enable button
+    })
+    .catch(function (err) {
+      console.error("Comment submission failed", err);
+      alert("Failed to submit comment. Please try again.");
+      target.prop("disabled", false); // always re-enable
     });
-  }
 }
 
 function followUser(e) {
@@ -543,3 +549,22 @@ $(window).on("load", () => {
     previousText = currentText;
   });
 });
+
+function bindCommentHandlers() {
+  // Rebind send button
+  $(document)
+    .off("click", "i.big.send.link.icon")
+    .on("click", "i.big.send.link.icon", addComment);
+
+  // Rebind enter-to-submit on textarea
+  $(document)
+    .off("keydown", "textarea.newcomment")
+    .on("keydown", "textarea.newcomment", function (event) {
+      if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        $(this).parents(".ui.form").siblings("i.big.send.link.icon").click();
+      }
+    });
+
+  console.log("✅ Comment event handlers bound via delegation");
+}

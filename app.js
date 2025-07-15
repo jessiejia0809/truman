@@ -72,7 +72,7 @@ const levelState = require("./controllers/levelState");
 /**
  * Models.
  */
-const Comment = require("./models/Comment");
+//const Comment = require("./models/Comment");
 
 /**
  * API keys and Passport configuration.
@@ -462,6 +462,7 @@ app.post(
   passportConfig.isAuthenticated,
   scriptController.postUpdateFeedAction,
 );
+
 app.get("/test", passportConfig.isAuthenticated, function (req, res) {
   res.render("test", {
     title: "Test",
