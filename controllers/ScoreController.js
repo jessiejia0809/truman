@@ -83,12 +83,12 @@ class ScoreController {
         (1 - γ * bullyScore),
     );
 
-    console.log(
-      `[Score][SUMMARY] bystanderScore=${bystanderScore.toFixed(3)}, ` +
-        `bullyScore=${bullyScore.toFixed(3)}, ` +
-        `victimSupportScore=${victimSupportScore.toFixed(3)}, ` +
-        `healthScore=${healthScore}`,
-    );
+    // console.log(
+    //   `[Score][SUMMARY] bystanderScore=${bystanderScore.toFixed(3)}, ` +
+    //     `bullyScore=${bullyScore.toFixed(3)}, ` +
+    //     `victimSupportScore=${victimSupportScore.toFixed(3)}, ` +
+    //     `healthScore=${healthScore}`,
+    // );
 
     return {
       bystanderScores,

@@ -28,6 +28,7 @@ const ScoreController = require("./controllers/ScoreController");
 const SimulationStats = require("./models/SimulationStats");
 const Grader = require("./controllers/Grader");
 const pendingActions = [];
+let currentLevel = 1;
 
 /**
  * Middleware for handling multipart/form-data, which is primarily used for uploading files.
@@ -116,7 +117,6 @@ mongoose.connection.once("open", () => {
       doc: change.fullDocument || change.documentKey,
     };
 
-    console.log("DB Change:", entry);
     pendingActions.push(entry);
     io.emit("db-change", entry);
   });
@@ -130,14 +130,6 @@ mongoose.connection.on("error", (err) => {
   console.error("MongoDB connection error:", err);
   process.exit(1);
 });
-//TODO: placeholder for now, later we would need to separate the levels
-const solutionsPath = path.join(
-  __dirname,
-  "scenarios",
-  "jessie-level1",
-  "solutions.json",
-);
-const grader = new Grader(solutionsPath);
 
 /**
  * Cron Jobs:
@@ -178,12 +170,12 @@ schedule.scheduleJob("*/1 * * * * *", async () => {
  */
 schedule.scheduleJob("*/10 * * * * *", async () => {
   try {
-    console.log(
-      "Pending actions before grading:",
-      JSON.stringify(pendingActions, null, 2),
-    );
     const toGrade = pendingActions.splice(0, pendingActions.length);
     if (toGrade.length === 0) return;
+
+    const grader = new Grader({ level: currentLevel });
+    console.log(`✅ Instantiated Grader with level ${currentLevel}`);
+
     const classified = await grader.classifyActionsWithLLM(toGrade);
     console.log(
       "Grader → classified actions:",
@@ -425,7 +417,16 @@ app.post(
   actorsController.postNewActor,
 );
 
-app.get("/feed", passportConfig.isAuthenticated, scriptController.getScript);
+app.get(
+  "/feed",
+  passportConfig.isAuthenticated,
+  (req, res, next) => {
+    currentLevel = parseInt(req.query.level, 10) || 1;
+    console.log(`[LEVEL] currentLevel set to ${currentLevel}`);
+    next();
+  },
+  scriptController.getScript,
+);
 
 app.post(
   "/action",
@@ -469,14 +470,13 @@ app.post("/api/feedback", async (req, res) => {
 });
 
 app.get("/reset-level", async (req, res) => {
-  const level = parseInt(req.query.level) || 1; // fallback to 1
-
-  console.log(`[RESET] Resetting level ${level}`);
+  currentLevel = parseInt(req.query.level, 10) || 1;
+  console.log(`[RESET] Resetting level ${currentLevel}`);
 
   levelState.resetLevelStartTime();
 
   setTimeout(() => {
-    res.redirect(`/feed?level=${level}`);
+    res.redirect(`/feed?level=${currentLevel}`);
   }, 100);
 });
 

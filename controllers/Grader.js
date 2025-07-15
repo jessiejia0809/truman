@@ -3,12 +3,23 @@ const path = require("path");
 const { OpenAI } = require("openai");
 const mongoose = require("mongoose");
 const Agent = require("../models/Agent.js");
+const levelOrder = require(
+  path.resolve(process.cwd(), "scenarios/level_order.json"),
+);
 
 class Grader {
-  constructor(solutionsPath) {
-    this.solutions = JSON.parse(
-      fs.readFileSync(path.resolve(__dirname, solutionsPath), "utf-8"),
+  constructor({ level }) {
+    const entry = levelOrder.find((e) => e.level === Number(level));
+    const solutionsPath = path.resolve(
+      process.cwd(),
+      entry.folder,
+      "solutions.json",
     );
+    console.log(
+      `Grader: loading solutions for level ${level} from:\n  ${solutionsPath}`,
+    );
+
+    this.solutions = JSON.parse(fs.readFileSync(solutionsPath, "utf-8"));
     this.openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
   }
 
