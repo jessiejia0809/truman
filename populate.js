@@ -326,8 +326,8 @@ mongoose.connection.once("open", async () => {
   console.log(color_success, "All collections dropped.");
 
   const folders = process.argv.slice(2);
-  if (folders.length < 1 || folders.length > 3) {
-    console.error("you are allow 1-3 folders");
+  if (folders.length < 1) {
+    console.error("you are allow more than 1 folders");
     process.exit(1);
   }
 
