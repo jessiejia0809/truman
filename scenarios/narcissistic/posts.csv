@@ -1,11 +1,11 @@
-body,picture,actor,postID,likes,time,class,absTime,updateTime
-Morning workout complete. Consistency builds champions.,workout.png,amyoko_,1,156,-180:00:00,,11/15/25 7:30,11/15/25 7:30
-Math team placed second at regionals! So proud of our hard work.,math_comp.png,sophiaaa,2,34,-165:00:00,,11/15/25 10:15,11/15/25 10:15
-New coffee shop downtown has amazing pastries. Highly recommend.,coffee_shop.png,sarah23,3,43,-150:00:00,,11/15/25 12:30,11/15/25 12:30
-Ready for tonight's campaign speech!,campaign_speech.png,amyoko_,4,187,-120:00:00,,11/15/25 16:00,11/15/25 16:00
-Excited to share my vision for our school at tonight's debate!,debate.png,sophiaaa,5,18,-118:00:00,,11/15/25 16:02,11/15/25 16:02
-Weekend plans: beach volleyball and studying. Balance is key.,weekend_plans.png,miked,6,67,-90:00:00,,11/15/25 18:30,11/15/25 18:30
-Just finished an amazing D&D session. Great way to unwind after campaign prep.,dnd_session.png,sophiaaa,7,12,-75:00:00,,11/15/25 20:45,11/15/25 20:45
-Family dinner was actually fun tonight. Rare moment of peace.,family_dinner.png,T1na,8,28,-45:00:00,,11/16/25 2:15,11/16/25 2:15
-Late night studying for tomorrow's calc test. Coffee is life.,study.png,sophiaaa,9,23,-30:00:00,,11/16/25 5:30,11/16/25 5:30
-LOL imagine thinking you can be class president when you can't even fit into last year's clothes or afford decent campaign materials. Some people really don't understand what leadership looks like. Pretty sure our school deserves better representation than someone whose biggest achievement is placing SECOND at math regionals. Just saying the truth that everyone's thinking.,president.png,amyoko_,10,312,-12:00:00,,11/16/25 11:48,11/16/25 11:48
+body,picture,actor,postID,likes,time,class,absTime,updateTime,isRelevant
+Morning workout complete. Consistency builds champions.,workout.png,amyoko_,1,156,-180:00:00,,11/15/25 7:30,11/15/25 7:30,false
+Math team placed second at regionals! So proud of our hard work.,math_comp.png,sophiaaa,2,34,-165:00:00,,11/15/25 10:15,11/15/25 10:15,false
+New coffee shop downtown has amazing pastries. Highly recommend.,coffee_shop.png,sarah23,3,43,-150:00:00,,11/15/25 12:30,11/15/25 12:30,false
+Ready for tonight's campaign speech!,campaign_speech.png,amyoko_,4,187,-120:00:00,,11/15/25 16:00,11/15/25 16:00,false
+Excited to share my vision for our school at tonight's debate!,debate.png,sophiaaa,5,18,-118:00:00,,11/15/25 16:02,11/15/25 16:02,false
+Weekend plans: beach volleyball and studying. Balance is key.,weekend_plans.png,miked,6,67,-90:00:00,,11/15/25 18:30,11/15/25 18:30,false
+Just finished an amazing D&D session. Great way to unwind after campaign prep.,dnd_session.png,sophiaaa,7,12,-75:00:00,,11/15/25 20:45,11/15/25 20:45,false
+Family dinner was actually fun tonight. Rare moment of peace.,family_dinner.png,T1na,8,28,-45:00:00,,11/16/25 2:15,11/16/25 2:15,false
+Late night studying for tomorrow's calc test. Coffee is life.,study.png,sophiaaa,9,23,-30:00:00,,11/16/25 5:30,11/16/25 5:30,false
+LOL imagine thinking you can be class president when you can't even fit into last year's clothes or afford decent campaign materials. Some people really don't understand what leadership looks like. Pretty sure our school deserves better representation than someone whose biggest achievement is placing SECOND at math regionals. Just saying the truth that everyone's thinking.,president.png,amyoko_,10,312,-12:00:00,,11/16/25 11:48,11/16/25 11:48,true

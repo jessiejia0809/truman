@@ -171,6 +171,7 @@ async function doPopulate(path, level) {
           updateTime: postTime,
           class: post.class,
           level: level,
+          isRelevant: post.isRelevant,
         });
         actor.posts.push(script._id);
 

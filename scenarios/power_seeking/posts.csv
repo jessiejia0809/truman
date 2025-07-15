@@ -1,12 +1,12 @@
-body,picture,actor,postID,likes,time,class,absTime,updateTime
-Announcing our Winter Formal planning committee! So excited to work with this amazing team to create the perfect night.,winter_committee.png,alex_t,1,134,-240:00:00,,10/28/25 8:00,10/28/25 8:00
-Starting a new initiative - monthly community service events to connect our school with local organizations! First event next Saturday.,community_service.png,mchen,2,28,-210:00:00,,10/28/25 14:30,10/28/25 14:30
-Lost my keys again. This is becoming a daily occurrence.,lost_keys.png,k8lynne_,3,15,-180:00:00,,10/29/25 4:00,10/29/25 4:00
-Had cereal for dinner and no regrets. Sometimes simple is better.,cereal_dinner.png,ty_2k8,4,22,-165:00:00,,10/29/25 9:15,10/29/25 9:15
-Amazing turnout for our first community service day! 25 students helped at the food bank.,food_bank.png,mchen,5,45,-150:00:00,,10/29/25 12:30,10/29/25 12:30
-Winter Formal ticket sales start Monday. Get ready for the event of the year.,winter_formal.png,alex_t,6,98,-120:00:00,,10/29/25 18:00,10/29/25 18:00
-Overthinking whether I should have said something differently in class today. Why is everything so complicated.,overthinking.png,sammie_r,7,8,-90:00:00,,10/30/25 3:00,10/30/25 3:00
-Brought snacks to the library and suddenly everyone wants to be my friend. The power of food.,snacks.png,daveeeee,8,31,-75:00:00,,10/30/25 7:15,10/30/25 7:15
-Procrastination level expert. Assignment due tomorrow and I'm watching Netflix. Send help.,procrastination.png,zoeee99,9,12,-45:00:00,,10/30/25 15:45,10/30/25 15:45
-Next community service event will be tutoring at the elementary school! Sign-ups in my bio.,tutoring.png,mchen,10,38,-30:00:00,,10/30/25 18:30,10/30/25 18:30
-Winter Formal volunteers get priority seating and special recognition. Committee spots still open but only for people who understand what real school leadership looks like - not everyone who starts random activities thinks they're suddenly qualified to represent our school. DM me if you're actually committed to established traditions instead of trying to divide student attention.,leadership.png,alex_t,11,156,-12:00:00,,10/31/25 1:48,10/31/25 1:48
+body,picture,actor,postID,likes,time,class,absTime,updateTime,isRelevant
+Announcing our Winter Formal planning committee! So excited to work with this amazing team to create the perfect night.,winter_committee.png,alex_t,1,134,-240:00:00,,10/28/25 8:00,10/28/25 8:00,false
+Starting a new initiative - monthly community service events to connect our school with local organizations! First event next Saturday.,community_service.png,mchen,2,28,-210:00:00,,10/28/25 14:30,10/28/25 14:30,false
+Lost my keys again. This is becoming a daily occurrence.,lost_keys.png,k8lynne_,3,15,-180:00:00,,10/29/25 4:00,10/29/25 4:00,false
+Had cereal for dinner and no regrets. Sometimes simple is better.,cereal_dinner.png,ty_2k8,4,22,-165:00:00,,10/29/25 9:15,10/29/25 9:15,false
+Amazing turnout for our first community service day! 25 students helped at the food bank.,food_bank.png,mchen,5,45,-150:00:00,,10/29/25 12:30,10/29/25 12:30,false
+Winter Formal ticket sales start Monday. Get ready for the event of the year.,winter_formal.png,alex_t,6,98,-120:00:00,,10/29/25 18:00,10/29/25 18:00,false
+Overthinking whether I should have said something differently in class today. Why is everything so complicated.,overthinking.png,sammie_r,7,8,-90:00:00,,10/30/25 3:00,10/30/25 3:00,false
+Brought snacks to the library and suddenly everyone wants to be my friend. The power of food.,snacks.png,daveeeee,8,31,-75:00:00,,10/30/25 7:15,10/30/25 7:15,false
+Procrastination level expert. Assignment due tomorrow and I'm watching Netflix. Send help.,procrastination.png,zoeee99,9,12,-45:00:00,,10/30/25 15:45,10/30/25 15:45,false
+Next community service event will be tutoring at the elementary school! Sign-ups in my bio.,tutoring.png,mchen,10,38,-30:00:00,,10/30/25 18:30,10/30/25 18:30,false
+Winter Formal volunteers get priority seating and special recognition. Committee spots still open but only for people who understand what real school leadership looks like - not everyone who starts random activities thinks they're suddenly qualified to represent our school. DM me if you're actually committed to established traditions instead of trying to divide student attention.,leadership.png,alex_t,11,156,-12:00:00,,10/31/25 1:48,10/31/25 1:48,true

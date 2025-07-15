@@ -1,4 +1,4 @@
-.ui.fluid.card.large-post(postID=val.id)
+.ui.fluid.card.large-post(class=val.isRelevant ? "relevant-post" : "", postID=val.id)
   .viewTimer.hidden NaN
   .content
     .right.floated.time.meta=(val.absTime.getTime())
@@ -93,3 +93,6 @@
         .field
           textarea.newcomment(type='text', placeholder='Write a Comment' rows='1', data-post-id=val.id)
       i.big.send.link.icon
+
+  script.
+    console.log(!{JSON.stringify(val)});
