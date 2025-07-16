@@ -41,21 +41,36 @@ class ScoreController {
     const bulls = agents.filter((a) => a.role === "bully");
     let sumAAS = 0;
     const bullyScores = {};
+
     bulls.forEach((a) => {
       const AT = a.AT ?? 1;
       const PBC = a.PBC ?? 1;
       const EMP = a.EMP ?? 1;
       const TIN = a.TIN ?? 1;
+
       const BIS = -0.203 * AT - 0.44 * PBC - 0.101 * EMP - 0.144 * TIN;
       const AAS = 0.423 * BIS - 0.138 * EMP - 0.129 * (TIN * BIS);
-      const clamped = Math.max(1, Math.min(5, AAS));
-      const normAAS = (clamped - 1) / 4;
-      bullyScores[a.username] = normAAS;
-      sumAAS += AAS;
+
+      const minAAS = -1.069;
+      const maxAAS = 0.761;
+
+      const boundedAAS = Math.max(minAAS, Math.min(maxAAS, AAS));
+      const normAAS = (boundedAAS - minAAS) / (maxAAS - minAAS);
+      const invertedAAS = 1 - normAAS;
+
+      bullyScores[a.username] = invertedAAS;
+      sumAAS += invertedAAS;
+
+      console.log(`== Bully Agent: ${a.username} ==`);
+      console.log(`  Traits: AT=${AT}, PBC=${PBC}, EMP=${EMP}, TIN=${TIN}`);
+      console.log(`  BIS: ${BIS.toFixed(3)}`);
+      console.log(`  AAS (raw): ${AAS.toFixed(3)}`);
+      console.log(`  boundedAAS: ${boundedAAS.toFixed(3)}`);
+      console.log(`  normAAS: ${normAAS.toFixed(3)}`);
+      console.log(`  invertedAAS (bullyScore): ${invertedAAS.toFixed(3)}`);
     });
-    const avgAAS = bulls.length ? sumAAS / bulls.length : 1;
-    const clampedAvgAAS = Math.max(1, Math.min(5, avgAAS));
-    const bullyScore = (clampedAvgAAS - 1) / 4;
+
+    const bullyScore = bulls.length ? sumAAS / bulls.length : 0;
 
     // Victim
     const user = agents.find((a) => a.role === "victim") || {};
@@ -73,22 +88,20 @@ class ScoreController {
     const victimSupportScore = den > 0 ? num / den : 0;
 
     // Health Score
-    const α = 0.5;
-    const β = 1 - α;
-    const γ = 1.0;
+    const α = 0.3;
+    const β = 0.4;
+    const γ = 0.3;
 
     const healthScore = Math.round(
-      100 *
-        (α * bystanderScore + β * victimSupportScore) *
-        (1 - γ * bullyScore),
+      100 * (α * bystanderScore + β * victimSupportScore + γ * bullyScore),
     );
 
-    // console.log(
-    //   `[Score][SUMMARY] bystanderScore=${bystanderScore.toFixed(3)}, ` +
-    //     `bullyScore=${bullyScore.toFixed(3)}, ` +
-    //     `victimSupportScore=${victimSupportScore.toFixed(3)}, ` +
-    //     `healthScore=${healthScore}`,
-    // );
+    console.log(
+      `[Score][SUMMARY] bystanderScore=${bystanderScore.toFixed(3)}, ` +
+        `bullyScore=${bullyScore.toFixed(3)}, ` +
+        `victimSupportScore=${victimSupportScore.toFixed(3)}, ` +
+        `healthScore=${healthScore}`,
+    );
 
     return {
       bystanderScores,

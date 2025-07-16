@@ -1,14 +1,6 @@
 [
   {
     "level": 1,
-    "folder": "scenarios/jessie-level1"
-  },
-  {
-    "level": 2,
-    "folder": "scenarios/ses"
-  },
-  {
-    "level": 3,
-    "folder": "scenarios/narcissistic"
+    "folder": "scenarios/hazing"
   }
 ]
