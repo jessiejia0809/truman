@@ -213,5 +213,7 @@ document.addEventListener("DOMContentLoaded", () => {
       console.log("Initializing score:", allScores.healthScore);
       if (!window.levelOver) window.updateScore(allScores.healthScore);
     }
+    window.bullyScore = allScores.bullyScore || 0;
+    window.bystanderScore = allScores.bystanderScore || 0;
   });
 });

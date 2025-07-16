@@ -5,6 +5,10 @@
   },
   {
     "level": 2,
+    "folder": "scenarios/ses"
+  },
+  {
+    "level": 3,
     "folder": "scenarios/narcissistic"
   }
 ]

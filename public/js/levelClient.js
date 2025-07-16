@@ -27,11 +27,11 @@ window.retryLevel = function () {
 
 window.checkWinCondition = async function (score, remainingTime, userActions) {
   console.log("Checking win condition for level", currentLevel);
-  if (currentLevel == 1 && score >= 20) {
+  if (currentLevel == 1 && score >= 80) {
     console.log("Level 1 complete!");
     window.freezeScore();
     window.showTransitionPopup("win");
-  } else if (score >= 90) {
+  } else if (score >= 80) {
     console.log("Level complete!");
     window.freezeScore();
     window.showTransitionPopup("win");
