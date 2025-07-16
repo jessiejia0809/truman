@@ -1,61 +1,38 @@
 [
   {
-    "category": "PublicIntervention",
-    "description": "Publicly comment on hazing posts calling it dangerous and unacceptable",
+    "category": "AddressBullyBehavior",
+    "description": "Directly call out harmful hazing behavior and promote empathy, accountability, and change in attitude.",
     "keywords": [
-      "this is not okay",
-      "this could seriously hurt someone",
-      "stop hazing",
-      "why is this even allowed"
+      "this is dangerous and wrong",
+      "stop normalizing hazing",
+      "real bonding doesn’t require harm",
+      "think about how this makes others feel",
+      "hurting others isn’t leadership"
     ],
-    "deltas": [{ "field": "CNT", "value": 1.0 }],
-    "agents": ["real_jane", "mariam_m", "jamie4real"]
+    "deltas": [
+      { "field": "AT", "value": -4 },
+      { "field": "PBC", "value": -4 },
+      { "field": "EMP", "value": 4 },
+      { "field": "TIN", "value": -1 }
+    ],
+    "agents": ["bl4ke.beast"]
   },
   {
-    "category": "ReportContent",
-    "description": "Report harmful hazing content to platform administrators",
+    "category": "SupportVictimHealing",
+    "description": "Show visible compassion and social support to help the victim feel validated and encouraged to speak up.",
     "keywords": [
-      "reported",
-      "I’m flagging this",
-      "violates guidelines",
-      "platform needs to remove this"
+      "you didn’t deserve this",
+      "stay strong, we see you",
+      "you’re not alone",
+      "we support you",
+      "your feelings are valid"
     ],
-    "deltas": [{ "field": "PBC", "value": 1.0 }],
-    "agents": ["its.kat", "omar007"]
-  },
-  {
-    "category": "CounterMessaging",
-    "description": "Share anti-hazing resources and messages that promote safety and dignity",
-    "keywords": [
-      "hazing kills",
-      "respect all teammates",
-      "join campaigns against hazing",
-      "there are better team traditions"
+    "deltas": [
+      { "field": "UES", "value": 1.0 },
+      { "field": "URA", "value": 0.8 },
+      { "field": "UAD", "value": 0.8 },
+      { "field": "UPS", "value": 1.0 }
     ],
-    "deltas": [{ "field": "UES", "value": 0.7 }],
-    "agents": ["jackyates33", "emfan_kelly"]
-  },
-  {
-    "category": "PositiveTeamCelebration",
-    "description": "Create posts that celebrate team members without involving humiliation",
-    "keywords": [
-      "so proud of our team",
-      "celebrating achievements not pain",
-      "this is how we build community"
-    ],
-    "deltas": [{ "field": "EMP", "value": 0.6 }],
-    "agents": ["charlem", "real_jane"]
-  },
-  {
-    "category": "SupportiveAgreement",
-    "description": "Join others in condemning hazing and showing public support",
-    "keywords": [
-      "agreed",
-      "facts",
-      "this isn’t funny",
-      "thank you for saying this"
-    ],
-    "deltas": [{ "field": "TIN", "value": 0.4 }],
-    "agents": ["omar007", "jamie4real"]
+    "agents": ["caseymae_15"]
   }
 ]
