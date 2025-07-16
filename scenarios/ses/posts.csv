@@ -1,9 +1,9 @@
-body,picture,actor,postID,likes,time,class,absTime,updateTime
-Daddy just surprised me with a weekend trip to the Hamptons! Private jet life is the only way to travel,private_jet.png,maddieprincess,1,98,-180:00:00,,11/15/25 7:30,11/15/25 7:30
-Finished my calculus homework early! Love when hard work pays off,calculus_homework.png,sam.scholar25,2,23,-165:00:00,,11/15/25 10:15,11/15/25 10:15
-Looking forward to spring break planning! So many options to choose from,spring_break.png,j0rd4n_btw33n,3,34,-150:00:00,,11/15/25 12:30,11/15/25 12:30
-New exhibit at the Met is absolutely stunning. Art history coming to life,art_exhibit.png,ashley_nyc,4,28,-135:00:00,,11/15/25 14:45,11/15/25 14:45
-Lacrosse practice was brutal but productive. Season is looking promising,lacrosse_practice.png,connor_prep,5,19,-120:00:00,,11/15/25 16:00,11/15/25 16:00
-Spring break planning committee meeting! We're thinking Turks and Caicos this year. Some people might need to learn what a vacation actually means first though. Aw how sad! Never been anywhere nice? Don't worry maybe we can start a GoFundMe to teach you about the real world. Poor scholarship kids just don't understand luxury @sam.scholar25,spring_break_meeting.png,maddieprincess,6,156,-90:00:00,,11/15/25 18:30,11/15/25 18:30
-Student council meeting was productive today. Excited about our new initiatives,student_council.png,zoe_manhattan,7,31,-75:00:00,,11/15/25 20:45,11/15/25 20:45
-Debate tournament prep is intense but I love the challenge,debate_tournament.png,marcus_elite,8,22,-45:00:00,,11/16/25 2:15,11/16/25 2:15
+body,picture,actor,postID,likes,time,class,absTime,updateTime,isRelevant
+Daddy just surprised me with a weekend trip to the Hamptons! Private jet life is the only way to travel,private_jet.png,maddieprincess,1,98,-180:00:00,,11/15/25 7:30,11/15/25 7:30,false
+Finished my calculus homework early! Love when hard work pays off,calculus_homework.png,sam.scholar25,2,23,-165:00:00,,11/15/25 10:15,11/15/25 10:15,false
+Looking forward to spring break planning! So many options to choose from,spring_break.png,j0rd4n_btw33n,3,34,-150:00:00,,11/15/25 12:30,11/15/25 12:30,false
+New exhibit at the Met is absolutely stunning. Art history coming to life,art_exhibit.png,ashley_nyc,4,28,-135:00:00,,11/15/25 14:45,11/15/25 14:45,false
+Lacrosse practice was brutal but productive. Season is looking promising,lacrosse_practice.png,connor_prep,5,19,-120:00:00,,11/15/25 16:00,11/15/25 16:00,false
+Spring break planning committee meeting! We're thinking Turks and Caicos this year. Some people might need to learn what a vacation actually means first though. Aw how sad! Never been anywhere nice? Don't worry maybe we can start a GoFundMe to teach you about the real world. Poor scholarship kids just don't understand luxury @sam.scholar25,spring_break_meeting.png,maddieprincess,6,156,-90:00:00,,11/15/25 18:30,11/15/25 18:30,true
+Student council meeting was productive today. Excited about our new initiatives,student_council.png,zoe_manhattan,7,31,-75:00:00,,11/15/25 20:45,11/15/25 20:45,false
+Debate tournament prep is intense but I love the challenge,debate_tournament.png,marcus_elite,8,22,-45:00:00,,11/16/25 2:15,11/16/25 2:15,false

@@ -105,10 +105,12 @@ class ScoreController {
     const scores = ScoreController.computeScores(agents);
 
     const timeLeft = levelState.getTimeLeft();
-    const decayedScore = Math.max(
-      0,
-      scores.healthScore - (levelState.TOTAL_DURATION - timeLeft),
-    );
+    const elapsedTime = levelState.TOTAL_DURATION - timeLeft;
+
+    const decayRateSeconds = 10; // 1 point per 10 seconds
+    const decayedAmount = Math.floor(elapsedTime / decayRateSeconds);
+
+    const decayedScore = Math.max(0, scores.healthScore - decayedAmount);
 
     scores.healthScore = decayedScore;
     scores.timeLeft = timeLeft;
