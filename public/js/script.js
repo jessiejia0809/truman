@@ -74,6 +74,29 @@ $(window).on("load", function () {
     });
   }
 
+  function reformatTimestamps() {
+    if (typeof dayjs === "undefined") return;
+    dayjs.extend(window.dayjs_plugin_relativeTime);
+
+    $(".date").each(function () {
+      const ts = parseInt($(this).text(), 10);
+      if (!isNaN(ts)) {
+        $(this).text(dayjs(ts).fromNow());
+      }
+    });
+  }
+
+  function reloadLazyImages() {
+    $("img[data-src]").each(function () {
+      const $img = $(this);
+      const dataSrc = $img.attr("data-src");
+      if (dataSrc) {
+        $img.attr("src", dataSrc);
+        $img.removeAttr("data-src");
+      }
+    });
+  }
+
   setInterval(function () {
     console.log(`🔄 Refreshing feed at ${new Date().toLocaleTimeString()}`);
     saveTypedComments(); // Save comments before refresh
@@ -91,6 +114,8 @@ $(window).on("load", function () {
       if (typeof bindCommentHandlers === "function") {
         bindCommentHandlers(); // <-- this is key
       }
+      reformatTimestamps();
+      reloadLazyImages();
     });
   }, 10000);
 });

@@ -533,6 +533,21 @@ io.on("connection", (socket) => {
     socket.broadcast.emit("chat typing", msg);
   });
 
+  socket.on("levelChanged", async (data) => {
+    const { level } = data;
+    console.log(`📣 Level changed to ${level}`);
+
+    levelState.setLevel(level);
+    levelState.resetLevelStartTime(); // optional, but recommended
+
+    // Reset score immediately
+    await ScoreController.resetScores();
+
+    // Emit updated score immediately
+    const newScore = await ScoreController.getAllScores();
+    io.emit("scoreUpdate", newScore);
+  });
+
   socket.on("error", function (err) {
     console.log(err);
   });

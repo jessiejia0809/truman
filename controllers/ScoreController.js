@@ -1,5 +1,6 @@
 const Agent = require("../models/Agent");
 const levelState = require("./levelState");
+let lastKnownLevel = null;
 
 class ScoreController {
   /**
@@ -119,13 +120,19 @@ class ScoreController {
 
     const timeLeft = levelState.getTimeLeft();
     const elapsedTime = levelState.TOTAL_DURATION - timeLeft;
+    const currentLevel = levelState.getLevel(); // assumes this function exists
 
-    const decayRateSeconds = 10; // 1 point per 10 seconds
+    const decayRateSeconds = 10;
     const decayedAmount = Math.floor(elapsedTime / decayRateSeconds);
 
-    const decayedScore = Math.max(0, scores.healthScore - decayedAmount);
+    // Reset healthScore if level has changed
+    if (lastKnownLevel !== null && currentLevel !== lastKnownLevel) {
+      scores.healthScore = 0;
+    } else {
+      scores.healthScore = Math.max(0, scores.healthScore - decayedAmount);
+    }
 
-    scores.healthScore = decayedScore;
+    lastKnownLevel = currentLevel; // update tracker
     scores.timeLeft = timeLeft;
 
     return scores;
@@ -158,6 +165,26 @@ class ScoreController {
     } catch (err) {
       next(err);
     }
+  }
+
+  static async resetScores() {
+    console.log(
+      "[ScoreController] Resetting agent traits to original values...",
+    );
+
+    const agents = await Agent.find();
+
+    for (const agent of agents) {
+      if (agent.initialTraits) {
+        Object.assign(agent, agent.initialTraits); // overwrite traits
+        await agent.save();
+      } else {
+        console.warn(`⚠️ Agent ${agent.username} has no initialTraits`);
+      }
+    }
+
+    lastKnownLevel = null;
+    console.log("[ScoreController] Reset complete.");
   }
 }
 
