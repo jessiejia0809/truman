@@ -1,62 +1,70 @@
 [
   {
-    "category": "MakeMiseryVisible",
-    "description": "Call out the visible pain of the victim to trigger empathy or reduce harm by narcissistic individuals",
+    "category": "InvestigateInformer",
+    "description": "Privately talk to Tina to understand what’s going on with Amy. Find out the root cause of her behavior — she may be projecting hurt from home.",
     "keywords": [
-      "look what you're doing to him",
-      "he’s clearly hurt",
-      "this is really affecting him",
-      "how would you feel?"
+      "what’s up with Amy?",
+      "is Amy okay?",
+      "why is she doing this?",
+      "what’s her deal lately?",
+      "you know her best"
     ],
-    "deltas": [{ "field": "EMP", "value": 1.0 }],
-    "agents": ["sarah_c", "david_lee"]
+    "deltas": [
+      { "field": "CNT", "value": 3.0 },
+      { "field": "PRS", "value": 3.0 },
+      { "field": "ANX", "value": -3.0 }
+    ],
+    "agents": ["T1na"]
   },
   {
-    "category": "SharedSimilarityIntervention",
-    "description": "Remind bully of shared background to reduce aggression via similarity",
+    "category": "ExposeFalseCritique",
+    "description": "Publicly respond to Amy by calling out her masked insults. Make it clear this isn’t real leadership — it’s performative cruelty.",
     "keywords": [
-      "remember elementary school?",
-      "we used to be friends",
-      "we’re not so different",
-      "think about how we started"
+      "this isn’t leadership",
+      "not actual feedback",
+      "you’re just showing off",
+      "she doesn’t deserve this",
+      "we see through that"
     ],
-    "deltas": [{ "field": "TIN", "value": 0.9 }],
-    "agents": ["real_jane", "tina_b"]
+    "deltas": [
+      { "field": "AT", "value": -4.0 },
+      { "field": "PBC", "value": -4.0 },
+      { "field": "EMP", "value": 3.0 },
+      { "field": "TIN", "value": 2.0 }
+    ],
+    "agents": ["amyoko_"]
   },
   {
-    "category": "CounterPostSupport",
-    "description": "Share posts defending the target and calling out narcissistic behavior",
+    "category": "SupportTheTarget",
+    "description": "Publicly encourage Sophia and offer genuine support. Let her know she's seen and valued even if Amy tries to undermine her.",
     "keywords": [
-      "calling this out",
-      "he doesn't deserve this",
-      "this is toxic",
-      "not acceptable"
+      "Sophia you’re amazing",
+      "we support you",
+      "you’re doing great",
+      "you matter",
+      "keep going"
     ],
-    "deltas": [{ "field": "CNT", "value": 0.8 }],
-    "agents": ["charlem", "emfan_kelly"]
+    "deltas": [
+      { "field": "UPS", "value": 1.0 },
+      { "field": "UES", "value": 1.0 }
+    ],
+    "agents": ["sophiaaa"]
   },
   {
-    "category": "EmpathyAmplification",
-    "description": "Post emotional content encouraging compassion for the victim",
+    "category": "ReframeWithCompassion",
+    "description": "Shift the conversation away from competition and shame. Invite others to reject envy and spread compassion instead.",
     "keywords": [
-      "imagine being in his shoes",
-      "he’s just trying to learn",
-      "be kind",
-      "stop the shame"
+      "let’s be better",
+      "kindness > cruelty",
+      "stop the comparison",
+      "uplift each other",
+      "this isn’t it"
     ],
-    "deltas": [{ "field": "EMP", "value": 0.7 }],
-    "agents": ["mariam_m", "jackyates33"]
-  },
-  {
-    "category": "RefuseToJoinBullying",
-    "description": "Disengage from bullying behavior and voice disapproval",
-    "keywords": [
-      "not okay with this",
-      "I'm out",
-      "not funny",
-      "won’t be part of this"
+    "deltas": [
+      { "field": "CNT", "value": 3.0 },
+      { "field": "EMP", "value": 3.0 },
+      { "field": "UPS", "value": 3.0 }
     ],
-    "deltas": [{ "field": "AT", "value": 0.6 }],
-    "agents": ["omar007", "jamie4real"]
+    "agents": ["sarah23", "miked", "em_carter", "dlee89", "jessm", "mattwil"]
   }
 ]

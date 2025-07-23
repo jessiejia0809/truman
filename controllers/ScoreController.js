@@ -5,16 +5,17 @@ class ScoreController {
   /**
    * Given a raw agents array, compute:
    *  - bystanderScores: { username: normalized INT_i }
-   *  - bullyScores:     { username: normalized AAS_j }
+   *  - bullyScores:     { username: normalized AAS_j } (0 = worst, 1 = neutral)
    *  - bystanderScore:  overall normalized average
    *  - bullyScore:      overall normalized average
-   *  - healthScore:     0-100 multiplicative health metric
+   *  - healthScore:     0–100 multiplicative health metric
    */
   static computeScores(agents) {
     const MAX_PLS = 0.62 * 7;
     const MAX_PNV = 0.33 * MAX_PLS + 0.18 * 7 - 0.16 * 0;
     const MAX_INT = 0.48 * MAX_PNV + 0.18 * MAX_PLS + 0.23 * 7 + 0.07 * 7;
-    // Bystander
+
+    // ---------- Bystanders ----------
     const bys = agents.filter((a) => a.role === "bystander");
     const bystanderScores = {};
     let sumINT = 0;
@@ -28,7 +29,6 @@ class ScoreController {
         0.23 * (a.CNT ?? 0) +
         0.07 * (a.VisitFreq ?? 0);
 
-      // normalize against MAX_INT
       const normINT = Math.max(0, Math.min(1, INT / MAX_INT));
       bystanderScores[a.username] = normINT;
       sumINT += INT;
@@ -37,10 +37,22 @@ class ScoreController {
     const avgINT = bys.length ? sumINT / bys.length : 0;
     const bystanderScore = Math.max(0, Math.min(1, avgINT / MAX_INT));
 
-    // Bully
+    // ---------- Bullies ----------
     const bulls = agents.filter((a) => a.role === "bully");
-    let sumAAS = 0;
     const bullyScores = {};
+    let sumAAS = 0;
+
+    // === THEORETICAL BEST/ WORST CASE ===
+    const bestTraits = { AT: 1, PBC: 1, EMP: 5, TIN: 5 };
+    const worstTraits = { AT: 5, PBC: 5, EMP: 1, TIN: 1 };
+
+    const getAAS = ({ AT, PBC, EMP, TIN }) => {
+      const BIS = -0.203 * AT - 0.44 * PBC - 0.101 * EMP - 0.144 * TIN;
+      return 0.423 * BIS - 0.138 * EMP - 0.129 * (TIN * BIS);
+    };
+
+    const minAAS = getAAS(worstTraits);
+    const maxAAS = getAAS(bestTraits);
 
     bulls.forEach((a) => {
       const AT = a.AT ?? 1;
@@ -51,28 +63,23 @@ class ScoreController {
       const BIS = -0.203 * AT - 0.44 * PBC - 0.101 * EMP - 0.144 * TIN;
       const AAS = 0.423 * BIS - 0.138 * EMP - 0.129 * (TIN * BIS);
 
-      const minAAS = -1.069;
-      const maxAAS = 0.761;
-
       const boundedAAS = Math.max(minAAS, Math.min(maxAAS, AAS));
       const normAAS = (boundedAAS - minAAS) / (maxAAS - minAAS);
-      const invertedAAS = 1 - normAAS;
 
-      bullyScores[a.username] = invertedAAS;
-      sumAAS += invertedAAS;
+      bullyScores[a.username] = normAAS;
+      sumAAS += normAAS;
 
       console.log(`== Bully Agent: ${a.username} ==`);
       console.log(`  Traits: AT=${AT}, PBC=${PBC}, EMP=${EMP}, TIN=${TIN}`);
       console.log(`  BIS: ${BIS.toFixed(3)}`);
       console.log(`  AAS (raw): ${AAS.toFixed(3)}`);
       console.log(`  boundedAAS: ${boundedAAS.toFixed(3)}`);
-      console.log(`  normAAS: ${normAAS.toFixed(3)}`);
-      console.log(`  invertedAAS (bullyScore): ${invertedAAS.toFixed(3)}`);
+      console.log(`  bullyScore (normalized): ${normAAS.toFixed(3)}`);
     });
 
     const bullyScore = bulls.length ? sumAAS / bulls.length : 0;
 
-    // Victim
+    // ---------- Victim ----------
     const user = agents.find((a) => a.role === "victim") || {};
     const P_ES = bystanderScore + (user.UES ?? 0);
     const P_RA = user.URA ?? 0;
@@ -87,7 +94,20 @@ class ScoreController {
     const den = αes + αra + αad + αps;
     const victimSupportScore = den > 0 ? num / den : 0;
 
-    // Health Score
+    console.log(
+      `== Victim Agent: ${user.username || user._id || "unknown"} ==`,
+    );
+    console.log(
+      `  Inputs: bystanderScore=${bystanderScore.toFixed(3)}, UES=${(user.UES ?? 0).toFixed(2)}, URA=${P_RA.toFixed(2)}, UAD=${P_AD.toFixed(2)}, UPS=${P_PS.toFixed(2)}`,
+    );
+    console.log(
+      `  Weighted Sum: αes*P_ES=${(αes * P_ES).toFixed(3)}, αra*URA=${(αra * P_RA).toFixed(3)}, αad*UAD=${(αad * P_AD).toFixed(3)}, αps*UPS=${(αps * P_PS).toFixed(3)}`,
+    );
+    console.log(
+      `  victimSupportScore (normalized): ${victimSupportScore.toFixed(3)}`,
+    );
+
+    // ---------- Health Score ----------
     const α = 0.3;
     const β = 0.4;
     const γ = 0.3;
@@ -124,32 +144,11 @@ class ScoreController {
     const decayedAmount = Math.floor(elapsedTime / decayRateSeconds);
 
     const decayedScore = Math.max(0, scores.healthScore - decayedAmount);
-
     scores.healthScore = decayedScore;
     scores.timeLeft = timeLeft;
 
     return scores;
   }
-
-  /*static async getAllScores() {
-    const agents = await Agent.find().lean();
-    //return ScoreController.computeScores(agents);
-    const scores = ScoreController.computeScores(agents);
-
-    // Decay logic
-    const now = Date.now();
-    const elapsed = now - lastDecayTime;
-
-    if (elapsed >= 1000 && lastHealthScore > 0) {
-      lastHealthScore -= 1;
-      lastDecayTime = now;
-    }
-
-    // Replace computed healthScore with decayed one
-    scores.healthScore = lastHealthScore;
-
-    return scores;
-  }*/
 
   static async getScore(req, res, next) {
     try {

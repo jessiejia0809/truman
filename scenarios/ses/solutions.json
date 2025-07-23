@@ -1,62 +1,54 @@
 [
   {
-    "category": "CallOutClassism",
-    "description": "Publicly call out classist behavior and highlight its harm",
+    "category": "AddressClassistComment",
+    "description": "Directly call out the classist remark and demand accountability. Emphasizes empathy and challenges harmful attitudes.",
     "keywords": [
       "this is classist",
-      "stop judging by money",
-      "being poor isn't a crime",
-      "not everyone has the same privileges"
+      "stop flexing wealth",
+      "money doesn’t make you better",
+      "check your privilege",
+      "hurting people over money isn’t ok"
     ],
-    "deltas": [{ "field": "CNT", "value": 1.0 }],
-    "agents": ["jackyates33", "its.kat"]
+    "deltas": [
+      { "field": "AT", "value": -3.0 },
+      { "field": "PBC", "value": -3.0 },
+      { "field": "EMP", "value": 3.0 },
+      { "field": "TIN", "value": 3.0 }
+    ],
+    "agents": ["maddieprincess"]
   },
   {
-    "category": "CelebrateMerit",
-    "description": "Share posts celebrating achievement regardless of financial background",
+    "category": "ReframeNarrativeInclusivity",
+    "description": "Shift the conversation toward shared experiences and inclusive options; reject wealth-based division.",
     "keywords": [
-      "earned it fair and square",
-      "hard work matters",
-      "not handed everything",
-      "respect hustle"
+      "spring break isn’t about price tags",
+      "let’s find plans everyone can join",
+      "fun doesn’t have to cost a fortune",
+      "economic diversity matters",
+      "let’s focus on memories not money"
     ],
-    "deltas": [{ "field": "AT", "value": 0.9 }],
-    "agents": ["emfan_kelly", "charlem"]
+    "deltas": [
+      { "field": "CNT", "value": 3.0 },
+      { "field": "PRS", "value": 3.0 },
+      { "field": "ANX", "value": -3.0 }
+    ],
+    "agents": ["ashley_nyc", "connor_prep", "zoe_manhattan", "marcus_elite"]
   },
   {
-    "category": "ReportFraudAndAbuse",
-    "description": "Report harassment and fake charity accounts meant to mock the victim",
+    "category": "ConsoleVictimPublicly",
+    "description": "Offer visible support, validation, and encouragement to the victim in public comments.",
     "keywords": [
-      "reporting this now",
-      "fake and harmful",
-      "TOS violation",
-      "this needs to go"
+      "you didn’t deserve that",
+      "we’re with you",
+      "your feelings are valid",
+      "don’t let them shame you",
+      "you belong here"
     ],
-    "deltas": [{ "field": "PBC", "value": 0.8 }],
-    "agents": ["jamie4real", "mariam_m"]
-  },
-  {
-    "category": "PromoteEconomicDiversity",
-    "description": "Create posts uplifting economic diversity and earned opportunity",
-    "keywords": [
-      "diversity = strength",
-      "we all belong here",
-      "background doesn’t define worth",
-      "celebrate effort, not privilege"
+    "deltas": [
+      { "field": "UES", "value": 1.0 },
+      { "field": "UAD", "value": 1.0 },
+      { "field": "UPS", "value": 1.0 }
     ],
-    "deltas": [{ "field": "TIN", "value": 0.7 }],
-    "agents": ["real_jane", "omar007"]
-  },
-  {
-    "category": "SupportVictimOpenly",
-    "description": "Openly support the target with kind comments or financial solidarity",
-    "keywords": [
-      "you deserve better",
-      "this isn’t okay",
-      "you’re not alone",
-      "happy to help"
-    ],
-    "deltas": [{ "field": "EMP", "value": 0.9 }],
-    "agents": ["charlem", "mariam_m"]
+    "agents": ["sam.scholar25"]
   }
 ]
