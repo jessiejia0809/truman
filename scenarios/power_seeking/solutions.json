@@ -1,85 +1,51 @@
 [
   {
-    "category": "DemonstratingSocialDisapproval",
-    "description": "Peers publicly disapprove of bullying, undermining the social reinforcement bullies rely on.",
+    "category": "InvestigateInformer",
+    "description": "Privately talk to Jordan to learn how the manipulator is controlling others (exclusion, threats, unspoken rules).",
     "keywords": [
-      "this isn't funny",
-      "stop encouraging this",
-      "we don’t support bullies here",
-      "not cool at all"
+      "what’s really going on?",
+      "you see both sides, right?",
+      "who’s pulling the strings?",
+      "why is everyone scared?"
     ],
     "deltas": [
-      {
-        "field": "AAS",
-        "value": -1.0
-      }
+      { "field": "CNT", "value": 3.0 },
+      { "field": "PRS", "value": 3.0 },
+      { "field": "UAD", "value": 1.0 },
+      { "field": "UPS", "value": 1.0 }
     ],
-    "agents": ["mariam_m", "charlem", "its.kat"]
+    "agents": ["jordankim", "dummy"]
   },
   {
-    "category": "SupportiveCommenting",
-    "description": "Leave a visible message supporting the victim and validating their experience.",
+    "category": "AddressBully",
+    "description": "Publicly call out the coercive, power-seeking behavior to weaken its influence.",
     "keywords": [
-      "you didn’t deserve that",
-      "we’ve got your back",
-      "ignore them, you matter",
-      "that was harsh and wrong"
+      "this pattern is toxic",
+      "you don’t control this space",
+      "stop threatening people",
+      "no one owes you loyalty"
     ],
     "deltas": [
-      {
-        "field": "UES",
-        "value": 1.0
-      }
+      { "field": "AT", "value": -4.0 },
+      { "field": "PBC", "value": -3.0 },
+      { "field": "EMP", "value": 2.0 },
+      { "field": "TIN", "value": 4.0 }
     ],
-    "agents": ["jackyates33", "real_jane"]
+    "agents": ["alex_t"]
   },
   {
-    "category": "EmpathyBuilding",
-    "description": "Post stories or memories that humanize the victim and promote understanding.",
+    "category": "AddressBystanders",
+    "description": "Encourage peers to speak up, reinforce safe norms, and reject coercion together.",
     "keywords": [
-      "remember when they helped me",
-      "they’ve always been kind",
-      "you don’t know what they’re going through"
-    ],
-    "deltas": [
-      {
-        "field": "EMP",
-        "value": 0.8
-      }
-    ],
-    "agents": ["jamie4real", "omar007"]
-  },
-  {
-    "category": "NarrativeRedirection",
-    "description": "Share posts that shift the conversation away from mockery to positive traits.",
-    "keywords": [
-      "being kind is cool",
-      "confidence comes from lifting others",
-      "build, don’t break"
-    ],
-    "deltas": [
-      {
-        "field": "CNT",
-        "value": 0.6
-      }
-    ],
-    "agents": ["emfan_kelly", "charlem"]
-  },
-  {
-    "category": "BystanderSupport",
-    "description": "Support anti-bullying posts and reinforce norms against cruelty.",
-    "keywords": [
-      "facts",
-      "completely agree",
       "this needed to be said",
-      "thank you for speaking up"
+      "no one should feel forced",
+      "respect is baseline here",
+      "facts"
     ],
     "deltas": [
-      {
-        "field": "TIN",
-        "value": 0.5
-      }
+      { "field": "CNT", "value": 3.0 },
+      { "field": "PRS", "value": 3.0 }
     ],
-    "agents": ["its.kat", "real_jane"]
+    "agents": ["k8lynne_", "ty_2k8", "sammie_r", "daveeeee", "zoeee99"]
   }
 ]
