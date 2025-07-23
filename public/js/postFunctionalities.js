@@ -321,6 +321,9 @@ function addComment(e) {
   const ava_img = ava.attr("src");
   const ava_name = ava.attr("name");
   const postID = card.attr("postID");
+  const urlParams = new URLSearchParams(window.location.search);
+  const level = parseInt(urlParams.get("level")) || 1;
+  console.log("Adding comment for postID:", postID, "at level:", level);
 
   target.prop("disabled", true); // disable the button
 
@@ -329,6 +332,7 @@ function addComment(e) {
     new_comment: currDate,
     comment_text: text,
     logs: currentLogs,
+    commentType: "User",
     _csrf: $('meta[name="csrf-token"]').attr("content"),
   })
     .then(function (json) {
@@ -423,7 +427,7 @@ $(window).on("load", () => {
 
   // Log each key press in comment textarea
   $("textarea.newcomment").on("keydown", function (e) {
-    console.log("Key pressed:", e.key);
+    //console.log("Key pressed:", e.key);
   });
 
   // Press enter to submit a comment

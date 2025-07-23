@@ -1,6 +1,6 @@
 window.showTransitionPopup = function (
   result = "lose",
-  feedback = [],
+  //feedback = [],
   finalScore = null,
 ) {
   console.log("Showing transition popup:", result);

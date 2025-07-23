@@ -72,7 +72,7 @@ const levelState = require("./controllers/levelState");
 /**
  * Models.
  */
-//const Comment = require("./models/Comment");
+const Comment = require("./models/Comment");
 
 /**
  * API keys and Passport configuration.
@@ -473,6 +473,16 @@ app.get("/reset-level", async (req, res) => {
   currentLevel = parseInt(req.query.level, 10) || 1;
   console.log(`[RESET] Resetting level ${currentLevel}`);
 
+  const allComments = await Comment.find();
+  console.log("📋 All comments:", allComments);
+
+  const userComments = await Comment.find({ commentType: "User" });
+  console.log("👤 User comments before deletion:", userComments);
+
+  await Comment.deleteMany({
+    commentType: "User",
+  });
+
   levelState.resetLevelStartTime();
 
   setTimeout(() => {
@@ -531,6 +541,21 @@ io.on("connection", (socket) => {
   socket.on("chat typing", (msg) => {
     // emit to all listening sockets but the one sending
     socket.broadcast.emit("chat typing", msg);
+  });
+
+  socket.on("levelChanged", async (data) => {
+    const { level } = data;
+    console.log(`📣 Level changed to ${level}`);
+
+    levelState.setLevel(level);
+    levelState.resetLevelStartTime(); // optional, but recommended
+
+    // Reset score immediately
+    await ScoreController.resetScores();
+
+    // Emit updated score immediately
+    const newScore = await ScoreController.getAllScores();
+    io.emit("scoreUpdate", newScore);
   });
 
   socket.on("error", function (err) {

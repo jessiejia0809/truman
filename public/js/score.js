@@ -1,124 +1,22 @@
-/*(function () {
-  const socket = io();
+document.addEventListener("DOMContentLoaded", () => {
+  const scoreAudio = new Audio("/public/sounds/score-up.mp3");
+  scoreAudio.volume = 0.3; // soft, not intrusive
 
-  let lastActionTimestamp = Date.now();
-  let lastDecayTime = Date.now();
-  window.levelOver = false; // 🆕 Added global flag
-
-  function getGradientColor(score) {
-    const red = Math.round(255 - score * 2.55);
-    const green = Math.round(score * 2.55);
-    return `rgb(${red}, ${green}, 0)`;
+  // Inject keyframe animation once
+  if (!document.getElementById("liquid-animation-style")) {
+    const style = document.createElement("style");
+    style.id = "liquid-animation-style";
+    style.textContent = `
+      @keyframes liquidWave {
+        0% { background-position: 0 0; }
+        100% { background-position: 40px 40px; }
+      }
+    `;
+    document.head.appendChild(style);
   }
 
-  window.updateScore = function (newScore, fromAction = false) {
-    window.currentScore = Math.max(0, newScore);
-    if (!window.allScores) {
-      window.allScores = {};
-    }
-    window.allScores.healthScore = window.currentScore;
-    sessionStorage.setItem("currentScore", window.currentScore);
-
-    const scoreBar = document.querySelector(".score-bar");
-    const scoreText = document.querySelector(".score-text");
-
-    if (scoreBar) {
-      const percent = Math.max(0, Math.min(100, window.currentScore));
-      scoreBar.style.width = percent + "%";
-      scoreBar.style.backgroundColor = getGradientColor(percent);
-    }
-
-    if (scoreText) {
-      scoreText.textContent = `${window.currentScore}/100`;
-    }
-
-    if (fromAction) {
-      lastActionTimestamp = Date.now();
-    }
-  };
-
-  window.initScoreBar = function () {
-    const scoreWrapper = document.createElement("div");
-    scoreWrapper.className = "score-wrapper";
-    scoreWrapper.style.position = "fixed";
-    scoreWrapper.style.top = "100px";
-    scoreWrapper.style.left = "130px";
-    scoreWrapper.style.width = "300px";
-    scoreWrapper.style.height = "30px";
-    scoreWrapper.style.backgroundColor = "#222";
-    scoreWrapper.style.borderRadius = "10px";
-    scoreWrapper.style.overflow = "hidden";
-    scoreWrapper.style.zIndex = "1000";
-
-    const scoreBar = document.createElement("div");
-    scoreBar.className = "score-bar";
-    scoreBar.style.height = "80%";
-    scoreBar.style.width = "0%";
-    scoreBar.style.borderRadius = "10px";
-    scoreBar.style.transition = "width 0.4s ease";
-
-    const scoreText = document.createElement("span");
-    scoreText.className = "score-text";
-    scoreText.style.position = "absolute";
-    scoreText.style.right = "20px";
-    scoreText.style.top = "50%";
-    scoreText.style.transform = "translateY(-50%)";
-    scoreText.style.fontSize = "20px";
-    scoreText.style.fontWeight = "bold";
-    scoreText.style.color = "white";
-    scoreText.style.textShadow = "1px 1px 0 #0b2e0b, -1px -1px 0 #0b2e0b";
-    scoreText.style.zIndex = "1000";
-
-    scoreWrapper.appendChild(scoreText);
-    scoreWrapper.appendChild(scoreBar);
-    document.body.appendChild(scoreWrapper);
-
-    window.updateScore(window.currentScore);
-  };
-
-  socket.on("scoreUpdate", (allScores) => {
-    const initialScore = parseInt(allScores.healthScore);
-    const isNew = !window.allScores;
-
-    window.allScores = allScores;
-    console.log(isNew ? "Initializing scores" : "Updating scores", allScores);
-    if (isNew) {
-      window.currentScore = isNaN(initialScore) ? 100 : initialScore;
-      window.updateScore(window.currentScore, true);
-    }
-
-    if (!window.scoreBarInitialized) {
-      window.scoreBarInitialized = true;
-      window.initScoreBar();
-    }
-
-    if (!window.scoreDecayStarted) {
-      window.scoreDecayStarted = true;
-      setInterval(() => {
-        const now = Date.now();
-        const timeSinceLastAction = now - lastActionTimestamp;
-        const timeSinceLastDecay = now - lastDecayTime;
-
-        // ⛔ Don't decay after level ends
-        if (window.levelOver) return;
-
-        if (
-          typeof window.currentScore === "number" &&
-          window.currentScore > 0 &&
-          timeSinceLastAction >= 1000 &&
-          timeSinceLastDecay >= 1000
-        ) {
-          window.updateScore(window.currentScore - 1);
-          lastDecayTime = now;
-        }
-      }, 1000); // check every second
-    }
-  });
-})();*/
-
-document.addEventListener("DOMContentLoaded", () => {
   window.currentScore = parseInt(sessionStorage.getItem("currentScore")) || 0;
-
+  /*
   // Create score bar container
   const scoreWrapper = document.createElement("div");
   scoreWrapper.className = "score-wrapper";
@@ -135,13 +33,14 @@ document.addEventListener("DOMContentLoaded", () => {
   // Create score bar fill
   const scoreBar = document.createElement("div");
   scoreBar.className = "score-bar";
-  scoreBar.style.height = "80%";
+  scoreBar.style.height = "100%";
   scoreBar.style.width = "0%";
   scoreBar.style.position = "absolute";
-  scoreBar.style.top = "50%";
-  scoreBar.style.transform = "translateY(-50%)";
+  scoreBar.style.top = "0";
+  scoreBar.style.left = "0";
   scoreBar.style.borderRadius = "10px";
   scoreBar.style.transition = "width 0.4s ease";
+  scoreBar.style.boxShadow = "inset 0 0 10px rgba(255, 0, 0, 0.6)";
 
   // Create score text
   const scoreText = document.createElement("span");
@@ -158,8 +57,51 @@ document.addEventListener("DOMContentLoaded", () => {
 
   scoreWrapper.appendChild(scoreText);
   scoreWrapper.appendChild(scoreBar);
+  document.body.appendChild(scoreWrapper);*/
+
+  // Create circular aura container
+  const scoreWrapper = document.createElement("div");
+  scoreWrapper.className = "guardian-score-wrapper";
+  scoreWrapper.style.position = "fixed";
+  scoreWrapper.style.top = "30px";
+  scoreWrapper.style.left = "30px";
+  scoreWrapper.style.width = "140px";
+  scoreWrapper.style.height = "140px";
+  scoreWrapper.style.borderRadius = "50%";
+  scoreWrapper.style.background =
+    "radial-gradient(ellipse at center, rgba(100,0,0,0.6), #000)";
+  scoreWrapper.style.boxShadow = "0 0 25px 5px rgba(255,0,0,0.4)";
+  scoreWrapper.style.zIndex = "1000";
+  scoreWrapper.style.display = "flex";
+  scoreWrapper.style.justifyContent = "center";
+  scoreWrapper.style.alignItems = "center";
+  scoreWrapper.style.transition = "box-shadow 0.4s ease";
+
+  // Aura glow layer
+  const aura = document.createElement("div");
+  aura.className = "aura";
+  aura.style.position = "absolute";
+  aura.style.width = "140px";
+  aura.style.height = "140px";
+  aura.style.borderRadius = "50%";
+  aura.style.boxShadow = "0 0 40px 20px rgba(255,0,0,0.3)";
+  aura.style.animation = "auraPulse 2s ease-in-out infinite";
+  aura.style.pointerEvents = "none";
+
+  // Score label
+  const scoreText = document.createElement("div");
+  scoreText.className = "score-text";
+  scoreText.style.fontSize = "24px";
+  scoreText.style.fontWeight = "bold";
+  scoreText.style.color = "#e63946";
+  scoreText.style.textShadow = "1px 1px 3px #000";
+  scoreText.textContent = `${window.currentScore}/100`;
+
+  scoreWrapper.appendChild(aura);
+  scoreWrapper.appendChild(scoreText);
   document.body.appendChild(scoreWrapper);
 
+  // Optional gradient helper (no longer used, but kept if needed)
   function getGradientColor(score) {
     const red = Math.round(255 - score * 2.55);
     const green = Math.round(score * 2.55);
@@ -167,11 +109,25 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ✅ Update score bar and label
-  window.updateScore = function (score) {
+  /*window.updateScore = function (score) {
     window.currentScore = Math.max(0, Math.min(100, score));
     sessionStorage.setItem("currentScore", window.currentScore);
+
     scoreBar.style.width = `${window.currentScore}%`;
-    scoreBar.style.backgroundColor = getGradientColor(window.currentScore);
+
+    // 🧪 Liquid-style gradient and animation
+    scoreBar.style.background = `
+      repeating-linear-gradient(
+        -45deg,
+        rgba(255, 50, 50, 0.6),
+        rgba(255, 50, 50, 0.6) 10px,
+        rgba(180, 0, 0, 0.6) 10px,
+        rgba(180, 0, 0, 0.6) 20px
+      )`;
+
+    scoreBar.style.backgroundSize = "40px 40px";
+    scoreBar.style.animation = "liquidWave 1s linear infinite";
+
     scoreText.textContent = `${window.currentScore}/100`;
 
     if (
@@ -181,17 +137,47 @@ document.addEventListener("DOMContentLoaded", () => {
     ) {
       window.increaseLevel();
     }
+  };*/
+  window.updateScore = function (score) {
+    const clamped = Math.max(0, Math.min(100, score));
+    if (clamped !== window.currentScore) {
+      // Play sound only when score changes
+      scoreAudio.currentTime = 0;
+      scoreAudio.play();
+    }
+
+    window.currentScore = clamped;
+    sessionStorage.setItem("currentScore", clamped);
+
+    scoreText.textContent = `${clamped}/100`;
+    // Aura intensity based on score
+    const intensity = clamped / 100;
+    const baseSize = 30 + intensity * 60;
+    const auraGlow = `0 0 ${baseSize}px ${baseSize / 2}px rgba(255, ${30 + intensity * 200}, ${30 + intensity * 200}, ${0.4 + intensity * 0.5})`;
+
+    aura.style.boxShadow = auraGlow;
+    scoreWrapper.style.boxShadow = `
+      0 0 ${10 + intensity * 50}px ${intensity * 20}px rgba(255, 0, 0, ${0.3 + intensity * 0.5}),
+      inset 0 0 ${5 + intensity * 30}px rgba(255, 0, 0, ${0.2 + intensity * 0.4})
+    `;
+
+    // Optional level check
+    if (
+      typeof window.getLevelThreshold === "function" &&
+      typeof window.increaseLevel === "function" &&
+      clamped >= window.getLevelThreshold(window.currentLevel || 1)
+    ) {
+      window.increaseLevel();
+    }
   };
 
   window.freezeScore = function () {
-    // 🆕 Prevent score decay
     window.levelOver = true;
     console.log(
       "Score freezing enabled. No further updates will be processed.",
     );
   };
 
-  // ✅ Reset score if needed
   window.resetScore = function () {
     window.currentScore = 0;
     sessionStorage.setItem("currentScore", "0");
@@ -203,7 +189,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const socket = window.socket || io("http://localhost:3000");
   window.socket = socket;
 
-  // ✅ Receive updated scores from server
   socket.on("scoreUpdate", (allScores) => {
     if (
       typeof window.currentScore !== "number" ||

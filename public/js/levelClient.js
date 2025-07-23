@@ -9,10 +9,14 @@ window.getCurrentLevel = function () {
 
 window.goToNextLevel = function () {
   const nextLevel = currentLevel + 1;
+
+  // Notify server BEFORE redirecting
+  window.socket.emit("levelChanged", { level: nextLevel });
+
   window.location.href = `/feed?level=${nextLevel}`;
 };
 
-window.retryLevel = function () {
+window.retryLevel = async function () {
   const currentLevel =
     parseInt(new URLSearchParams(window.location.search).get("level")) || 1;
 
@@ -27,7 +31,7 @@ window.retryLevel = function () {
 
 window.checkWinCondition = async function (score, remainingTime, userActions) {
   console.log("Checking win condition for level", currentLevel);
-  if (currentLevel == 1 && score >= 80) {
+  if (currentLevel == 1 && score >= 60) {
     console.log("Level 1 complete!");
     window.freezeScore();
     window.showTransitionPopup("win");
@@ -38,15 +42,15 @@ window.checkWinCondition = async function (score, remainingTime, userActions) {
   } else if (remainingTime <= 0) {
     window.freezeScore();
     console.log("Time's up! Checking for win condition.");
-    if (!userActions) {
-      console.warn("No userActions provided for feedback analysis.");
+    /*if (!userActions) {
+      //console.warn("No userActions provided for feedback analysis.");
       window.showTransitionPopup("lose", [], score);
       return;
-    }
-    console.log("Fetching feedback for user actions");
-    const feedback = await window.fetchFeedback(userActions);
-    console.log("Feedback received:", feedback);
-    window.showTransitionPopup("lose", feedback, score);
+    }*/
+    //console.log("Fetching feedback for user actions");
+    //const feedback = await window.fetchFeedback(userActions);
+    //console.log("Feedback received:", feedback);
+    window.showTransitionPopup("lose", score);
   }
 };
 

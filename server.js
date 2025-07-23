@@ -5,20 +5,30 @@ const { Server } = require("socket.io");
 
 const levelState = require("./controllers/levelState");
 const ScoreController = require("./controllers/ScoreController");
-
+const Comment = require("./models/Comment");
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: { origin: "*" },
 });
 
 io.on("connection", (socket) => {
+  console.log("✅ Socket connected:", socket.id);
   socket.on("resetLevel", async ({ level }) => {
     try {
+      //console.log(`🔄 Resetting level ${level} for session ${socket.request.sessionID}`);
       // Clear all scores and state
-      levelState.resetLevel(level);
 
-      // Delete user-written comments for this level
-      //await Comment.deleteMany({ level, postType: 'User' });
+      const allComments = await Comment.find();
+      console.log("📋 All comments:", allComments);
+
+      const userComments = await Comment.find({ commentType: "User" });
+      console.log("👤 User comments before deletion:", userComments);
+
+      await Comment.deleteMany({
+        commentType: "User",
+      });
+
+      levelState.resetLevel(level);
 
       console.log(`✅ Reset level ${level}`);
     } catch (err) {
@@ -54,7 +64,6 @@ app.get("/reset-level", async (req, res) => {
 
   // Reset timer
   levelState.resetLevelStartTime();
-
   // Reset score stored in memory/session
   // You could also clear Agent data if needed here
   // e.g., await Agent.updateMany({}, { $set: { score: 0 } });

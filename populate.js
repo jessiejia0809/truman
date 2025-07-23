@@ -222,7 +222,7 @@ async function doPopulate(path, level) {
       absTime: replyTime,
       updateTime: replyTime,
       class: reply.class,
-      //level: level,
+      level: level,
     });
 
     const index = _.sortedIndexBy(

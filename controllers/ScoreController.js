@@ -1,5 +1,6 @@
 const Agent = require("../models/Agent");
 const levelState = require("./levelState");
+let lastKnownLevel = null;
 
 class ScoreController {
   /**
@@ -116,12 +117,12 @@ class ScoreController {
       100 * (α * bystanderScore + β * victimSupportScore + γ * bullyScore),
     );
 
-    console.log(
+    /*console.log(
       `[Score][SUMMARY] bystanderScore=${bystanderScore.toFixed(3)}, ` +
         `bullyScore=${bullyScore.toFixed(3)}, ` +
         `victimSupportScore=${victimSupportScore.toFixed(3)}, ` +
         `healthScore=${healthScore}`,
-    );
+    );*/
 
     return {
       bystanderScores,
@@ -139,8 +140,9 @@ class ScoreController {
 
     const timeLeft = levelState.getTimeLeft();
     const elapsedTime = levelState.TOTAL_DURATION - timeLeft;
+    const currentLevel = levelState.getLevel(); // assumes this function exists
 
-    const decayRateSeconds = 10; // 1 point per 10 seconds
+    const decayRateSeconds = 10;
     const decayedAmount = Math.floor(elapsedTime / decayRateSeconds);
 
     const decayedScore = Math.max(0, scores.healthScore - decayedAmount);
@@ -157,6 +159,26 @@ class ScoreController {
     } catch (err) {
       next(err);
     }
+  }
+
+  static async resetScores() {
+    console.log(
+      "[ScoreController] Resetting agent traits to original values...",
+    );
+
+    const agents = await Agent.find();
+
+    for (const agent of agents) {
+      if (agent.initialTraits) {
+        Object.assign(agent, agent.initialTraits); // overwrite traits
+        await agent.save();
+      } else {
+        console.warn(`⚠️ Agent ${agent.username} has no initialTraits`);
+      }
+    }
+
+    lastKnownLevel = null;
+    console.log("[ScoreController] Reset complete.");
   }
 }
 

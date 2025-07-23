@@ -118,6 +118,7 @@ const performFeedAction = async (userId, isAgent, body, session) => {
       commentor: userId,
       session: isAgent ? session.id : user.session.id,
       post: body.postID,
+      //level: req.body.level,
       body: body.comment_text,
       absTime: body.new_comment,
       updateTime: body.new_comment,
