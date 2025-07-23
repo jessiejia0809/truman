@@ -61,14 +61,14 @@ class ScoreController {
 
       bullyScores[a.username] = invertedAAS;
       sumAAS += invertedAAS;
-
+      /*
       console.log(`== Bully Agent: ${a.username} ==`);
       console.log(`  Traits: AT=${AT}, PBC=${PBC}, EMP=${EMP}, TIN=${TIN}`);
       console.log(`  BIS: ${BIS.toFixed(3)}`);
       console.log(`  AAS (raw): ${AAS.toFixed(3)}`);
       console.log(`  boundedAAS: ${boundedAAS.toFixed(3)}`);
       console.log(`  normAAS: ${normAAS.toFixed(3)}`);
-      console.log(`  invertedAAS (bullyScore): ${invertedAAS.toFixed(3)}`);
+      console.log(`  invertedAAS (bullyScore): ${invertedAAS.toFixed(3)}`);*/
     });
 
     const bullyScore = bulls.length ? sumAAS / bulls.length : 0;
@@ -97,12 +97,12 @@ class ScoreController {
       100 * (α * bystanderScore + β * victimSupportScore + γ * bullyScore),
     );
 
-    console.log(
+    /*console.log(
       `[Score][SUMMARY] bystanderScore=${bystanderScore.toFixed(3)}, ` +
         `bullyScore=${bullyScore.toFixed(3)}, ` +
         `victimSupportScore=${victimSupportScore.toFixed(3)}, ` +
         `healthScore=${healthScore}`,
-    );
+    );*/
 
     return {
       bystanderScores,

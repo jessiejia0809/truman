@@ -41,7 +41,6 @@ const commentSchema = new mongoose.Schema(
     absTime: Date, // Absolute Time; Indicates the exact time the comment was made on the post
     updateTime: Date, // Update Time; Indicates the exact time the comment was last updated
     logs: [logSchema],
-    //level: { type: Number, required: true }
   },
   { timestamps: true, versionKey: false },
 );

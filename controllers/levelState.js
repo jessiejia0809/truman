@@ -1,5 +1,5 @@
 let levelStartTime = Date.now();
-const TOTAL_DURATION = 300; // or 10 if testing
+const TOTAL_DURATION = 20; // or 10 if testing
 let currentLevel = 1;
 
 function setLevel(level) {

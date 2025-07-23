@@ -1,4 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
+  const scoreAudio = new Audio("/public/sounds/score-up.mp3");
+  scoreAudio.volume = 0.3; // soft, not intrusive
+
   // Inject keyframe animation once
   if (!document.getElementById("liquid-animation-style")) {
     const style = document.createElement("style");
@@ -13,7 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   window.currentScore = parseInt(sessionStorage.getItem("currentScore")) || 0;
-
+  /*
   // Create score bar container
   const scoreWrapper = document.createElement("div");
   scoreWrapper.className = "score-wrapper";
@@ -54,6 +57,48 @@ document.addEventListener("DOMContentLoaded", () => {
 
   scoreWrapper.appendChild(scoreText);
   scoreWrapper.appendChild(scoreBar);
+  document.body.appendChild(scoreWrapper);*/
+
+  // Create circular aura container
+  const scoreWrapper = document.createElement("div");
+  scoreWrapper.className = "guardian-score-wrapper";
+  scoreWrapper.style.position = "fixed";
+  scoreWrapper.style.top = "30px";
+  scoreWrapper.style.left = "30px";
+  scoreWrapper.style.width = "140px";
+  scoreWrapper.style.height = "140px";
+  scoreWrapper.style.borderRadius = "50%";
+  scoreWrapper.style.background =
+    "radial-gradient(ellipse at center, rgba(100,0,0,0.6), #000)";
+  scoreWrapper.style.boxShadow = "0 0 25px 5px rgba(255,0,0,0.4)";
+  scoreWrapper.style.zIndex = "1000";
+  scoreWrapper.style.display = "flex";
+  scoreWrapper.style.justifyContent = "center";
+  scoreWrapper.style.alignItems = "center";
+  scoreWrapper.style.transition = "box-shadow 0.4s ease";
+
+  // Aura glow layer
+  const aura = document.createElement("div");
+  aura.className = "aura";
+  aura.style.position = "absolute";
+  aura.style.width = "140px";
+  aura.style.height = "140px";
+  aura.style.borderRadius = "50%";
+  aura.style.boxShadow = "0 0 40px 20px rgba(255,0,0,0.3)";
+  aura.style.animation = "auraPulse 2s ease-in-out infinite";
+  aura.style.pointerEvents = "none";
+
+  // Score label
+  const scoreText = document.createElement("div");
+  scoreText.className = "score-text";
+  scoreText.style.fontSize = "24px";
+  scoreText.style.fontWeight = "bold";
+  scoreText.style.color = "#e63946";
+  scoreText.style.textShadow = "1px 1px 3px #000";
+  scoreText.textContent = `${window.currentScore}/100`;
+
+  scoreWrapper.appendChild(aura);
+  scoreWrapper.appendChild(scoreText);
   document.body.appendChild(scoreWrapper);
 
   // Optional gradient helper (no longer used, but kept if needed)
@@ -64,7 +109,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ✅ Update score bar and label
-  window.updateScore = function (score) {
+  /*window.updateScore = function (score) {
     window.currentScore = Math.max(0, Math.min(100, score));
     sessionStorage.setItem("currentScore", window.currentScore);
 
@@ -89,6 +134,38 @@ document.addEventListener("DOMContentLoaded", () => {
       typeof window.getLevelThreshold === "function" &&
       typeof window.increaseLevel === "function" &&
       window.currentScore >= window.getLevelThreshold(window.currentLevel || 1)
+    ) {
+      window.increaseLevel();
+    }
+  };*/
+  window.updateScore = function (score) {
+    const clamped = Math.max(0, Math.min(100, score));
+    if (clamped !== window.currentScore) {
+      // Play sound only when score changes
+      scoreAudio.currentTime = 0;
+      scoreAudio.play();
+    }
+
+    window.currentScore = clamped;
+    sessionStorage.setItem("currentScore", clamped);
+
+    scoreText.textContent = `${clamped}/100`;
+    // Aura intensity based on score
+    const intensity = clamped / 100;
+    const baseSize = 30 + intensity * 60;
+    const auraGlow = `0 0 ${baseSize}px ${baseSize / 2}px rgba(255, ${30 + intensity * 200}, ${30 + intensity * 200}, ${0.4 + intensity * 0.5})`;
+
+    aura.style.boxShadow = auraGlow;
+    scoreWrapper.style.boxShadow = `
+      0 0 ${10 + intensity * 50}px ${intensity * 20}px rgba(255, 0, 0, ${0.3 + intensity * 0.5}),
+      inset 0 0 ${5 + intensity * 30}px rgba(255, 0, 0, ${0.2 + intensity * 0.4})
+    `;
+
+    // Optional level check
+    if (
+      typeof window.getLevelThreshold === "function" &&
+      typeof window.increaseLevel === "function" &&
+      clamped >= window.getLevelThreshold(window.currentLevel || 1)
     ) {
       window.increaseLevel();
     }

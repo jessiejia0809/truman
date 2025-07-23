@@ -72,7 +72,7 @@ const levelState = require("./controllers/levelState");
 /**
  * Models.
  */
-//const Comment = require("./models/Comment");
+const Comment = require("./models/Comment");
 
 /**
  * API keys and Passport configuration.
@@ -472,6 +472,16 @@ app.post("/api/feedback", async (req, res) => {
 app.get("/reset-level", async (req, res) => {
   currentLevel = parseInt(req.query.level, 10) || 1;
   console.log(`[RESET] Resetting level ${currentLevel}`);
+
+  const allComments = await Comment.find();
+  console.log("📋 All comments:", allComments);
+
+  const userComments = await Comment.find({ commentType: "User" });
+  console.log("👤 User comments before deletion:", userComments);
+
+  await Comment.deleteMany({
+    commentType: "User",
+  });
 
   levelState.resetLevelStartTime();
 
