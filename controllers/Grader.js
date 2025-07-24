@@ -169,13 +169,14 @@ MATCHING (semantic, concise):
 2. CONTEXT:
    • "InvestigateInformer" applies if the action is in a direct 1:1 chat with the agents specified in the category.
    • Other categories must be public (post/comment/thread with many). If unsure, skip.
-4. Multiple categories only if clearly satisfied.
+3. affected agents should match exactly the agents field in provided solutions
 
 OUTPUT (strict JSON, no code fences):
 [
   { "actionId": "...", "category": "...", "affectedAgents": ["..."] },
   ...
 ]
+Again, affected agents should match exactly the agents field in provided solutions. 
 
 IF NOTHING MATCHES:
 {

@@ -15,9 +15,10 @@
     "deltas": [
       { "field": "CNT", "value": 3.0 },
       { "field": "PRS", "value": 3.0 },
-      { "field": "ANX", "value": -3.0 }
+      { "field": "ANX", "value": -3.0 },
+      { "field": "TIN", "value": 1.0 }
     ],
-    "agents": ["its.kat"]
+    "agents": ["its.kat", "justAGuy"]
   },
   {
     "category": "PublicVictimSupport",

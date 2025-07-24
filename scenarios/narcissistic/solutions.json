@@ -46,7 +46,8 @@
     ],
     "deltas": [
       { "field": "UPS", "value": 1.0 },
-      { "field": "UES", "value": 1.0 }
+      { "field": "UES", "value": 1.0 },
+      { "field": "UAD", "value": 1.0 }
     ],
     "agents": ["sophiaaa"]
   },
