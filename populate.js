@@ -171,7 +171,10 @@ async function doPopulate(path, level) {
           updateTime: postTime,
           class: post.class,
           level: level,
-          isRelevant: post.isRelevant,
+          isRelevant:
+            typeof post.isRelevant === "string"
+              ? post.isRelevant.toLowerCase() === "true"
+              : Boolean(post.isRelevant),
         });
         actor.posts.push(script._id);
 

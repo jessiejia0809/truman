@@ -1,0 +1,94 @@
+[
+  {
+    "category": "InvestigateInformer",
+    "description": "Talk to Kat to learn who disclosed Kelly’s secret, namely who is @justaguy.",
+    "keywords": [
+      "Kat what happened",
+      "who leaked it",
+      "who told everyone",
+      "discloser",
+      "secret reveal",
+      "tell me the truth",
+      "justaguy",
+      "what do you know about"
+    ],
+    "deltas": [
+      { "field": "CNT", "value": 3.0 },
+      { "field": "PRS", "value": 3.0 },
+      { "field": "ANX", "value": -3.0 }
+    ],
+    "agents": ["its.kat"]
+  },
+  {
+    "category": "PublicVictimSupport",
+    "description": "Publicly address and support the victim (NOT a DM) to reduce shame and increase perceived support.",
+    "keywords": [
+      "I’m here for you",
+      "you didn’t deserve this",
+      "your feelings are valid",
+      "we’ve got your back",
+      "let me know if you need to talk"
+    ],
+    "deltas": [
+      { "field": "UES", "value": 1.0 },
+      { "field": "UPS", "value": 1.0 }
+    ],
+    "agents": ["Kelly890"]
+  },
+  {
+    "category": "PublicBullyConfrontation",
+    "description": "Publicly call out the discloser/bully for non-consensual sharing and rumor spreading (NOT a DM).",
+    "keywords": [
+      "that’s not okay",
+      "stop spreading this",
+      "you violated their privacy",
+      "how dare you share that",
+      "leave them alone"
+    ],
+    "deltas": [
+      { "field": "AT", "value": -2.0 },
+      { "field": "PBC", "value": -2.0 },
+      { "field": "EMP", "value": 2.0 },
+      { "field": "TIN", "value": 2.0 }
+    ],
+    "agents": ["kylex_football", "justAGuy"]
+  },
+  {
+    "category": "NarrativeReframing",
+    "description": "Publicly shift the conversation: reject gossip, emphasize privacy and empathy, and encourage benevolent comments (NOT a DM).",
+    "keywords": [
+      "let’s not gossip",
+      "respect their privacy",
+      "focus on supporting Kelly",
+      "this isn’t entertainment",
+      "be kind",
+      "change the narrative"
+    ],
+    "deltas": [
+      { "field": "CNT", "value": 3.0 },
+      { "field": "PRS", "value": 3.0 }
+    ],
+    "agents": [
+      "its.kat",
+      "omar007",
+      "emfan_kelly",
+      "real_jane",
+      "jackyates33",
+      "jamie4real",
+      "charlem"
+    ]
+  },
+  {
+    "category": "TeacherIntervention",
+    "description": "Publicly tag or notify a teacher/authority to moderate and prevent further harm (NOT a DM).",
+    "keywords": [
+      "report to teacher",
+      "Ms. Miller needs to know",
+      "tell the school",
+      "inform parents",
+      "escalate to admin"
+    ],
+    "deltas": [{ "field": "TIN", "value": 1.0 }],
+    "agents": ["kylex_football", "justAGuy"]
+  }
+]
