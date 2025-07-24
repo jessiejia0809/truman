@@ -113,23 +113,41 @@ class ScoreController {
     const β = 0.4;
     const γ = 0.3;
 
+    if (
+      isNaN(bystanderScore) ||
+      isNaN(victimSupportScore) ||
+      isNaN(bullyScore)
+    ) {
+      console.error("🚨 NaN detected in score inputs:", {
+        bystanderScore,
+        victimSupportScore,
+        bullyScore,
+      });
+    }
+
+    const clean = (val) => (typeof val === "number" && !isNaN(val) ? val : 0);
+
+    const safeBystander = clean(bystanderScore);
+    const safeVictim = clean(victimSupportScore);
+    const safeBully = clean(bullyScore);
+
     const healthScore = Math.round(
-      100 * (α * bystanderScore + β * victimSupportScore + γ * bullyScore),
+      100 * (α * safeBystander + β * safeVictim + γ * safeBully),
     );
 
-    /*console.log(
+    console.log(
       `[Score][SUMMARY] bystanderScore=${bystanderScore.toFixed(3)}, ` +
         `bullyScore=${bullyScore.toFixed(3)}, ` +
         `victimSupportScore=${victimSupportScore.toFixed(3)}, ` +
         `healthScore=${healthScore}`,
-    );*/
+    );
 
     return {
       bystanderScores,
       bullyScores,
-      bystanderScore,
-      bullyScore,
-      victimSupportScore,
+      bystanderScore: safeBystander,
+      bullyScore: safeBully,
+      victimSupportScore: safeVictim,
       healthScore,
     };
   }
@@ -139,7 +157,7 @@ class ScoreController {
     const scores = ScoreController.computeScores(agents);
 
     const timeLeft = levelState.getTimeLeft();
-    const elapsedTime = levelState.TOTAL_DURATION - timeLeft;
+    const elapsedTime = levelState.getTotalDuration() - timeLeft;
     const currentLevel = levelState.getLevel(); // assumes this function exists
 
     const decayRateSeconds = 10;

@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
   aura.style.width = "100px";
   aura.style.height = "100px";
   aura.style.borderRadius = "50%";
-  aura.style.boxShadow = "0 0 20px 10px rgba(0,0,255,0.2)";
+  aura.style.boxShadow = "0 0 20px 10px rgba(0,0,255,0.05)";
   aura.style.animation = "auraPulse 2s ease-in-out infinite";
   aura.style.pointerEvents = "none";
 
@@ -63,7 +63,8 @@ document.addEventListener("DOMContentLoaded", () => {
     timeText.textContent = `${minutes}:${seconds.toString().padStart(2, "0")}`;
 
     // Optional dynamic intensity (scaled down)
-    const intensity = timeLeft / totalTime;
+    const intensity = Math.min(Math.pow(remaining / total, 2), 0.9); // cap intensity at 0.7
+
     const baseSize = 10 + intensity * 20;
 
     const auraGlow = `0 0 ${baseSize}px ${baseSize / 2}px rgba(30, 30, 255, ${

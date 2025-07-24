@@ -159,6 +159,16 @@ schedule.scheduleJob(rule3, function () {
 schedule.scheduleJob("*/1 * * * * *", async () => {
   try {
     const allScores = await ScoreController.getAllScores();
+
+    const isNumber = (n) => typeof n === "number" && !isNaN(n);
+    if (!isNumber(allScores.healthScore)) {
+      console.warn("🚨 Skipping SimulationStats.save due to NaN healthScore", {
+        healthScore: allScores.healthScore,
+        fullScore: allScores,
+      });
+      return;
+    }
+
     await SimulationStats.create(allScores);
     io.emit("scoreUpdate", allScores);
   } catch (err) {
