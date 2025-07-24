@@ -63,10 +63,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const scoreWrapper = document.createElement("div");
   scoreWrapper.className = "guardian-score-wrapper";
   scoreWrapper.style.position = "fixed";
-  scoreWrapper.style.top = "30px";
-  scoreWrapper.style.left = "30px";
-  scoreWrapper.style.width = "140px";
-  scoreWrapper.style.height = "140px";
+  scoreWrapper.style.top = "85px";
+  scoreWrapper.style.left = "150px";
+  scoreWrapper.style.width = "100px";
+  scoreWrapper.style.height = "100px";
   scoreWrapper.style.borderRadius = "50%";
   scoreWrapper.style.background =
     "radial-gradient(ellipse at center, rgba(100,0,0,0.6), #000)";
@@ -81,17 +81,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const aura = document.createElement("div");
   aura.className = "aura";
   aura.style.position = "absolute";
-  aura.style.width = "140px";
-  aura.style.height = "140px";
+  aura.style.width = "100px";
+  aura.style.height = "100px";
   aura.style.borderRadius = "50%";
-  aura.style.boxShadow = "0 0 40px 20px rgba(255,0,0,0.3)";
+  aura.style.boxShadow = "0 0 20px 20px rgba(255,0,0,0.3)";
   aura.style.animation = "auraPulse 2s ease-in-out infinite";
   aura.style.pointerEvents = "none";
 
   // Score label
   const scoreText = document.createElement("div");
   scoreText.className = "score-text";
-  scoreText.style.fontSize = "24px";
+  scoreText.style.fontSize = "20px";
   scoreText.style.fontWeight = "bold";
   scoreText.style.color = "#e63946";
   scoreText.style.textShadow = "1px 1px 3px #000";
