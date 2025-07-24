@@ -127,6 +127,8 @@ async function doPopulate(path, level) {
         URA: Number(agent_raw.URA),
         UAD: Number(agent_raw.UAD),
         UPS: Number(agent_raw.UPS),
+
+        level: level,
       });
 
       if (agent_raw.picture) {

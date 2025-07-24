@@ -15,6 +15,14 @@ const agentSchema = new mongoose.Schema(
     role: { type: String, default: "user" },
     isLLMDriven: { type: Boolean, default: false },
     behaviorPrompt: { type: String, default: "" },
+
+    level: {
+      type: Number,
+      default: null,
+      set: (v) => (Number.isInteger(v) ? v : Math.floor(v)),
+      min: 0,
+    },
+
     // —— bystander (7-point scale)
     PRS: {
       type: Number,
