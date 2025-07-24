@@ -13,7 +13,7 @@
       { "field": "AT", "value": -4 },
       { "field": "PBC", "value": -4 },
       { "field": "EMP", "value": 4 },
-      { "field": "TIN", "value": -1 }
+      { "field": "TIN", "value": 4 }
     ],
     "agents": ["bl4ke.beast"]
   },

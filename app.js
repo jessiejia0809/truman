@@ -432,6 +432,7 @@ app.get(
   passportConfig.isAuthenticated,
   (req, res, next) => {
     currentLevel = parseInt(req.query.level, 10) || 1;
+    ScoreController.setLevel(currentLevel);
     console.log(`[LEVEL] currentLevel set to ${currentLevel}`);
     next();
   },

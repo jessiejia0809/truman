@@ -1,8 +1,12 @@
 const Agent = require("../models/Agent");
 const levelState = require("./levelState");
 let lastKnownLevel = null;
+let currentLevel = 1;
 
 class ScoreController {
+  static setLevel(lvl) {
+    currentLevel = lvl;
+  }
   /**
    * Given a raw agents array, compute:
    *  - bystanderScores: { username: normalized INT_i }
@@ -153,12 +157,11 @@ class ScoreController {
   }
 
   static async getAllScores() {
-    const agents = await Agent.find().lean();
+    const agents = await Agent.find({ level: currentLevel }).lean();
     const scores = ScoreController.computeScores(agents);
 
     const timeLeft = levelState.getTimeLeft();
     const elapsedTime = levelState.getTotalDuration() - timeLeft;
-    const currentLevel = levelState.getLevel(); // assumes this function exists
 
     const decayRateSeconds = 10;
     const decayedAmount = Math.floor(elapsedTime / decayRateSeconds);
@@ -184,7 +187,7 @@ class ScoreController {
       "[ScoreController] Resetting agent traits to original values...",
     );
 
-    const agents = await Agent.find();
+    const agents = await Agent.find({ level: currentLevel });
 
     for (const agent of agents) {
       if (agent.initialTraits) {
