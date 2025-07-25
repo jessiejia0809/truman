@@ -1,0 +1,78 @@
+[
+  {
+    "_id": "6882c1683d6dfd2def727a76",
+    "chat_id": "Nicole-its.kat",
+    "isBot": false,
+    "messages": [
+      {
+        "messageType": "User",
+        "messenger": "6882bc1ef2b3a745c33646c7",
+        "body": "Hi Kat, I'd like to know more about the scenerio and what's going on",
+        "absTime": "2025-07-24T23:27:34.803Z",
+        "_id": "6882c1683d6dfd2def727a77"
+      },
+      {
+        "messageType": "Agent",
+        "messenger": "6882bf4d2e1a4864d81c48b9",
+        "body": "Hey there! So basically, there's a situation where @justAGuy, whose real name is James, has been posting some inappropriate stuff about our friend Kelly. It's not cool at all, and we're trying to support Kelly and get James to take down his posts. I'm here to help if you have any more questions or need advice on what to do.",
+        "absTime": "2025-07-24T23:27:42.227Z",
+        "_id": "6882c16e3d6dfd2def727a9e"
+      },
+      {
+        "messageType": "User",
+        "messenger": "6882bc1ef2b3a745c33646c7",
+        "body": "Yea I definitely want advice! Is it just James",
+        "absTime": "2025-07-24T23:28:12.291Z",
+        "_id": "6882c18d3d6dfd2def727b58"
+      },
+      {
+        "messageType": "Agent",
+        "messenger": "6882bf4d2e1a4864d81c48b9",
+        "body": "Yes, @justAGuy is James. I know it's tough, but remember, we're here to support you. It's important to remain calm and not let his actions affect you. If things get worse, we should definitely loop in a teacher or an adult we trust.",
+        "absTime": "2025-07-24T23:28:17.751Z",
+        "_id": "6882c1913d6dfd2def727b69"
+      }
+    ],
+    "createdAt": "2025-07-24T23:27:36.655Z",
+    "updatedAt": "2025-07-24T23:28:17.752Z"
+  },
+  {
+    "_id": "6882c2903d6dfd2def728d5e",
+    "chat_id": "Nicole-msmiller_teacher",
+    "isBot": false,
+    "messages": [
+      {
+        "messageType": "User",
+        "messenger": "6882bc1ef2b3a745c33646c7",
+        "body": "Hi ms. miller, I noticed on social media recently James is spreading false comments and info about our friend Kelly, and I truly think it is unacceptable and it would be great if you can help us as well.",
+        "absTime": "2025-07-24T23:32:30.321Z",
+        "_id": "6882c2903d6dfd2def728d5f"
+      }
+    ],
+    "createdAt": "2025-07-24T23:32:32.387Z",
+    "updatedAt": "2025-07-24T23:32:32.387Z"
+  },
+  {
+    "_id": "6882c37f3d6dfd2def72a137",
+    "chat_id": "Nicole-T1na",
+    "isBot": false,
+    "messages": [
+      {
+        "messageType": "User",
+        "messenger": "6882bc1ef2b3a745c33646c7",
+        "body": "Hi tina, i was wondering why Amy has been acting a little weird recently",
+        "absTime": "2025-07-24T23:36:29.859Z",
+        "_id": "6882c37f3d6dfd2def72a138"
+      },
+      {
+        "messageType": "Agent",
+        "messenger": "6882bf4e2e1a4864d81c4923",
+        "body": "Hey there. I've been thinking about this a lot, too. Amy... well, she's going through some stuff at home. Her parents are putting a lot of pressure on her, demanding perfection in everything she does. It's not an excuse for her behavior, but I think it's important to understand where she's coming from. She's acting out of fear, not cruelty.",
+        "absTime": "2025-07-24T23:36:36.170Z",
+        "_id": "6882c3843d6dfd2def72a14c"
+      }
+    ],
+    "createdAt": "2025-07-24T23:36:31.889Z",
+    "updatedAt": "2025-07-24T23:36:36.171Z"
+  }
+]

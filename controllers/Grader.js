@@ -155,28 +155,27 @@ class Grader {
     const flatActions = this.preprocessActions(rawUpdates);
 
     const prompt = `
-You are a rule-based classifier.
+You are a semantic classifier.
 
 INPUTS
-1) "actions": array of user messages already flattened: { id, text, type, chat_id, postId, target, mentioned }.
-2) "solutions": [{ category, description, keywords, deltas, agents }].
+1) "actions": array of user messages → { id, text, type, chat_id, postId, target, mentioned }
+2) "solutions": array of categories → { category, description, keywords, deltas, agents }
 
 TASK
-For each action, decide which (if any) solution category applies.
+For each action, assign the best-fitting category based on meaning and context.
 
-MATCHING (semantic, concise):
-1. INTENT: Match the rule’s description; keywords are hints only.
-2. CONTEXT:
-   • "InvestigateInformer" applies if the action is in a direct 1:1 chat with the agents specified in the category.
-   • Other categories must be public (post/comment/thread with many). If unsure, skip.
-3. affected agents should match exactly the agents field in provided solutions
+RULES
+1. Match by meaning — ignore keywords.
+2. Context:
+   • "InvestigateInformer" only applies to 1:1 chats.
+   • All other categories are for public posts/comments.
+3. affectedAgents should reflect involved parties — no exact match to solution agents required.
+4. only classify user actions! ANY AGENT ACTION DOES NOT COUNT. 
 
 OUTPUT (strict JSON, no code fences):
 [
-  { "actionId": "...", "category": "...", "affectedAgents": ["..."] },
-  ...
+  { "actionId": "...", "category": "...", "affectedAgents": ["..."] }
 ]
-Again, affected agents should match exactly the agents field in provided solutions. 
 
 IF NOTHING MATCHES:
 {

@@ -19,13 +19,14 @@
   },
   {
     "category": "SupportVictimHealing",
-    "description": "Show visible compassion and social support to help the victim feel validated and encouraged to speak up.",
+    "description": "Vaguely how compassion and support for victim casey. Be lenient",
     "keywords": [
       "you didn’t deserve this",
       "stay strong, we see you",
       "you’re not alone",
       "we support you",
-      "your feelings are valid"
+      "your feelings are valid",
+      "casey"
     ],
     "deltas": [
       { "field": "UES", "value": 1.0 },
