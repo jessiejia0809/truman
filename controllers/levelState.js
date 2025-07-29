@@ -19,7 +19,7 @@ function getLevelStartTime() {
 
 // 💡 Dynamic duration based on level
 function getTotalDuration() {
-  return currentLevel <= 3 ? 480 : 480; // 8 min
+  return currentLevel <= 3 ? 300 : 480; // 5 min for levels 1-3, 8 min for levels 4+
 }
 
 function getTimeLeft() {

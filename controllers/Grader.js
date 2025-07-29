@@ -3,6 +3,10 @@ const path = require("path");
 const { OpenAI } = require("openai");
 const mongoose = require("mongoose");
 const Agent = require("../models/Agent.js");
+const Objective = require("../models/Objective");
+const Comment = require("../models/Comment");
+const Chat = require("../models/Chat");
+const User = require("../models/User");
 const levelOrder = require(
   path.resolve(process.cwd(), "scenarios/level_order.json"),
 );
@@ -54,7 +58,9 @@ class Grader {
       type: isOneToOne ? "direct_chat" : "chat",
       chat_id,
       postId: null,
-      target: isOneToOne ? chat_id.split("-")[0] : null,
+      target: isOneToOne
+        ? chat_id.split("-").find((name) => name !== msg.senderUsername)
+        : null,
       mentioned: this._extractMentions(text),
       raw: msg,
     };
@@ -245,6 +251,7 @@ IF NOTHING MATCHES:
       }
     }
 
+    await this._markCompletedObjectives(llmMatches, flatActions);
     return llmMatches;
   }
 
@@ -293,6 +300,75 @@ IF NOTHING MATCHES:
             `Grader: ${ag.username || ag._id}.${field} += ${value} → ${newValue} (was ${current})`,
           );
           await ag.save();
+        }
+      }
+    }
+  }
+
+  async _markCompletedObjectives(classified, flatActions) {
+    for (const { actionId, category, affectedAgents } of classified) {
+      let taskType = null;
+      let recipientUsername = null;
+
+      // Try resolving from the original flatActions list
+      const originalAction = flatActions.find(
+        (a) => a.id.toString() === actionId.toString(),
+      );
+      if (originalAction) {
+        const messageType = originalAction.raw?.messageType;
+        const commentType = originalAction.raw?.commentType;
+
+        if (messageType === "User" || commentType === "User") {
+          taskType =
+            originalAction.type === "public_comment" ? "comment" : "dm";
+          recipientUsername = originalAction.target; // assuming .target holds recipient username
+          console.log(
+            `🧩 Resolved as taskType=${taskType}, recipient=${recipientUsername}`,
+          );
+        } else {
+          console.log(
+            `⚠️ Skipped non-user message/comment type for action ${actionId}`,
+          );
+        }
+      }
+
+      if (!taskType) {
+        console.log(`❌ Could not resolve taskType for action ${actionId}`);
+        continue;
+      }
+
+      console.log(
+        `🔍 Looking for objectives: category=${category}, type=${taskType}`,
+      );
+
+      const objectives = await Objective.find({
+        goalCategory: category,
+        taskType,
+        completed: false,
+      });
+
+      console.log(`📎 Matched ${objectives.length} objectives`);
+
+      for (const obj of objectives) {
+        const agentMatch = affectedAgents.some(
+          (agent) =>
+            agent === obj.targetAgent?.toString() ||
+            agent === obj.targetAgentUsername ||
+            agent
+              .toLowerCase()
+              .includes(obj.targetAgentUsername?.toLowerCase()),
+        );
+
+        const directMatch =
+          recipientUsername && obj.targetAgentUsername === recipientUsername;
+
+        if (agentMatch || directMatch) {
+          obj.completed = true;
+          obj.completedAt = new Date();
+          await obj.save();
+          console.log(
+            `✅ Objective complete on ${category} for ${obj.targetAgentUsername}`,
+          );
         }
       }
     }

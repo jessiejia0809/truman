@@ -160,15 +160,15 @@ class ScoreController {
     const agents = await Agent.find({ level: currentLevel }).lean();
     const scores = ScoreController.computeScores(agents);
 
-    // const timeLeft = levelState.getTimeLeft();
-    // const elapsedTime = levelState.getTotalDuration() - timeLeft;
+    const timeLeft = levelState.getTimeLeft();
+    const elapsedTime = levelState.getTotalDuration() - timeLeft;
 
     // const decayRateSeconds = 10;
     // const decayedAmount = Math.floor(elapsedTime / decayRateSeconds);
 
     // const decayedScore = Math.max(0, scores.healthScore - decayedAmount);
     // scores.healthScore = decayedScore;
-    // scores.timeLeft = timeLeft;
+    scores.timeLeft = timeLeft;
 
     return scores;
   }

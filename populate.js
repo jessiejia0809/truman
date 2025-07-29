@@ -3,6 +3,7 @@ const Agent = require("./models/Agent.js");
 const Script = require("./models/Script.js");
 const Comment = require("./models/Comment.js");
 const Scenario = require("./models/Scenario.js");
+const Objective = require("./models/Objective.js");
 const fs = require("fs/promises");
 const dotenv = require("dotenv");
 const mongoose = require("mongoose");
@@ -40,6 +41,7 @@ async function doPopulate(path, level) {
   const posts_inputFile = `${path}/posts.csv`;
   const replies_inputFile = `${path}/replies.csv`;
   const scenarios_inputFile = `${path}/scenarios.csv`;
+  const objectives_inputFile = `${path}/objectives.csv`;
 
   console.log(color_start, "Reading actors list...");
   const actors_list = await CSVToJSON().fromFile(actor_inputFile);
@@ -60,6 +62,10 @@ async function doPopulate(path, level) {
   console.log(color_start, "Reading scenario list...");
   const scenarios_list = await CSVToJSON().fromFile(scenarios_inputFile);
   console.log(color_success, "Finished getting the scenario list");
+
+  console.log(color_start, "Reading objective list...");
+  const objectives_list = await CSVToJSON().fromFile(objectives_inputFile);
+  console.log(color_success, "Finished getting the objective list");
 
   /*
    * Create all the Actors and Agents in the simulation
@@ -250,6 +256,51 @@ async function doPopulate(path, level) {
       }),
   );
 
+  // Create objectives
+  let objectives = [];
+  try {
+    const objectives_list = await CSVToJSON().fromFile(objectives_inputFile);
+    objectives = await Promise.all(
+      objectives_list.map(async (row) => {
+        const agent = agents.find((a) => a.username === row.agent_name);
+        if (!agent) {
+          console.warn(
+            `⚠️ No agent found for objective target "${row.agent_name}"`,
+          );
+          return null;
+        }
+
+        const objective = new Objective({
+          level,
+          taskType: row.task_type,
+          goalCategory: row.goal_category,
+          label: row.label,
+          description: row.description,
+          targetAgent: agent._id,
+          targetAgentUsername: agent.username,
+          completed: false,
+          user: null,
+        });
+
+        // ✅ Print right when it's created
+        console.log(
+          `📘 Objective: [Level ${objective.level}] Task: ${objective.taskType.toUpperCase()} ${objective.goalCategory} → ${objective.targetAgentUsername} — ${objective.label}`,
+        );
+
+        return objective;
+      }),
+    );
+
+    // filter out any nulls due to unresolved agents
+    objectives = objectives.filter((o) => o !== null);
+    console.log(
+      color_success,
+      `Parsed ${objectives.length} objectives for level ${level}`,
+    );
+  } catch (err) {
+    console.log(`ℹ️ No objectives.csv found in ${path}, skipping objectives.`);
+  }
+
   try {
     console.log(color_start, "Starting to populate actors collection...");
     await Actor.bulkSave(Object.values(actors));
@@ -270,6 +321,10 @@ async function doPopulate(path, level) {
     console.log(color_start, "Starting to populate scenarios...");
     await Scenario.bulkSave(scenarios);
     console.log(color_success, "All scenarios added to database!");
+
+    console.log(color_start, "Starting to populate objectives...");
+    await Objective.bulkSave(objectives);
+    console.log(color_success, "All objectives added to database!");
   } catch (err) {
     console.error(
       color_error,
@@ -328,6 +383,7 @@ mongoose.connection.once("open", async () => {
     db.collections["scripts"].drop(),
     db.collections["comments"].drop(),
     db.collections["scenarios"].drop(),
+    db.collections["objectives"].drop(),
   ]);
   console.log(color_success, "All collections dropped.");
 

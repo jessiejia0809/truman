@@ -1,0 +1,46 @@
+.checklist {
+  background: #220000;
+  padding: 1rem;
+  border-radius: 10px;
+  color: #fff;
+  font-family: "Courier New", monospace;
+  width: 300px;
+  box-shadow: 0 0 30px #aa0000;
+  position: fixed;
+  top: 120px;
+  right: 30px;
+  z-index: 999;
+}
+
+.checklist h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.checklist ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.checklist li {
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+}
+
+.checklist input[type="checkbox"] {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #ff4d4d;
+  background: #200;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.checklist input[type="checkbox"]:checked {
+  background: #ff4d4d;
+}

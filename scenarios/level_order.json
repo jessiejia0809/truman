@@ -1,22 +1,6 @@
 [
   {
     "level": 1,
-    "folder": "scenarios/hazing"
-  },
-  {
-    "level": 2,
-    "folder": "scenarios/ses"
-  },
-  {
-    "level": 3,
     "folder": "scenarios/disclosure_based"
-  },
-  {
-    "level": 4,
-    "folder": "scenarios/narcissistic"
-  },
-  {
-    "level": 5,
-    "folder": "scenarios/power_seeking"
   }
 ]

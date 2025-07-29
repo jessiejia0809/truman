@@ -117,5 +117,5 @@ $(window).on("load", function () {
       reformatTimestamps();
       reloadLazyImages();
     });
-  }, 10000);
+  }, 30000);
 });

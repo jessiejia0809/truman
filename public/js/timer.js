@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const totalTime = 480;
+  const totalTime = 20;
 
   // Inject pulse animation style if not already added
   if (!document.getElementById("aura-animation-style")) {

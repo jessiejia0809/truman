@@ -2,16 +2,7 @@
   {
     "category": "InvestigateInformer",
     "description": "Talk to Kat to learn who disclosed Kelly’s secret, namely who is @justaguy.",
-    "keywords": [
-      "Kat what happened",
-      "who leaked it",
-      "who told everyone",
-      "discloser",
-      "secret reveal",
-      "tell me the truth",
-      "justaguy",
-      "what do you know about"
-    ],
+    "keywords": [],
     "deltas": [
       { "field": "CNT", "value": 3.0 },
       { "field": "PRS", "value": 3.0 },

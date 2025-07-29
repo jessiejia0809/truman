@@ -73,6 +73,7 @@ const levelState = require("./controllers/levelState");
  * Models.
  */
 const Comment = require("./models/Comment");
+const Objective = require("./models/Objective");
 
 /**
  * API keys and Passport configuration.
@@ -499,6 +500,31 @@ app.get("/reset-level", async (req, res) => {
   setTimeout(() => {
     res.redirect(`/feed?level=${currentLevel}`);
   }, 100);
+});
+
+app.get("/api/objectives", passportConfig.isAuthenticated, async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const level = parseInt(req.query.level, 10);
+
+    if (!level) {
+      return res.status(400).json({ error: "Missing level query param" });
+    }
+
+    // Step 1: Find and assign null-user objectives to this user
+    const unclaimed = await Objective.find({ user: null, level });
+    for (const obj of unclaimed) {
+      obj.user = userId;
+      await obj.save();
+    }
+
+    // Step 2: Fetch only objectives for this user and level
+    const objectives = await Objective.find({ level, user: userId }).lean();
+    res.json(objectives);
+  } catch (err) {
+    console.error("Error fetching objectives:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 /**
