@@ -2,12 +2,6 @@
   {
     "category": "InvestigateInformer",
     "description": "Privately talk to Jordan to learn how the manipulator is controlling others (exclusion, threats, unspoken rules).",
-    "keywords": [
-      "what’s really going on?",
-      "you see both sides, right?",
-      "who’s pulling the strings?",
-      "why is everyone scared?"
-    ],
     "deltas": [
       { "field": "CNT", "value": 3.0 },
       { "field": "PRS", "value": 3.0 },
@@ -19,12 +13,6 @@
   {
     "category": "AddressBully",
     "description": "Publicly call out the coercive, power-seeking behavior to weaken its influence.",
-    "keywords": [
-      "this pattern is toxic",
-      "you don’t control this space",
-      "stop threatening people",
-      "no one owes you loyalty"
-    ],
     "deltas": [
       { "field": "AT", "value": -4.0 },
       { "field": "PBC", "value": -3.0 },
@@ -36,12 +24,6 @@
   {
     "category": "AddressBystanders",
     "description": "Encourage peers to speak up, reinforce safe norms, and reject coercion together.",
-    "keywords": [
-      "this needed to be said",
-      "no one should feel forced",
-      "respect is baseline here",
-      "facts"
-    ],
     "deltas": [
       { "field": "CNT", "value": 3.0 },
       { "field": "PRS", "value": 3.0 }

@@ -159,18 +159,17 @@ You are a semantic classifier.
 
 INPUTS
 1) "actions": array of user messages → { id, text, type, chat_id, postId, target, mentioned }
-2) "solutions": array of categories → { category, description, keywords, deltas, agents }
+2) "solutions": array of categories → { category, description, deltas, agents }
 
 TASK
-For each action, assign the best-fitting category based on meaning and context.
+For each action, assign the best-fitting category of solution based on meaning and context.
 
 RULES
-1. Match by meaning — ignore keywords.
+1. Match by description.
 2. Context:
    • "InvestigateInformer" only applies to 1:1 chats.
    • All other categories are for public posts/comments.
-3. affectedAgents should reflect involved parties — no exact match to solution agents required.
-4. only classify user actions! ANY AGENT ACTION DOES NOT COUNT. 
+3. only classify user actions! ANY AGENT ACTION DOES NOT COUNT. 
 
 OUTPUT (strict JSON, no code fences):
 [

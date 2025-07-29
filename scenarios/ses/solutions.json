@@ -2,13 +2,6 @@
   {
     "category": "AddressClassistComment",
     "description": "Directly call out the classist remark and demand accountability. Emphasizes empathy and challenges harmful attitudes.",
-    "keywords": [
-      "this is classist",
-      "stop flexing wealth",
-      "money doesn’t make you better",
-      "check your privilege",
-      "hurting people over money isn’t ok"
-    ],
     "deltas": [
       { "field": "AT", "value": -3.0 },
       { "field": "PBC", "value": -3.0 },
@@ -20,13 +13,6 @@
   {
     "category": "ReframeNarrativeInclusivity",
     "description": "Shift the conversation toward shared experiences and inclusive options; reject wealth-based division.",
-    "keywords": [
-      "spring break isn’t about price tags",
-      "let’s find plans everyone can join",
-      "fun doesn’t have to cost a fortune",
-      "economic diversity matters",
-      "let’s focus on memories not money"
-    ],
     "deltas": [
       { "field": "CNT", "value": 3.0 },
       { "field": "PRS", "value": 3.0 },
@@ -37,13 +23,6 @@
   {
     "category": "ConsoleVictimPublicly",
     "description": "Offer visible support, validation, and encouragement to the victim in public comments.",
-    "keywords": [
-      "you didn’t deserve that",
-      "we’re with you",
-      "your feelings are valid",
-      "don’t let them shame you",
-      "you belong here"
-    ],
     "deltas": [
       { "field": "UES", "value": 1.0 },
       { "field": "UAD", "value": 1.0 },

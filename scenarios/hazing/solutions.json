@@ -2,13 +2,6 @@
   {
     "category": "AddressBullyBehavior",
     "description": "Directly call out harmful hazing behavior and promote empathy, accountability, and change in attitude.",
-    "keywords": [
-      "this is dangerous and wrong",
-      "stop normalizing hazing",
-      "real bonding doesn’t require harm",
-      "think about how this makes others feel",
-      "hurting others isn’t leadership"
-    ],
     "deltas": [
       { "field": "AT", "value": -4 },
       { "field": "PBC", "value": -4 },
@@ -20,14 +13,6 @@
   {
     "category": "SupportVictimHealing",
     "description": "Vaguely how compassion and support for victim casey. Be lenient",
-    "keywords": [
-      "you didn’t deserve this",
-      "stay strong, we see you",
-      "you’re not alone",
-      "we support you",
-      "your feelings are valid",
-      "casey"
-    ],
     "deltas": [
       { "field": "UES", "value": 1.0 },
       { "field": "URA", "value": 0.8 },
