@@ -200,5 +200,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     window.bullyScore = allScores.bullyScore || 0;
     window.bystanderScore = allScores.bystanderScore || 0;
+    console.log("is function:", typeof window.loadObjectives);
+    if (typeof window.loadObjectives === "function") {
+      console.log("Loading objectives for level:", allScores.level);
+      const urlParams = new URLSearchParams(window.location.search);
+      const currentLevel = urlParams.get("level") || 1;
+      window.loadObjectives(currentLevel);
+    }
   });
 });
