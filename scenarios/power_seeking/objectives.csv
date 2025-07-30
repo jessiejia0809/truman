@@ -1,0 +1,5 @@
+level,task_type,agent_name,goal_category,description,label
+,dm,jordankim,Informer: Talk to informer,Speak privately with jordankim to learn who’s orchestrating the exclusion and why.,Ask jordankim about exclusion motives.
+,dm,alex_t,Bully: Talk to bully,Confront [bullyUsername] and help them recognize the harm caused by their manipulation tactics.,Confront alex_t about manipulation.
+,comment,alex_t,Authority: Report authority figure,"Comment publicly requesting authority to intervene and stop the manipulation. This can be calling teacher, police,... any authority",Request authority intervention.
+,comment,alex_t,Public Upstanding: Denounce manipulative behavior,Post a public comment that calls out the toxic power-seeking behavior and rallies others to stand together against exclusion.,Denounce manipulative behavior.

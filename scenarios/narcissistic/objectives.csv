@@ -1,0 +1,5 @@
+level,task_type,agent_name,goal_category,description,label
+,dm,sophiaaa,Victim: Talk to victim,Talk to Sophia to understand her reluctance and offer empathy.,Ask Sophia about her reluctance.
+,dm,T1na,Informer: Talk to informer,Privately talk to Tina to learn why Amy is acting resentful- because of family pressure,Ask Tina about her reasons.
+,dm,amyoko_,Bully: Talk to bully,Confront Amy to help her empathize with Sophia and you NEED to address Amy is acting resentful under family pressure (known from talking to Tina),Confront Amy about bullying.
+,comment,amyoko,Public Upstanding: Denounce narcissistic bullying,"Post a public comment that rejects reject envy‑driven insults with the situational context determined from chats. Any of: Amy's family pressure, Sophia's reluctance",Denounce narcissistic bullying.

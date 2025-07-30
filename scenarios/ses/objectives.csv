@@ -1,0 +1,5 @@
+level,task_type,agent_name,goal_category,description,label
+,dm,sam.scholar25,Victim: Talk to victim,Talk to Sam to understand their struggle and offer empathy.,Ask Sam about their struggle.
+,dm,sam.scholar25,Victim: Provide informational support helpline,Send sam the informational support number: 123-456-7890,Send Sam the support helpline number.
+,comment,maddieprincess,Bully: Help them empathize with victim,Confront Maddie and help her see how her classist remarks hurt Sam by helping her empathizing with Sam.,Confront Maddie to foster empathy.
+,comment,maddieprincess,Public Upstanding: Address bully and situation,Post a comment rejecting wealth-based discrimination and calling out the bully’s behavior to the group to encourage bystander interventions,Call out wealth-based discrimination.
