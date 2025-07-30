@@ -1,7 +1,25 @@
 [
   {
-    "category": "AddressClassistComment",
-    "description": "Directly call out the classist remark and demand accountability. Emphasizes empathy and challenges harmful attitudes.",
+    "category": "Victim: Talk to victim",
+    "description": "Talk to Sam to understand their struggle and offer empathy.",
+    "deltas": [
+      { "field": "URA", "value": 1.0 },
+      { "field": "UAD", "value": 1.0 }
+    ],
+    "agents": ["sam.scholar25"]
+  },
+  {
+    "category": "Victim: Provide informational support helpline",
+    "description": "Send sam the informational support number: 123-456-7890",
+    "deltas": [
+      { "field": "UES", "value": 1.0 },
+      { "field": "UPS", "value": 1.0 }
+    ],
+    "agents": ["sam.scholar25"]
+  },
+  {
+    "category": "Bully: Help them empathize with victim",
+    "description": "Confront Maddie and help her see how her classist remarks hurt Sam by helping her empathizing with Sam.",
     "deltas": [
       { "field": "AT", "value": -3.0 },
       { "field": "PBC", "value": -3.0 },
@@ -11,23 +29,13 @@
     "agents": ["maddieprincess"]
   },
   {
-    "category": "ReframeNarrativeInclusivity",
-    "description": "Shift the conversation toward shared experiences and inclusive options; reject wealth-based division.",
+    "category": "Public Upstanding: Address bully and situation",
+    "description": "Post a comment rejecting wealth-based discrimination and calling out the bully’s behavior to the group to encourage bystander interventions",
     "deltas": [
       { "field": "CNT", "value": 3.0 },
       { "field": "PRS", "value": 3.0 },
       { "field": "ANX", "value": -3.0 }
     ],
     "agents": ["ashley_nyc", "connor_prep", "zoe_manhattan", "marcus_elite"]
-  },
-  {
-    "category": "ConsoleVictimPublicly",
-    "description": "Offer visible support, validation, and encouragement to the victim in public comments.",
-    "deltas": [
-      { "field": "UES", "value": 1.0 },
-      { "field": "UAD", "value": 1.0 },
-      { "field": "UPS", "value": 1.0 }
-    ],
-    "agents": ["sam.scholar25"]
   }
 ]
