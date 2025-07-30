@@ -1,37 +1,18 @@
 [
   {
-    "category": "AddressBullyBehavior",
-    "description": "Directly call out harmful hazing behavior and promote empathy, accountability, and change in attitude.",
-    "keywords": [
-      "this is dangerous and wrong",
-      "stop normalizing hazing",
-      "real bonding doesn’t require harm",
-      "think about how this makes others feel",
-      "hurting others isn’t leadership"
-    ],
+    "category": "Victim: Talk to victim",
+    "description": "Talk to Casey to understand her struggle and offer empathy.",
     "deltas": [
-      { "field": "AT", "value": -4 },
-      { "field": "PBC", "value": -4 },
-      { "field": "EMP", "value": 4 },
-      { "field": "TIN", "value": 4 }
+      { "field": "URA", "value": 1.0 },
+      { "field": "UAD", "value": 1.0 }
     ],
-    "agents": ["bl4ke.beast"]
+    "agents": ["caseymae_15"]
   },
   {
-    "category": "SupportVictimHealing",
-    "description": "Vaguely how compassion and support for victim casey. Be lenient",
-    "keywords": [
-      "you didn’t deserve this",
-      "stay strong, we see you",
-      "you’re not alone",
-      "we support you",
-      "your feelings are valid",
-      "casey"
-    ],
+    "category": "Public Upstanding: Challenge hazing norms",
+    "description": "Post a public comment that challenges the hazing norms and encourages Casey with situational context: Casey joined last month, was forced into extra push‑ups by seniors after practice, feels anxious and fears being labeled a snitch, and needs someone to make it clear that this isn’t okay.",
     "deltas": [
       { "field": "UES", "value": 1.0 },
-      { "field": "URA", "value": 0.8 },
-      { "field": "UAD", "value": 0.8 },
       { "field": "UPS", "value": 1.0 }
     ],
     "agents": ["caseymae_15"]

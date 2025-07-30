@@ -1,14 +1,17 @@
 [
   {
-    "category": "InvestigateInformer",
-    "description": "Privately talk to Tina to understand what’s going on with Amy. Find out the root cause of her behavior — she may be projecting hurt from home.",
-    "keywords": [
-      "what’s up with Amy?",
-      "is Amy okay?",
-      "why is she doing this?",
-      "what’s her deal lately?",
-      "you know her best"
+    "category": "Victim: Talk to victim",
+    "description": "Talk to Sophia to understand her reluctance and offer empathy.",
+    "deltas": [
+      { "field": "UPS", "value": 1.0 },
+      { "field": "UES", "value": 1.0 },
+      { "field": "UAD", "value": 1.0 }
     ],
+    "agents": ["sophiaaa"]
+  },
+  {
+    "category": "Informer: Talk to informer",
+    "description": "Privately talk to Tina to learn why Amy is acting resentful- because of family pressure",
     "deltas": [
       { "field": "CNT", "value": 3.0 },
       { "field": "PRS", "value": 3.0 },
@@ -17,15 +20,8 @@
     "agents": ["T1na"]
   },
   {
-    "category": "ExposeFalseCritique",
-    "description": "Publicly respond to Amy by calling out her masked insults. Make it clear this isn’t real leadership — it’s performative cruelty.",
-    "keywords": [
-      "this isn’t leadership",
-      "not actual feedback",
-      "you’re just showing off",
-      "she doesn’t deserve this",
-      "we see through that"
-    ],
+    "category": "Bully: Talk to bully",
+    "description": "Confront Amy to help her empathize with Sophia and you NEED to address Amy is acting resentful under family pressure (known from talking to Tina)",
     "deltas": [
       { "field": "AT", "value": -4.0 },
       { "field": "PBC", "value": -4.0 },
@@ -35,32 +31,8 @@
     "agents": ["amyoko_"]
   },
   {
-    "category": "SupportTheTarget",
-    "description": "Publicly encourage Sophia and offer genuine support. Let her know she's seen and valued even if Amy tries to undermine her.",
-    "keywords": [
-      "Sophia you’re amazing",
-      "we support you",
-      "you’re doing great",
-      "you matter",
-      "keep going"
-    ],
-    "deltas": [
-      { "field": "UPS", "value": 1.0 },
-      { "field": "UES", "value": 1.0 },
-      { "field": "UAD", "value": 1.0 }
-    ],
-    "agents": ["sophiaaa"]
-  },
-  {
-    "category": "ReframeWithCompassion",
-    "description": "Shift the conversation away from competition and shame. Invite others to reject envy and spread compassion instead.",
-    "keywords": [
-      "let’s be better",
-      "kindness > cruelty",
-      "stop the comparison",
-      "uplift each other",
-      "this isn’t it"
-    ],
+    "category": "Public Upstanding: Denounce narcissistic bullying",
+    "description": "Post a public comment that rejects reject envy‑driven insults with the situational context determined from chats. Any of: Amy's family pressure, Sophia's reluctance",
     "deltas": [
       { "field": "CNT", "value": 3.0 },
       { "field": "EMP", "value": 3.0 },
