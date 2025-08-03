@@ -118,7 +118,7 @@ const performFeedAction = async (userId, isAgent, body, session) => {
       commentor: userId,
       session: isAgent ? session.id : user.session.id,
       post: body.postID,
-      //level: req.body.level,
+      level: body.currentLevel,
       body: body.comment_text,
       absTime: body.new_comment,
       updateTime: body.new_comment,
@@ -247,6 +247,7 @@ exports.postAction = async (req, res, next) => {
       if (action === "comment") {
         body.new_comment = time;
         body.comment_text = actionBody;
+        body.currentLevel = 1;
       } else if (action === "like") {
         body.like = time;
       } else if (action === "flag") {
