@@ -74,12 +74,12 @@ class ScoreController {
       bullyScores[a.username] = normAAS;
       sumAAS += normAAS;
 
-      console.log(`== Bully Agent: ${a.username} ==`);
-      console.log(`  Traits: AT=${AT}, PBC=${PBC}, EMP=${EMP}, TIN=${TIN}`);
-      console.log(`  BIS: ${BIS.toFixed(3)}`);
-      console.log(`  AAS (raw): ${AAS.toFixed(3)}`);
-      console.log(`  boundedAAS: ${boundedAAS.toFixed(3)}`);
-      console.log(`  bullyScore (normalized): ${normAAS.toFixed(3)}`);
+      // console.log(`== Bully Agent: ${a.username} ==`);
+      // console.log(`  Traits: AT=${AT}, PBC=${PBC}, EMP=${EMP}, TIN=${TIN}`);
+      // console.log(`  BIS: ${BIS.toFixed(3)}`);
+      // console.log(`  AAS (raw): ${AAS.toFixed(3)}`);
+      // console.log(`  boundedAAS: ${boundedAAS.toFixed(3)}`);
+      // console.log(`  bullyScore (normalized): ${normAAS.toFixed(3)}`);
     });
 
     const bullyScore = bulls.length ? sumAAS / bulls.length : 0;
@@ -99,18 +99,18 @@ class ScoreController {
     const den = αes + αra + αad + αps;
     const victimSupportScore = den > 0 ? num / den : 0;
 
-    console.log(
-      `== Victim Agent: ${user.username || user._id || "unknown"} ==`,
-    );
-    console.log(
-      `  Inputs: bystanderScore=${bystanderScore.toFixed(3)}, UES=${(user.UES ?? 0).toFixed(2)}, URA=${P_RA.toFixed(2)}, UAD=${P_AD.toFixed(2)}, UPS=${P_PS.toFixed(2)}`,
-    );
-    console.log(
-      `  Weighted Sum: αes*P_ES=${(αes * P_ES).toFixed(3)}, αra*URA=${(αra * P_RA).toFixed(3)}, αad*UAD=${(αad * P_AD).toFixed(3)}, αps*UPS=${(αps * P_PS).toFixed(3)}`,
-    );
-    console.log(
-      `  victimSupportScore (normalized): ${victimSupportScore.toFixed(3)}`,
-    );
+    // console.log(
+    //   `== Victim Agent: ${user.username || user._id || "unknown"} ==`,
+    // );
+    // console.log(
+    //   `  Inputs: bystanderScore=${bystanderScore.toFixed(3)}, UES=${(user.UES ?? 0).toFixed(2)}, URA=${P_RA.toFixed(2)}, UAD=${P_AD.toFixed(2)}, UPS=${P_PS.toFixed(2)}`,
+    // );
+    // console.log(
+    //   `  Weighted Sum: αes*P_ES=${(αes * P_ES).toFixed(3)}, αra*URA=${(αra * P_RA).toFixed(3)}, αad*UAD=${(αad * P_AD).toFixed(3)}, αps*UPS=${(αps * P_PS).toFixed(3)}`,
+    // );
+    // console.log(
+    //   `  victimSupportScore (normalized): ${victimSupportScore.toFixed(3)}`,
+    // );
 
     // ---------- Health Score ----------
     const α = 0.3;
@@ -139,12 +139,12 @@ class ScoreController {
       100 * (α * safeBystander + β * safeVictim + γ * safeBully),
     );
 
-    console.log(
-      `[Score][SUMMARY] bystanderScore=${bystanderScore.toFixed(3)}, ` +
-        `bullyScore=${bullyScore.toFixed(3)}, ` +
-        `victimSupportScore=${victimSupportScore.toFixed(3)}, ` +
-        `healthScore=${healthScore}`,
-    );
+    // console.log(
+    //   `[Score][SUMMARY] bystanderScore=${bystanderScore.toFixed(3)}, ` +
+    //     `bullyScore=${bullyScore.toFixed(3)}, ` +
+    //     `victimSupportScore=${victimSupportScore.toFixed(3)}, ` +
+    //     `healthScore=${healthScore}`,
+    // );
 
     return {
       bystanderScores,
