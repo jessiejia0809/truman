@@ -315,7 +315,19 @@ app.use(
 /**
  * Primary app routes.
  */
-app.get("/", passportConfig.isAuthenticated, scriptController.getScript);
+app.get(
+  "/",
+  passportConfig.isAuthenticated,
+  async (req, res, next) => {
+    const level = parseInt(req.query.level, 10) || 1;
+    req.query.level = level;
+    currentLevel = level;
+    ScoreController.setLevel(level);
+    await Session.findOneAndUpdate({ name: sessionName }, { level });
+    next();
+  },
+  scriptController.getScript,
+);
 
 app.get("/chat", chatController.getChat);
 app.post("/chat", chatController.postChatAction);
@@ -497,6 +509,10 @@ app.post("/api/feedback", async (req, res) => {
 app.get("/reset-level", async (req, res) => {
   currentLevel = parseInt(req.query.level, 10) || 1;
   console.log(`[RESET] Resetting level ${currentLevel}`);
+  await Session.findOneAndUpdate(
+    { name: sessionName },
+    { level: currentLevel },
+  );
 
   const allComments = await Comment.find();
   console.log("📋 All comments:", allComments);
@@ -571,6 +587,11 @@ io.on("connection", (socket) => {
   socket.on("levelChanged", async (data) => {
     const { level } = data;
     console.log(`📣 Level changed to ${level}`);
+
+    await Session.findOneAndUpdate(
+      { name: sessionName },
+      { level: currentLevel },
+    );
 
     levelState.setLevel(level);
     levelState.resetLevelStartTime(); // optional, but recommended
