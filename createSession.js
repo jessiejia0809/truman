@@ -1,75 +1,74 @@
-/*
-This script is run from the command line.
-<node createSession.js sessionName scenarioName>
+/**
+ * Node script to create or update a single session containing all scenarios ordered by level and CSV order.
+ * Usage: node createSession.js <sessionName>
+ */
 
-Create a new session tied to the specified scenario.
-
-This script uses the connection information from your local .env file (in line 22 or server)
-so set your local .env variables to match the database you want to connect to.
-*/
-
-const crypto = require("crypto");
-const Scenario = require("./models/Scenario.js");
-const Session = require("./models/Session.js");
-const dotenv = require("dotenv");
+const fs = require("fs");
+const path = require("path");
+require("dotenv").config();
 const mongoose = require("mongoose");
+const CSVToJSON = require("csvtojson");
+const Scenario = require("./models/Scenario");
+const Session = require("./models/Session");
 
-/**
- * Load environment variables from .env file.
- */
-dotenv.config({ path: ".env" });
-
-/**
- * Connect to MongoDB.
- */
-// establish initial Mongoose connection
-mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true });
-// listen for errors after establishing initial connection
-mongoose.connection.on("error", (err) => {
-  console.error(err);
-  console.error("MongoDB connection error.");
+// Ensure MongoDB URI and session name are provided
+const uri = process.env.MONGODB_URI;
+if (!uri) {
+  console.error("MONGODB_URI not set in .env");
   process.exit(1);
-});
-
-const color_start = "\x1b[33m%s\x1b[0m"; // yellow
-const color_success = "\x1b[32m%s\x1b[0m"; // green
-const color_error = "\x1b[31m%s\x1b[0m"; // red
-
-async function createSession() {
-  // command inputs
-  const myArgs = process.argv.slice(2);
-  const sessionName = myArgs[0];
-  const scenarioName = myArgs[1];
-
-  const existingSession = await Session.findOne({ name: sessionName }).exec();
-  if (existingSession) {
-    console.error(color_error, "ERROR: Session with that name already exists!");
-    mongoose.connection.close();
-    return;
-  }
-
-  const scenario = await Scenario.findOne({ name: scenarioName }).exec();
-  if (!scenario) {
-    console.error(
-      color_error,
-      "ERROR: Cannot find scenario with the name",
-      scenarioName,
-    );
-    mongoose.connection.close();
-    return;
-  }
-
-  const session = new Session({
-    name: sessionName,
-    scenario: scenario._id,
-  });
-  await session.save();
-
-  console.log(
-    color_success,
-    "Session successfully created. Closing db connection.",
-  );
-  mongoose.connection.close();
 }
 
-createSession();
+const sessionName = process.argv[2];
+if (!sessionName) {
+  console.error("Usage: node createSession.js <sessionName>");
+  process.exit(1);
+}
+
+(async () => {
+  // Connect to database
+  await mongoose.connect(uri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  });
+
+  // Load level→folder mappings
+  const orderPath = path.join(__dirname, "scenarios", "level_order.json");
+  const levelOrder = JSON.parse(fs.readFileSync(orderPath, "utf8"));
+
+  // Collect all scenario IDs in order
+  const allScenarioIds = [];
+  for (const { folder } of levelOrder) {
+    const csvPath = path.join(__dirname, folder, "scenarios.csv");
+    const records = await CSVToJSON().fromFile(csvPath);
+    for (const { name } of records) {
+      const scen = await Scenario.findOne({ name }).exec();
+      allScenarioIds.push(scen._id);
+    }
+  }
+
+  // Upsert session with ordered scenario list
+  await Session.findOneAndUpdate(
+    { name: sessionName },
+    { name: sessionName, scenarios: allScenarioIds },
+    { upsert: true },
+  );
+  const envPath = path.join(__dirname, ".env");
+  let envContent = "";
+  if (fs.existsSync(envPath)) {
+    envContent = fs.readFileSync(envPath, "utf8");
+  }
+  const line = `SESSION_NAME=${sessionName}`;
+  if (envContent.match(/^SESSION_NAME=/m)) {
+    envContent = envContent.replace(/^SESSION_NAME=.*$/m, line);
+  } else {
+    if (envContent && !envContent.endsWith("\n")) envContent += "\n";
+    envContent += line + "\n";
+  }
+  fs.writeFileSync(envPath, envContent, "utf8");
+  console.log(`Wrote to .env → ${line}`);
+
+  console.log(
+    `Session '${sessionName}' synced with ${allScenarioIds.length} scenarios.`,
+  );
+  await mongoose.disconnect();
+})();

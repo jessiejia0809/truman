@@ -27,6 +27,8 @@ const { Server } = require("socket.io");
 const ScoreController = require("./controllers/ScoreController");
 const SimulationStats = require("./models/SimulationStats");
 const Grader = require("./controllers/Grader");
+const Session = require("./models/Session");
+const sessionName = process.env.SESSION_NAME;
 const pendingActions = [];
 let currentLevel = 1;
 
@@ -430,10 +432,22 @@ app.post(
 app.get(
   "/feed",
   passportConfig.isAuthenticated,
-  (req, res, next) => {
-    currentLevel = parseInt(req.query.level, 10) || 1;
+  async (req, res, next) => {
+    const level = parseInt(req.query.level, 10) || 1;
+    currentLevel = level;
     ScoreController.setLevel(currentLevel);
     console.log(`[LEVEL] currentLevel set to ${currentLevel}`);
+
+    // persist level into the single session document
+    try {
+      await Session.findOneAndUpdate(
+        { name: sessionName },
+        { level: currentLevel },
+      );
+    } catch (err) {
+      console.error("Failed to update session level:", err);
+    }
+
     next();
   },
   scriptController.getScript,
