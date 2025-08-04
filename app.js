@@ -27,9 +27,11 @@ const { Server } = require("socket.io");
 const ScoreController = require("./controllers/ScoreController");
 const SimulationStats = require("./models/SimulationStats");
 const Grader = require("./controllers/Grader");
+const Session = require("./models/Session");
+const sessionName = process.env.SESSION_NAME;
 const pendingActions = [];
 let currentLevel = 1;
-
+const scoreController = new ScoreController();
 /**
  * Middleware for handling multipart/form-data, which is primarily used for uploading files.
  * Files are uploaded when user's upload their profile photos and post photos.
@@ -156,26 +158,28 @@ rule3.minute = 30;
 schedule.scheduleJob(rule3, function () {
   userController.stillActive();
 });
+//NOTE: we don't need to update anymore
 //every second calculate updated system score
-schedule.scheduleJob("*/1 * * * * *", async () => {
-  try {
-    const allScores = await ScoreController.getAllScores();
 
-    const isNumber = (n) => typeof n === "number" && !isNaN(n);
-    if (!isNumber(allScores.healthScore)) {
-      console.warn("🚨 Skipping SimulationStats.save due to NaN healthScore", {
-        healthScore: allScores.healthScore,
-        fullScore: allScores,
-      });
-      return;
-    }
+// schedule.scheduleJob("*/1 * * * * *", async () => {
+//   try {
+//     const allScores = await ScoreController.getAllScores();
 
-    await SimulationStats.create(allScores);
-    io.emit("scoreUpdate", allScores);
-  } catch (err) {
-    console.error("Score update error:", err);
-  }
-});
+//     const isNumber = (n) => typeof n === "number" && !isNaN(n);
+//     if (!isNumber(allScores.healthScore)) {
+//       console.warn("🚨 Skipping SimulationStats.save due to NaN healthScore", {
+//         healthScore: allScores.healthScore,
+//         fullScore: allScores,
+//       });
+//       return;
+//     }
+
+//     await SimulationStats.create(allScores);
+//     io.emit("scoreUpdate", allScores);
+//   } catch (err) {
+//     console.error("Score update error:", err);
+//   }
+// });
 /**
  * Every 30 seconds, pop pendingActions and run the grader
  */
@@ -314,7 +318,18 @@ app.use(
 /**
  * Primary app routes.
  */
-app.get("/", passportConfig.isAuthenticated, scriptController.getScript);
+app.get(
+  "/",
+  passportConfig.isAuthenticated,
+  async (req, res, next) => {
+    const level = parseInt(req.query.level, 10) || 1;
+    req.query.level = level;
+    currentLevel = level;
+    await Session.findOneAndUpdate({ name: sessionName }, { level });
+    next();
+  },
+  scriptController.getScript,
+);
 
 app.get("/chat", chatController.getChat);
 app.post("/chat", chatController.postChatAction);
@@ -431,10 +446,21 @@ app.post(
 app.get(
   "/feed",
   passportConfig.isAuthenticated,
-  (req, res, next) => {
-    currentLevel = parseInt(req.query.level, 10) || 1;
-    ScoreController.setLevel(currentLevel);
+  async (req, res, next) => {
+    const level = parseInt(req.query.level, 10) || 1;
+    currentLevel = level;
     console.log(`[LEVEL] currentLevel set to ${currentLevel}`);
+
+    // persist level into the single session document
+    try {
+      await Session.findOneAndUpdate(
+        { name: sessionName },
+        { level: currentLevel },
+      );
+    } catch (err) {
+      console.error("Failed to update session level:", err);
+    }
+
     next();
   },
   scriptController.getScript,
@@ -484,6 +510,10 @@ app.post("/api/feedback", async (req, res) => {
 app.get("/reset-level", async (req, res) => {
   currentLevel = parseInt(req.query.level, 10) || 1;
   console.log(`[RESET] Resetting level ${currentLevel}`);
+  await Session.findOneAndUpdate(
+    { name: sessionName },
+    { level: currentLevel },
+  );
 
   const allComments = await Comment.find();
   console.log("📋 All comments:", allComments);
@@ -584,15 +614,20 @@ io.on("connection", (socket) => {
     const { level } = data;
     console.log(`📣 Level changed to ${level}`);
 
+    await Session.findOneAndUpdate(
+      { name: sessionName },
+      { level: currentLevel },
+    );
+
     levelState.setLevel(level);
     levelState.resetLevelStartTime(); // optional, but recommended
 
-    // Reset score immediately
-    await ScoreController.resetScores();
+    // // Reset score immediately
+    // await ScoreController.resetScores();
 
-    // Emit updated score immediately
-    const newScore = await ScoreController.getAllScores();
-    io.emit("scoreUpdate", newScore);
+    // // Emit updated score immediately
+    // const newScore = await ScoreController.getAllScores();
+    // io.emit("scoreUpdate", newScore);
   });
 
   socket.on("error", function (err) {

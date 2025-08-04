@@ -333,6 +333,7 @@ function addComment(e) {
     comment_text: text,
     logs: currentLogs,
     commentType: "User",
+    currentLevel: level,
     _csrf: $('meta[name="csrf-token"]').attr("content"),
   })
     .then(function (json) {
