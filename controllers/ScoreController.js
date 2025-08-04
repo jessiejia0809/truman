@@ -1,4 +1,9 @@
-export class ScoreController {
+const Agent = require("../models/Agent");
+
+let lastKnownLevel = null;
+let currentLevel = 1;
+
+class ScoreController {
   constructor() {
     // Initialize health scores for levels 1 through 5 to zero
     this._scores = {
@@ -16,7 +21,30 @@ export class ScoreController {
   getHealthScore(level) {
     return this._scores[level] ?? 0;
   }
+
+  resetScores() {
+    console.log(
+      "[ScoreController] Resetting agent traits to original values...",
+    );
+
+    const agents = Agent.find({ level: currentLevel });
+
+    for (const agent of agents) {
+      if (agent.initialTraits) {
+        Object.assign(agent, agent.initialTraits); // overwrite traits
+        agent.save();
+      } else {
+        console.warn(`⚠️ Agent ${agent.username} has no initialTraits`);
+      }
+    }
+
+    lastKnownLevel = null;
+    console.log("[ScoreController] Reset complete.");
+  }
 }
+
+module.exports = ScoreController;
+
 // const Agent = require("../models/Agent");
 // const levelState = require("./levelState");
 // let lastKnownLevel = null;
@@ -175,23 +203,6 @@ export class ScoreController {
 //     };
 //   }
 
-//   static async getAllScores() {
-//     const agents = await Agent.find({ level: currentLevel }).lean();
-//     const scores = ScoreController.computeScores(agents);
-
-const timeLeft = levelState.getTimeLeft();
-const elapsedTime = levelState.getTotalDuration() - timeLeft;
-
-//     // const decayRateSeconds = 10;
-//     // const decayedAmount = Math.floor(elapsedTime / decayRateSeconds);
-
-// const decayedScore = Math.max(0, scores.healthScore - decayedAmount);
-// scores.healthScore = decayedScore;
-scores.timeLeft = timeLeft;
-
-//     return scores;
-//   }
-
 //   static async getScore(req, res, next) {
 //     try {
 //       const result = await ScoreController.getAllScores();
@@ -221,5 +232,3 @@ scores.timeLeft = timeLeft;
 //     console.log("[ScoreController] Reset complete.");
 //   }
 // }
-
-// module.exports = ScoreController;

@@ -24,14 +24,12 @@ const util = require("util");
 fs.readFileAsync = util.promisify(fs.readFile);
 const http = require("http");
 const { Server } = require("socket.io");
-const ScoreController = require("./controllers/ScoreController");
 const SimulationStats = require("./models/SimulationStats");
 const Grader = require("./controllers/Grader");
 const Session = require("./models/Session");
 const sessionName = process.env.SESSION_NAME;
 const pendingActions = [];
 let currentLevel = 1;
-const scoreController = new ScoreController();
 /**
  * Middleware for handling multipart/form-data, which is primarily used for uploading files.
  * Files are uploaded when user's upload their profile photos and post photos.
@@ -68,6 +66,8 @@ const actorsController = require("./controllers/actors");
 const scriptController = require("./controllers/script");
 const userController = require("./controllers/user");
 const chatController = require("./controllers/chat");
+const ScoreController = require("./controllers/ScoreController");
+const scoreController = new ScoreController(); // ✅ create an instance
 const feedbackService = require("./controllers/feedbackService");
 const levelState = require("./controllers/levelState");
 
@@ -161,25 +161,27 @@ schedule.scheduleJob(rule3, function () {
 //NOTE: we don't need to update anymore
 //every second calculate updated system score
 
-// schedule.scheduleJob("*/1 * * * * *", async () => {
-//   try {
-//     const allScores = await ScoreController.getAllScores();
+schedule.scheduleJob("*/1 * * * * *", async () => {
+  try {
+    const healthScore = scoreController.getHealthScore(currentLevel);
 
-//     const isNumber = (n) => typeof n === "number" && !isNaN(n);
-//     if (!isNumber(allScores.healthScore)) {
-//       console.warn("🚨 Skipping SimulationStats.save due to NaN healthScore", {
-//         healthScore: allScores.healthScore,
-//         fullScore: allScores,
-//       });
-//       return;
-//     }
+    const isNumber = (n) => typeof n === "number" && !isNaN(n);
+    if (!isNumber(healthScore)) {
+      console.warn("🚨 Invalid healthScore from controller:", healthScore);
+      return;
+    }
 
-//     await SimulationStats.create(allScores);
-//     io.emit("scoreUpdate", allScores);
-//   } catch (err) {
-//     console.error("Score update error:", err);
-//   }
-// });
+    const payload = {
+      healthScore,
+      level: currentLevel,
+    };
+
+    io.emit("scoreUpdate", payload);
+    console.log("[Score Update Emitted]", payload);
+  } catch (err) {
+    console.error("Score update error:", err);
+  }
+});
 /**
  * Every 30 seconds, pop pendingActions and run the grader
  */
