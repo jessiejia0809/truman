@@ -276,6 +276,7 @@ async function doPopulate(path, level) {
           goalCategory: row.goal_category,
           label: row.label,
           description: row.description,
+          details: row.details,
           targetAgent: agent._id,
           targetAgentUsername: agent.username,
           completed: false,

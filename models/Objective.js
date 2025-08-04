@@ -33,6 +33,10 @@ const objectiveSchema = new Schema({
     type: String,
     required: true, // ✅ full objective instruction
   },
+  details: {
+    type: String,
+    required: false, // ✅ optional for additional context or hints
+  },
   completed: {
     type: Boolean,
     default: false,
