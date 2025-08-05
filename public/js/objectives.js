@@ -2,56 +2,60 @@
 let hintsUsed = new Set();
 
 async function loadObjectives(level) {
+  console.log("Loading objectives for level:", level);
   try {
     const res = await fetch(`/api/objectives?level=${level}`);
     const objectives = await res.json();
 
     const list = document.getElementById("objectives-list");
-    if (!list) return;
-
+    if (!list) {
+      console.error("❌ objectives-list element not found in DOM.");
+      return;
+    }
     list.innerHTML = "";
 
     for (const obj of objectives) {
       const li = document.createElement("li");
-      li.className = "objective-item";
+      li.className = "objective-item checklist-item";
+      if (obj.completed) li.classList.add("completed");
 
-      // Checkbox (disabled for now)
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
       checkbox.checked = obj.completed;
       checkbox.disabled = true;
-      checkbox.dataset.id = obj._id;
 
-      // Label
       const label = document.createElement("span");
-      label.textContent = obj.label || "(no label)";
+      label.textContent = obj.label;
       label.className = "objective-label";
 
-      // Details container (initially hidden)
-      const details = document.createElement("div");
-      details.textContent = obj.details || "No details available.";
-      details.style.display = "none";
-      details.className = "objective-details";
+      const toggle = document.createElement("span");
+      toggle.textContent = "▸";
+      toggle.className = "dropdown-arrow";
 
-      // Hint button to reveal details
-      const hintBtn = document.createElement("button");
-      hintBtn.textContent = "Use Hint";
-      hintBtn.className = "hint-button";
-      hintBtn.addEventListener("click", () => {
-        hintsUsed.add(obj._id);
-        details.style.display = "block";
-        hintBtn.disabled = true;
+      const hint = document.createElement("div");
+      hint.className = "objective-details";
+      hint.textContent = obj.hint || "No hint available.";
+      hint.style.display = "none";
+
+      toggle.addEventListener("click", () => {
+        const isVisible = hint.style.display === "block";
+        hint.style.display = isVisible ? "none" : "block";
+        toggle.textContent = isVisible ? "▸" : "▾";
       });
 
-      // Assemble list item
-      li.appendChild(checkbox);
-      li.appendChild(label);
-      li.appendChild(hintBtn);
-      li.appendChild(details);
+      const topRow = document.createElement("div");
+      topRow.className = "flex-row";
+      topRow.appendChild(checkbox);
+      topRow.appendChild(toggle);
+      topRow.appendChild(label);
+
+      li.appendChild(topRow);
+      li.appendChild(hint);
+
       list.appendChild(li);
     }
   } catch (err) {
-    console.error("Failed to load objectives:", err);
+    console.error("❌ Failed to load objectives:", err);
   }
 }
 

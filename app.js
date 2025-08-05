@@ -534,7 +534,6 @@ app.get("/reset-level", async (req, res) => {
 
 app.get("/api/objectives", passportConfig.isAuthenticated, async (req, res) => {
   try {
-    const userId = req.user._id;
     const level = parseInt(req.query.level, 10);
 
     if (!level) {
@@ -542,14 +541,13 @@ app.get("/api/objectives", passportConfig.isAuthenticated, async (req, res) => {
     }
 
     // Step 1: Find and assign null-user objectives to this user
-    const unclaimed = await Objective.find({ user: null, level });
+    const unclaimed = await Objective.find({ level });
     for (const obj of unclaimed) {
-      obj.user = userId;
       await obj.save();
     }
 
     // Step 2: Fetch only objectives for this user and level
-    const objectives = await Objective.find({ level, user: userId }).lean();
+    const objectives = await Objective.find({ level }).lean();
     res.json(objectives);
   } catch (err) {
     console.error("Error fetching objectives:", err);

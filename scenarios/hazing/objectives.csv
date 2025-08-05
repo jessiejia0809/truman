@@ -1,3 +1,5 @@
-level,task_type,agent_name,goal_category,description,label,details
-,dm,caseymae_15,Victim: Talk to victim,Talk to Casey to understand his struggle and offer empathy.,Ask Casey about his struggle.,
-,comment,bl4ke.beast,Public Upstanding: Challenge hazing norms,"Post a public comment that challenges the hazing norms and encourages Casey with situational context: Casey joined last month, was forced into extra push‑ups by seniors after practice, feels anxious and fears being labeled a snitch, and needs someone to make it clear that this isn’t okay.",Challenge hazing norms publicly.,
+level,label,category,isRequired
+,Figure out the bully’s motive,address bully,false
+,Figure out the victim’s motive,address victim,false
+,Show the victim they are not alone,support victim,true
+,Rally the bystanders to join your effort,rally bystander,true

@@ -2,24 +2,9 @@ const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
 const objectiveSchema = new Schema({
-  user: {
-    type: Schema.Types.ObjectId,
-    ref: "User",
-    required: false, // ✅ make optional to allow level-wide objectives
-  },
-  taskType: {
-    type: String,
-    enum: ["dm", "comment"],
+  level: {
+    type: Number,
     required: true,
-  },
-  targetAgent: {
-    type: Schema.Types.ObjectId,
-    ref: "Agent",
-    required: true,
-  },
-  targetAgentUsername: {
-    type: String,
-    required: false, // ✅ useful for debugging + user-facing views
   },
   goalCategory: {
     type: String,
@@ -27,15 +12,19 @@ const objectiveSchema = new Schema({
   },
   label: {
     type: String,
-    required: true, // ✅ user-facing short text (e.g., checklist)
+    required: true,
   },
   description: {
     type: String,
-    required: true, // ✅ full objective instruction
+    required: false,
   },
-  details: {
+  hint: {
     type: String,
-    required: false, // ✅ optional for additional context or hints
+    default: null,
+  },
+  isRequired: {
+    type: Boolean,
+    default: false,
   },
   completed: {
     type: Boolean,
@@ -43,10 +32,6 @@ const objectiveSchema = new Schema({
   },
   completedAt: {
     type: Date,
-  },
-  level: {
-    type: Number,
-    required: true,
   },
 });
 

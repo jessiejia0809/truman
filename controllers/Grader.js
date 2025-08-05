@@ -7,6 +7,7 @@ const { performFeedAction } = require("./script");
 const Agent = require("../models/Agent");
 const Session = require("../models/Session");
 const Script = require("../models/Script");
+const Objective = require("../models/Objective");
 
 const levelOrder = require(
   path.resolve(process.cwd(), "scenarios/level_order.json"),
@@ -231,6 +232,7 @@ You are a semantic classifier.
     }, 0);
     const updated = current + totalDelta;
     await this.scoreController.setHealthScore(this.level, updated);
+    await this.markCompletedObjectives(categories);
     return updated;
   }
 
@@ -291,6 +293,44 @@ You are a semantic classifier.
           });
           console.log(`[Grader] Post modified with ID ${modifiedId}`);
         }
+      }
+    }
+  }
+
+  async markCompletedObjectives(categories) {
+    const objectives = await Objective.find({
+      level: this.level,
+      completed: false,
+    });
+
+    const now = new Date();
+    const matched = [];
+
+    for (const cat of categories) {
+      if (cat === "none") continue;
+
+      for (const obj of objectives) {
+        if (obj.goalCategory === cat && !obj.completed) {
+          obj.completed = true;
+          obj.completedAt = now;
+          await obj.save();
+          matched.push({
+            label: obj.label,
+            goalCategory: obj.goalCategory,
+            description:
+              this.solutions.find((s) => s.category === cat)?.description ||
+              null,
+          });
+        }
+      }
+    }
+
+    if (matched.length > 0) {
+      console.log("🎯 Objectives completed:");
+      for (const item of matched) {
+        console.log(
+          `→ ${item.label} (${item.goalCategory}): ${item.description || "No description"}`,
+        );
       }
     }
   }
