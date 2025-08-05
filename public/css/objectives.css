@@ -44,3 +44,26 @@
 .checklist input[type="checkbox"]:checked {
   background: #ff4d4d;
 }
+
+/* Completed objective text and checkbox */
+.checklist li.completed span {
+  color: #aaaaaa;
+}
+
+.checklist li.completed input[type="checkbox"] {
+  border-color: #aaaaaa;
+  background-color: #444;
+}
+
+/* Incomplete objective text and checkbox */
+.checklist li.incomplete span {
+  color: #ffffff;
+}
+
+.checklist li.incomplete input[type="checkbox"] {
+  border-color: #5c0000;
+}
+
+.checklist li.incomplete input[type="checkbox"]:checked {
+  background-color: #5c0000;
+}

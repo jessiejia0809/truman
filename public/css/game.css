@@ -1,106 +1,107 @@
-/* Hitman Style Overrides */
+/* === Global Background & Font === */
 body {
-  background-color: #1a0005; /* deep red-black */
-  color: #ffffff;
-  font-family: "Courier New", monospace; /* tech-style font */
+  background-color: #1e1e1e;
+  color: #000000; /* black text */
+  font-family: "Courier New", monospace;
   margin: 0;
-  padding: 0em;
+  padding: 0;
 }
 
-/*Page Container*/
-#pagegrid {
-  justify-content: center;
-}
-
+/* === Page Layout === */
+#pagegrid,
 #pagecontainer {
-  padding-top: 50px;
   justify-content: center;
+  padding-top: 50px;
 }
-
-/* General CSS */
 
 .hidden {
   display: none;
 }
 
-/* Card / Content Box */
-
+/* === Default Card Styling (non-bullying) === */
 .ui.fluid.card {
-  background-color: #2d0009;
-  border: 1px solid #aa0000;
-  border-radius: 4px;
-  box-shadow: 0 0 8px rgba(170, 0, 0, 0.6);
-  padding: 10px;
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border: 1px solid #000000 !important;
+  border-radius: 6px;
+  box-shadow: none;
+  padding: 1rem;
 }
 
-.ui.fluid.card > .content > .description {
-  font-size: 1.05em;
-  color: #ffffff;
-}
-.ui.menu .item > i.icon {
-  margin: 0 !important;
-}
-.ui.mini.image {
-  height: 35px;
-}
-/* Header */
-
-.ui.menu {
-  background-color: #1a0005 !important;
-  border-bottom: 1px solid #aa0000;
+/* === Bullying Posts === */
+.ui.fluid.card.relevant-post {
+  background-color: #5c0000 !important;
+  color: #ffffff !important;
+  border: 1px solid #ffffff !important;
 }
 
-/* Comment section */
-
+/* === Comment Section === */
 .ui.comments {
-  background-color: #2d0009;
-  border-top: 1px solid #aa0000;
+  background-color: #ffffff !important;
+  border-top: 1px solid #000000;
   padding: 1em;
 }
 
+.ui.fluid.card.relevant-post .ui.comments {
+  background-color: #5c0000 !important;
+}
+
 .ui.comments .comment {
-  border-bottom: 1px solid #3a000a;
+  border-bottom: 1px solid #000000;
   padding-bottom: 0.5em;
   margin-bottom: 0.5em;
 }
 
-/* Buttons, Likes, Dislikes */
-.ui.button,
-button {
-  background-color: transparent;
-  border: 1px solid #aa0000;
-  color: #ffffff;
+.ui.fluid.card.relevant-post .ui.comments .comment {
+  border-bottom: 1px solid #ffffff;
 }
 
-.ui.button:hover {
-  background-color: #aa0000;
-  color: #000;
-}
-
-/* Reply/Input Areas */
-
-textarea,
-input {
-  background-color: #100002;
-  color: #fff;
-  border: 1px solid #aa0000;
-}
-
-.image-upload img {
-  border: 2px solid #aa0000;
-}
-
-.image-upload > input {
-  display: none;
-}
-
-.ui.comments .comment .content > .text {
-  color: #ffffff !important;
-}
-
+.ui.comments .comment .content > .text,
 .ui.comments .comment .author,
 .ui.comments .comment .metadata,
 .ui.comments .comment .actions,
 .ui.comments .comment .actions a {
-  color: #dddddd !important;
+  color: inherit !important;
+}
+
+/* === Buttons and Inputs === */
+.ui.button,
+button {
+  background-color: transparent;
+  border: 1px solid #000000;
+  color: #000000;
+}
+
+.ui.fluid.card.relevant-post .ui.button,
+.ui.fluid.card.relevant-post button {
+  border-color: #ffffff;
+  color: #ffffff;
+}
+
+.ui.button:hover {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+textarea,
+input {
+  background-color: #ffffff;
+  color: #000000;
+  border: 1px solid #000000;
+}
+
+.ui.fluid.card.relevant-post textarea,
+.ui.fluid.card.relevant-post input {
+  background-color: #5c0000;
+  color: #ffffff;
+  border: 1px solid #ffffff;
+}
+
+/* === Image Upload Box === */
+.image-upload img {
+  border: 2px solid #000000;
+}
+
+.image-upload > input {
+  display: none;
 }

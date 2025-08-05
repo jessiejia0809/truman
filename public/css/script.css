@@ -191,7 +191,24 @@ textarea.newcomment {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
+/* Bullying/relevant posts */
 .ui.fluid.card.relevant-post {
-  border: 1px solid #ffd700 !important; /* Gold/Yellow */
-  box-shadow: 0 0 8px rgba(255, 215, 0, 0.7) !important;
+  background-color: #5c0000 !important;
+  color: #ffffff !important;
+  border: none;
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.4);
+}
+
+/* Default non-relevant posts */
+.ui.fluid.card:not(.relevant-post) {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Ensure Semantic UI elements respect post card coloring */
+.ui.card .meta,
+.ui.card .content,
+.ui.card .extra {
+  color: inherit !important;
 }
