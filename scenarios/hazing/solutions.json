@@ -1,13 +1,13 @@
 [
   {
-    "category": "address bully",
-    "description": "Identify the bully’s motive as malicious (e.g., seeking power, dominance, or attention), not as ignorance or tradition. Evidence includes explicitly stating the bully wants to feel powerful or get attention.",
+    "category": "talk to bully",
+    "description": "Talk to bully Blake and ask about his intentions. -the bully’s motive as malicious (e.g., seeking power, dominance, or attention), not as ignorance or tradition.",
     "deltas": 25,
     "next_steps": []
   },
   {
-    "category": "address victim",
-    "description": "Identify the victim’s motive as wanting to join the group despite harm (e.g., social belonging, lack of agency). Evidence includes explicitly stating they want acceptance or feel they have no choice.",
+    "category": "talk to victim",
+    "description": "Talk to victim Casey and dentify the victim’s motive as wanting to join the group despite harm (e.g., social belonging, lack of agency). Evidence includes explicitly stating they want acceptance or feel they have no choice.",
     "deltas": 25,
     "next_steps": []
   },

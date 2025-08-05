@@ -156,18 +156,28 @@ class Grader {
     const promptSystem = `
 You are a semantic classifier.
 
-  INPUT:
-  - "actions": array of objects { text, type, mentioned }
-  - "categories": array of category names and descriptions
+INPUT:
+- "actions": array of { text, type, mentioned }
+- "solutions": array of { category, description, deltas, next_steps }
 
-  TASK:
-  For each action in the "actions" list, pick one category from the provided list that best matches the action's intent/context (public_comment vs chat). If none fit, pick "none".
+TASK:
+Treat the entire actions list as one unit. For each solution:
+  • If any action aligns with that solution, include its category in "matchedSolutions".  
+  • Otherwise, in "unmatchedReasons", map that category to a brief reason why none of the actions fit.
+There is for most times only one solution corresponding to each action. 
 
-  OUTPUT:
-  Return a JSON array of strings, same length as "actions", where each element is the chosen category name or "none".
-
-  Do NOT include any extra text.
-`;
+OUTPUT FORMAT:
+Return exactly one JSON object with two properties:
+{
+  "matchedSolutions": ["CategoryA"],
+  "unmatchedReasons": {
+    "CategoryB": "reason for B",
+    "CategoryC": "reason for C",
+    …
+  }
+}
+Do not emit any other text.
+`.trim();
 
     const payload = {
       actions: actions.map((a) => ({
@@ -195,27 +205,20 @@ You are a semantic classifier.
     const rawContent = resp.choices?.[0]?.message?.content ?? "";
     console.log("💡 LLM raw content:", rawContent);
 
-    let out;
+    let result;
     try {
-      const parsed = JSON.parse(
-        rawContent
-          .replace(/^```(?:json)?/, "")
-          .replace(/```$/, "")
-          .trim(),
-      );
-      if (Array.isArray(parsed)) {
-        out = parsed;
-      } else if (parsed.result && Array.isArray(parsed.result)) {
-        out = parsed.result;
-      } else {
-        throw new Error("Unexpected shape");
-      }
-    } catch (err) {
-      console.error("Failed to parse LLM output, defaulting to none:", err);
-      out = actions.map(() => "none");
+      result = JSON.parse(resp.choices[0].message.content.trim());
+    } catch (e) {
+      console.error("Failed to parse grouping output:", e);
+      // fallback: nothing matched
+      result = {
+        matchedSolutions: [],
+        unmatchedReasons: {},
+      };
     }
 
-    return out;
+    // **NEW** — strip away everything else and return only the matched solutions array:
+    return result.matchedSolutions;
   }
 
   /**
