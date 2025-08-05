@@ -310,3 +310,5 @@ exports.postUpdateFeedAction = async (req, res, next) => {
     next(err);
   }
 };
+
+module.exports.performFeedAction = performFeedAction;
