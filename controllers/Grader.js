@@ -1,373 +1,295 @@
+require("dotenv").config();
 const fs = require("fs");
 const path = require("path");
 const { OpenAI } = require("openai");
-const mongoose = require("mongoose");
-const Agent = require("../models/Agent.js");
-const Objective = require("../models/Objective");
-const Comment = require("../models/Comment");
-const Chat = require("../models/Chat");
-const User = require("../models/User");
+const ScoreController = require("./ScoreController");
+const { performFeedAction } = require("./script");
+const Agent = require("../models/Agent");
+const Session = require("../models/Session");
+const Script = require("../models/Script");
+
 const levelOrder = require(
   path.resolve(process.cwd(), "scenarios/level_order.json"),
 );
 
+/**
+ * Helper to push a comment via your existing /action endpoint
+ */
+async function pushComment({ postId, text, author, sessionName, level }) {
+  const session = await Session.findOne({ name: sessionName }).exec();
+  const body = {
+    action: "comment",
+    postID: postId,
+    new_comment: new Date().toISOString(),
+    comment_text: text,
+    sessionName,
+    currentLevel: level,
+  };
+  const { comment } = await performFeedAction(author, true, body, session);
+
+  if (!comment?._id) {
+    throw new Error(`pushComment failed for level ${level}`);
+  }
+
+  return comment._id.toString();
+}
+
+/**
+ * Overwrite the `body` field on your “script” document
+ */
+async function modifyPost({ postId, newBody }) {
+  const updated = await Script.findByIdAndUpdate(
+    postId,
+    {
+      $set: {
+        body: newBody,
+        updateTime: new Date(),
+      },
+    },
+    {
+      new: true,
+      runValidators: true,
+    },
+  );
+
+  if (!updated) {
+    throw new Error(`modifyPost: post ${postId} not found`);
+  }
+
+  console.log(`[Grader] modifyPost OK – new body is:\n${updated.body}`);
+  return updated._id.toString();
+}
+
 class Grader {
-  constructor({ level }) {
-    const entry = levelOrder.find((e) => e.level === Number(level));
-    const solutionsPath = path.resolve(
+  constructor({ level, scoreController }) {
+    this.level = Number(level);
+    this.scoreController = scoreController;
+    this.openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+    const entry = levelOrder.find((e) => e.level === this.level);
+    const solutionsPath = path.join(
       process.cwd(),
       entry.folder,
       "solutions.json",
     );
-    console.log(
-      `Grader: loading solutions for level ${level} from:\n  ${solutionsPath}`,
-    );
-
+    console.log(`Loading solutions for level ${this.level}: ${solutionsPath}`);
     this.solutions = JSON.parse(fs.readFileSync(solutionsPath, "utf-8"));
-    this.openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
   }
 
   _extractMentions(text = "") {
-    const out = [];
-    const re = /@([A-Za-z0-9_.]+)/g;
-    let m;
-    while ((m = re.exec(text)) !== null) out.push(m[1]);
-    return out;
+    return [...text.matchAll(/@([A-Za-z0-9_.]+)/g)].map((m) => m[1]);
   }
 
-  /**
-   * Decide if a chat_id is a 1:1 thread.
-   */
-  _isOneToOne(chat_id) {
-    if (!chat_id) return false;
-    // e.g. "its.kat-jessie2" => two parts
-    return chat_id.split("-").length === 2;
+  _isOneToOne(chatId = "") {
+    return chatId.split("-").length === 2;
   }
 
-  /**
-   * Build an action from a chat user message
-   */
-  _makeActionFromChatMessage(chatDoc, msg) {
-    const chat_id = chatDoc.chat_id || "";
-    const isOneToOne = this._isOneToOne(chat_id);
-    const text = msg.body || "";
-
+  _makeActionFromChat(chatDoc, msg) {
+    const chatId = chatDoc.chat_id || "";
+    const direct = this._isOneToOne(chatId);
     return {
       id: msg._id,
-      text,
-      type: isOneToOne ? "direct_chat" : "chat",
-      chat_id,
+      text: msg.body || "",
+      type: direct ? "direct_chat" : "chat",
+      chatId,
       postId: null,
-      target: isOneToOne
-        ? chat_id.split("-").find((name) => name !== msg.senderUsername)
+      target: direct
+        ? chatId.split("-").find((name) => name !== msg.senderUsername)
         : null,
-      mentioned: this._extractMentions(text),
-      raw: msg,
+      mentioned: this._extractMentions(msg.body),
     };
   }
 
-  /**
-   * Build an action from a user comment
-   */
   _makeActionFromComment(doc) {
-    // This schema you pasted: "commentType":"User"
-    const text = doc.body || "";
     return {
       id: doc._id,
-      text,
+      text: doc.body || "",
       type: "public_comment",
-      chat_id: null,
+      chatId: null,
       postId: doc.post || null,
       target: null,
-      mentioned: this._extractMentions(text),
-      raw: doc,
+      mentioned: this._extractMentions(doc.body),
     };
   }
 
-  /**
-   * Preprocess raw DB updates into flat per-user “actions”.
-   */
   preprocessActions(updates) {
     const actions = [];
-
     for (const u of updates) {
-      // ---- Chats ----
-      if (u.coll === "chats" && u.doc && Array.isArray(u.doc.messages)) {
+      if (u.coll === "chats" && u.doc?.messages) {
         for (const msg of u.doc.messages) {
           if (msg.messageType === "User") {
-            actions.push(this._makeActionFromChatMessage(u.doc, msg));
+            actions.push(this._makeActionFromChat(u.doc, msg));
           }
         }
       }
-
-      // ---- Comments ----
-      if (u.coll === "comments" && u.doc) {
-        const c = u.doc;
-        if (c.commentType === "User") {
-          actions.push(this._makeActionFromComment(c));
-        }
+      if (u.coll === "comments" && u.doc?.commentType === "User") {
+        actions.push(this._makeActionFromComment(u.doc));
       }
-
-      // more; may or may not need
     }
-
     return actions;
   }
 
   /**
-   * Optional heuristic to auto-match InvestigateInformer
-   */
-  _heuristicInvestigateInformer(actions) {
-    const rule = this.solutions.find(
-      (r) => r.category === "InvestigateInformer",
-    );
-    if (!rule) return [];
+   * You are a semantic classifier.
 
-    const results = [];
-    const rx = /(who|identity|leak|told|shared|disclos)/i;
-    for (const a of actions) {
-      if (
-        a.type === "direct_chat" &&
-        a.chat_id &&
-        a.chat_id.includes("its.kat") &&
-        rx.test(a.text)
-      ) {
-        // Verify agent involvement
-        const affected = rule.agents.filter(
-          (ag) =>
-            (a.target && a.target === ag) ||
-            a.mentioned.includes(ag) ||
-            (a.chat_id && a.chat_id.includes(ag)),
-        );
-        if (affected.length) {
-          results.push({
-            actionId: a.id,
-            category: "InvestigateInformer",
-            affectedAgents: affected,
-          });
-        }
-      }
-    }
-    return results;
-  }
+     INPUT:
+     - "actions": array of objects { text, type, mentioned }
+     - "categories": array of category names and descriptions
 
-  /**
-   * Call the LLM to classify actions against all solutions.
-   *
-   * @param {Array<Object>} rawUpdates
-   * @returns {Promise<Array<{ actionId, category, affectedAgents }>>}
+     TASK:
+     For each action in the "actions" list, pick one category from the provided list that best matches the action's intent/context (public_comment vs chat). If none fit, pick "none".
+
+     OUTPUT:
+     Return a JSON array of strings, same length as "actions", where each element is the chosen category name or "none".
+
+     Do NOT include any extra text.
    */
   async classifyActionsWithLLM(rawUpdates) {
-    const flatActions = this.preprocessActions(rawUpdates);
+    const actions = this.preprocessActions(rawUpdates);
+    this.lastActions = actions; // stash for nextSteps
+    const cats = this.solutions.map((s) => s.category);
 
-    const prompt = `
+    if (!actions.length || !cats.length) {
+      return actions.map(() => "none");
+    }
+
+    const promptSystem = `
 You are a semantic classifier.
 
-INPUTS
-1) "actions": array of user messages → { id, text, type, chat_id, postId, target, mentioned }
-2) "solutions": array of categories → { category, description, deltas, agents }
+  INPUT:
+  - "actions": array of objects { text, type, mentioned }
+  - "categories": array of category names and descriptions
 
-TASK
-For each action, assign the best-fitting category of solution based on meaning and context.
+  TASK:
+  For each action in the "actions" list, pick one category from the provided list that best matches the action's intent/context (public_comment vs chat). If none fit, pick "none".
 
-RULES
-1. Match by description.
-2. Context:
-   • "InvestigateInformer" only applies to 1:1 chats.
-   • All other categories are for public posts/comments.
-3. only classify user actions! ANY AGENT ACTION DOES NOT COUNT. 
+  OUTPUT:
+  Return a JSON array of strings, same length as "actions", where each element is the chosen category name or "none".
 
-OUTPUT (strict JSON, no code fences):
-[
-  { "actionId": "...", "category": "...", "affectedAgents": ["..."] }
-]
+  Do NOT include any extra text.
+`;
 
-IF NOTHING MATCHES:
-{
-  "none": true,
-  "reasons": [
-    { "category": "InvestigateInformer", "reason": "..." },
-    { "category": "PublicVictimSupport", "reason": "..." },
-    ...
-  ]
-}
-`.trim();
+    const payload = {
+      actions: actions.map((a) => ({
+        text: a.text.slice(0, 800),
+        type: a.type,
+        mentioned: a.mentioned,
+      })),
+      categories: this.solutions.map((s) => ({
+        name: s.category,
+        description: s.description,
+      })),
+    };
 
-    const messages = [
-      { role: "system", content: prompt },
-      {
-        role: "user",
-        content: JSON.stringify({
-          actions: flatActions,
-          solutions: this.solutions,
-        }),
-      },
-    ];
-
-    console.log(
-      "==== MESSAGES JSON ====\n" + JSON.stringify(messages, null, 2),
-    );
-
-    const completion = await this.openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages,
-      max_tokens: 1000,
+    const resp = await this.openai.chat.completions.create({
+      model: process.env.OPENAI_API_MODEL || "gpt-4o-mini",
+      messages: [
+        { role: "system", content: promptSystem.trim() },
+        { role: "user", content: JSON.stringify(payload) },
+      ],
       temperature: 0,
-      top_p: 0.1,
+      max_tokens: 500,
+      response_format: { type: "json_object" },
     });
 
-    let text = (completion.choices?.[0]?.message?.content || "").trim();
-    console.log("LLM raw reply:", text);
-    text = text
-      .replace(/^```(?:json)?/i, "")
-      .replace(/```$/i, "")
-      .trim();
+    const rawContent = resp.choices?.[0]?.message?.content ?? "";
+    console.log("💡 LLM raw content:", rawContent);
 
-    let llmMatches = [];
+    let out;
     try {
-      const parsed = JSON.parse(text);
-      if (parsed.none) {
-        console.log("LLM returned none with reasons:", parsed.reasons);
-      } else if (Array.isArray(parsed)) {
-        llmMatches = parsed;
+      const parsed = JSON.parse(
+        rawContent
+          .replace(/^```(?:json)?/, "")
+          .replace(/```$/, "")
+          .trim(),
+      );
+      if (Array.isArray(parsed)) {
+        out = parsed;
+      } else if (parsed.result && Array.isArray(parsed.result)) {
+        out = parsed.result;
       } else {
-        console.warn("Unexpected LLM shape, ignoring.");
+        throw new Error("Unexpected shape");
       }
     } catch (err) {
-      console.error("Failed to parse LLM output:", err);
-      console.error("LLM output was:\n" + text);
+      console.error("Failed to parse LLM output, defaulting to none:", err);
+      out = actions.map(() => "none");
     }
 
-    // Optional: add heuristic InvestigateInformer matches if LLM missed them
-    const heuristicMatches = this._heuristicInvestigateInformer(flatActions);
-    // Merge (avoid duplicates)
-    const key = ({ actionId, category }) => `${actionId}::${category}`;
-    const seen = new Set(llmMatches.map((e) => key(e)));
-    for (const h of heuristicMatches) {
-      if (!seen.has(key(h))) {
-        llmMatches.push(h);
-        seen.add(key(h));
-      }
-    }
-
-    await this._markCompletedObjectives(llmMatches, flatActions);
-    return llmMatches;
+    return out;
   }
-
-  /* ---------------- APPLY DELTAS ---------------- */
 
   /**
-   * Apply deltas for each classified match.
-   *
-   * @param {Array<{ actionId, category, affectedAgents }>} classified
+   * @param {string[]} categories
+   * @returns {Promise<number>} updated health score for this level
    */
-  async applyDeltas(classified) {
-    for (const { category, affectedAgents } of classified) {
-      const rule = this.solutions.find((r) => r.category === category);
-      if (!rule) continue;
-
-      for (const { field, value } of rule.deltas) {
-        for (const agentId of affectedAgents) {
-          let ag = null;
-          if (mongoose.Types.ObjectId.isValid(agentId)) {
-            ag = await Agent.findById(agentId);
-          }
-          if (!ag) {
-            ag = await Agent.findOne({ username: agentId });
-          }
-          if (!ag) {
-            console.warn(`Grader: no Agent found for ${agentId}`);
-            continue;
-          }
-
-          const current = typeof ag[field] === "number" ? ag[field] : 0;
-          const raw = current + value;
-
-          let newValue;
-          if (["PRS", "CNT", "ANX", "VisitFreq"].includes(field)) {
-            newValue = Math.max(0, Math.min(7, raw));
-          } else if (["AT", "PBC", "EMP", "TIN"].includes(field)) {
-            newValue = Math.max(1, Math.min(5, Math.round(raw)));
-          } else if (["UES", "URA", "UAD", "UPS"].includes(field)) {
-            newValue = Math.max(0, Math.min(1, raw));
-          } else {
-            newValue = raw;
-          }
-
-          ag[field] = newValue;
-          console.log(
-            `Grader: ${ag.username || ag._id}.${field} += ${value} → ${newValue} (was ${current})`,
-          );
-          await ag.save();
-        }
-      }
-    }
+  async applyDeltas(categories) {
+    const current = await this.scoreController.getHealthScore(this.level);
+    const totalDelta = categories.reduce((sum, cat) => {
+      if (cat === "none") return sum;
+      const sol = this.solutions.find((s) => s.category === cat);
+      return sol ? sum + (sol.deltas ?? sol.delta ?? 0) : sum;
+    }, 0);
+    const updated = current + totalDelta;
+    await this.scoreController.setHealthScore(this.level, updated);
+    return updated;
   }
 
-  async _markCompletedObjectives(classified, flatActions) {
-    for (const { actionId, category, affectedAgents } of classified) {
-      let taskType = null;
-      let recipientUsername = null;
+  /**
+   * Execute next_steps for each action/category.
+   * @param {string[]} categories  – Array of category names, same length as lastActions
+   */
+  async processNextSteps(categories) {
+    // load session once
+    const session = await Session.findOne({
+      name: process.env.SESSION_NAME,
+    }).exec();
+    if (!session)
+      throw new Error(`Session "${process.env.SESSION_NAME}" not found`);
 
-      // Try resolving from the original flatActions list
-      const originalAction = flatActions.find(
-        (a) => a.id.toString() === actionId.toString(),
-      );
-      if (originalAction) {
-        const messageType = originalAction.raw?.messageType;
-        const commentType = originalAction.raw?.commentType;
+    for (let i = 0; i < categories.length; i++) {
+      const cat = categories[i];
+      if (cat === "none") continue;
 
-        if (messageType === "User" || commentType === "User") {
-          taskType =
-            originalAction.type === "public_comment" ? "comment" : "dm";
-          recipientUsername = originalAction.target; // assuming .target holds recipient username
+      const sol = this.solutions.find((s) => s.category === cat);
+      if (!sol || !sol.next_steps || !sol.next_steps.length) continue;
+
+      // log scenario type (comment or modify_post)
+      const stepType = sol.next_steps[0].type;
+      console.log(`[Grader] Scenario "${sol.category}" -> ${stepType}`);
+
+      // find the relevant post once per scenario
+      const post = await Script.findOne({
+        level: this.level,
+        isRelevant: true,
+      }).exec();
+      if (!post) break;
+      console.log(`[Grader] Target post ID: ${post._id}`);
+
+      for (const step of sol.next_steps) {
+        if (step.type === "comment") {
+          const actor = await Agent.findOne({ username: step.agent }).exec();
+          if (!actor) break;
+
           console.log(
-            `🧩 Resolved as taskType=${taskType}, recipient=${recipientUsername}`,
+            `[Grader] Posting comment by ${actor.username} (${actor._id}) on post ${post._id}: "${step.content}"`,
           );
-        } else {
+          const commentId = await pushComment({
+            postId: post._id.toString(),
+            text: step.content,
+            author: actor._id.toString(),
+            sessionName: process.env.SESSION_NAME,
+            level: this.level,
+          });
+          console.log(`[Grader] Comment posted with ID ${commentId}`);
+        } else if (step.type === "modify post") {
           console.log(
-            `⚠️ Skipped non-user message/comment type for action ${actionId}`,
+            `[Grader] Modifying post ${post._id} with new body: "${step.content}"`,
           );
-        }
-      }
-
-      if (!taskType) {
-        console.log(`❌ Could not resolve taskType for action ${actionId}`);
-        continue;
-      }
-
-      console.log(
-        `🔍 Looking for objectives: category=${category}, type=${taskType}`,
-      );
-
-      const objectives = await Objective.find({
-        goalCategory: category,
-        taskType,
-        completed: false,
-      });
-
-      console.log(`📎 Matched ${objectives.length} objectives`);
-
-      for (const obj of objectives) {
-        const agentMatch = affectedAgents.some(
-          (agent) =>
-            agent === obj.targetAgent?.toString() ||
-            agent === obj.targetAgentUsername ||
-            agent
-              .toLowerCase()
-              .includes(obj.targetAgentUsername?.toLowerCase()),
-        );
-
-        const directMatch =
-          recipientUsername && obj.targetAgentUsername === recipientUsername;
-
-        if (agentMatch || directMatch) {
-          obj.completed = true;
-          obj.completedAt = new Date();
-          await obj.save();
-          console.log(
-            `✅ Objective complete on ${category} for ${obj.targetAgentUsername}`,
-          );
+          const modifiedId = await modifyPost({
+            postId: post._id.toString(),
+            newBody: step.content,
+          });
+          console.log(`[Grader] Post modified with ID ${modifiedId}`);
         }
       }
     }
@@ -375,3 +297,125 @@ IF NOTHING MATCHES:
 }
 
 module.exports = Grader;
+
+// /* ---------------- APPLY DELTAS ---------------- */
+
+// /**
+//  * Apply deltas for each classified match.
+//  *
+//  * @param {Array<{ actionId, category, affectedAgents }>} classified
+//  */
+// async applyDeltas(classified) {
+//   for (const { category, affectedAgents } of classified) {
+//     const rule = this.solutions.find((r) => r.category === category);
+//     if (!rule) continue;
+
+//     for (const { field, value } of rule.deltas) {
+//       for (const agentId of affectedAgents) {
+//         let ag = null;
+//         if (mongoose.Types.ObjectId.isValid(agentId)) {
+//           ag = await Agent.findById(agentId);
+//         }
+//         if (!ag) {
+//           ag = await Agent.findOne({ username: agentId });
+//         }
+//         if (!ag) {
+//           console.warn(`Grader: no Agent found for ${agentId}`);
+//           continue;
+//         }
+
+//         const current = typeof ag[field] === "number" ? ag[field] : 0;
+//         const raw = current + value;
+
+//         let newValue;
+//         if (["PRS", "CNT", "ANX", "VisitFreq"].includes(field)) {
+//           newValue = Math.max(0, Math.min(7, raw));
+//         } else if (["AT", "PBC", "EMP", "TIN"].includes(field)) {
+//           newValue = Math.max(1, Math.min(5, Math.round(raw)));
+//         } else if (["UES", "URA", "UAD", "UPS"].includes(field)) {
+//           newValue = Math.max(0, Math.min(1, raw));
+//         } else {
+//           newValue = raw;
+//         }
+
+//         ag[field] = newValue;
+//         console.log(
+//           `Grader: ${ag.username || ag._id}.${field} += ${value} → ${newValue} (was ${current})`,
+//         );
+//         await ag.save();
+//       }
+//     }
+//   }
+// }
+
+//   async _markCompletedObjectives(classified, flatActions) {
+//     for (const { actionId, category, affectedAgents } of classified) {
+//       let taskType = null;
+//       let recipientUsername = null;
+
+//       // Try resolving from the original flatActions list
+//       const originalAction = flatActions.find(
+//         (a) => a.id.toString() === actionId.toString(),
+//       );
+//       if (originalAction) {
+//         const messageType = originalAction.raw?.messageType;
+//         const commentType = originalAction.raw?.commentType;
+
+//         if (messageType === "User" || commentType === "User") {
+//           taskType =
+//             originalAction.type === "public_comment" ? "comment" : "dm";
+//           recipientUsername = originalAction.target; // assuming .target holds recipient username
+//           console.log(
+//             `🧩 Resolved as taskType=${taskType}, recipient=${recipientUsername}`,
+//           );
+//         } else {
+//           console.log(
+//             `⚠️ Skipped non-user message/comment type for action ${actionId}`,
+//           );
+//         }
+//       }
+
+//       if (!taskType) {
+//         console.log(`❌ Could not resolve taskType for action ${actionId}`);
+//         continue;
+//       }
+
+//       console.log(
+//         `🔍 Looking for objectives: category=${category}, type=${taskType}`,
+//       );
+
+//       const objectives = await Objective.find({
+//         goalCategory: category,
+//         taskType,
+//         completed: false,
+//       });
+
+//       console.log(`📎 Matched ${objectives.length} objectives`);
+
+//       for (const obj of objectives) {
+//         const agentMatch = affectedAgents.some(
+//           (agent) =>
+//             agent === obj.targetAgent?.toString() ||
+//             agent === obj.targetAgentUsername ||
+//             agent
+//               .toLowerCase()
+//               .includes(obj.targetAgentUsername?.toLowerCase()),
+//         );
+
+//         const directMatch =
+//           recipientUsername && obj.targetAgentUsername === recipientUsername;
+
+//         if (agentMatch || directMatch) {
+//           obj.completed = true;
+//           obj.completedAt = new Date();
+//           await obj.save();
+//           console.log(
+//             `✅ Objective complete on ${category} for ${obj.targetAgentUsername}`,
+//           );
+//         }
+//       }
+//     }
+//   }
+// }
+
+// module.exports = Grader;

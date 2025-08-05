@@ -1,38 +1,57 @@
+// controllers/ScoreController.js
 const Agent = require("../models/Agent");
+const Score = require("../models/Score");
 
 let lastKnownLevel = null;
 let currentLevel = 1;
 
 class ScoreController {
   constructor() {
-    // Initialize health scores for levels 1 through 5 to zero
-    this._scores = {
-      1: 0,
-      2: 0,
-      3: 0,
-      4: 0,
-      5: 0,
-    };
+    // On instantiation, upsert a score:0 for levels 1–5 if not already present
+    const ops = [1, 2, 3, 4, 5].map((level) => ({
+      updateOne: {
+        filter: { level },
+        update: {
+          // only set these on insert
+          $setOnInsert: { score: 0, updated: new Date() },
+        },
+        upsert: true,
+      },
+    }));
+    Score.bulkWrite(ops)
+      .then(() =>
+        console.log("[ScoreController] Initialized scores for levels 1–5"),
+      )
+      .catch((err) => console.error("[ScoreController] init error:", err));
   }
 
-  setHealthScore(level, score) {
-    this._scores[level] = score;
-  }
-  getHealthScore(level) {
-    return this._scores[level] ?? 0;
-  }
-
-  resetScores() {
-    console.log(
-      "[ScoreController] Resetting agent traits to original values...",
+  /** Set or overwrite the score for a level */
+  async setHealthScore(level, score) {
+    currentLevel = level;
+    await Score.findOneAndUpdate(
+      { level },
+      { score, updated: new Date() },
+      { upsert: true, new: true },
     );
+  }
 
-    const agents = Agent.find({ level: currentLevel });
+  /** Fetch the persisted score (or 0 if none) */
+  async getHealthScore(level) {
+    const doc = await Score.findOne({ level });
+    return doc ? doc.score : 0;
+  }
 
+  /** Reset all scores to zero and restore agents */
+  async resetScores() {
+    // zero out every stored score
+    await Score.updateMany({}, { score: 0, updated: new Date() });
+
+    // restore agent traits for the current level
+    const agents = await Agent.find({ level: currentLevel });
     for (const agent of agents) {
       if (agent.initialTraits) {
-        Object.assign(agent, agent.initialTraits); // overwrite traits
-        agent.save();
+        Object.assign(agent, agent.initialTraits);
+        await agent.save();
       } else {
         console.warn(`⚠️ Agent ${agent.username} has no initialTraits`);
       }

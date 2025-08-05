@@ -158,12 +158,10 @@ rule3.minute = 30;
 schedule.scheduleJob(rule3, function () {
   userController.stillActive();
 });
-//NOTE: we don't need to update anymore
-//every second calculate updated system score
 
 schedule.scheduleJob("*/1 * * * * *", async () => {
   try {
-    const healthScore = scoreController.getHealthScore(currentLevel);
+    const healthScore = await scoreController.getHealthScore(currentLevel);
 
     const isNumber = (n) => typeof n === "number" && !isNaN(n);
     if (!isNumber(healthScore)) {
@@ -171,34 +169,34 @@ schedule.scheduleJob("*/1 * * * * *", async () => {
       return;
     }
 
-    const payload = {
-      healthScore,
-      level: currentLevel,
-    };
-
+    const payload = { healthScore, level: currentLevel };
     io.emit("scoreUpdate", payload);
     console.log("[Score Update Emitted]", payload);
   } catch (err) {
     console.error("Score update error:", err);
   }
 });
+
 /**
- * Every 30 seconds, pop pendingActions and run the grader
+ * Every 10 seconds, pop pendingActions and run the grader
  */
 schedule.scheduleJob("*/10 * * * * *", async () => {
+  // grab & clear the queue
+  const toGrade = pendingActions.splice(0, pendingActions.length);
+  if (toGrade.length === 0) return;
+
   try {
-    const toGrade = pendingActions.splice(0, pendingActions.length);
-    if (toGrade.length === 0) return;
+    const grader = new Grader({
+      level: currentLevel,
+      scoreController,
+    });
 
-    const grader = new Grader({ level: currentLevel });
-    console.log(`✅ Instantiated Grader with level ${currentLevel}`);
+    const categories = await grader.classifyActionsWithLLM(toGrade);
+    console.log("Classified categories:", categories);
 
-    const classified = await grader.classifyActionsWithLLM(toGrade);
-    console.log(
-      "Grader → classified actions:",
-      JSON.stringify(classified, null, 2),
-    );
-    await grader.applyDeltas(classified);
+    const newHealth = await grader.applyDeltas(categories);
+    console.log(`Level ${currentLevel} health updated to ${newHealth}`);
+    await grader.processNextSteps(categories);
   } catch (err) {
     console.error("Grader job error:", err);
   }
