@@ -1,0 +1,38 @@
+[
+  {
+    "category": "CulturalSupport",
+    "description": "Publicly defend Mark by praising his efforts to learn a new language and celebrating multilingualism",
+    "deltas": [{ "field": "EMP", "value": 0.9 }],
+    "agents": ["david_tx", "priya_learns", "luis_music", "hannah_art"]
+  },
+  {
+    "category": "CallOutXenophobia",
+    "description": "Call out xenophobic or mocking comments as unacceptable",
+    "deltas": [{ "field": "CNT", "value": 1.0 }],
+    "agents": ["viralj4ke"]
+  },
+  {
+    "category": "PositiveReframing",
+    "description": "Reframe the situation by emphasizing the value of cultural diversity",
+    "deltas": [{ "field": "AT", "value": 0.6 }],
+    "agents": ["david_tx", "priya_learns", "luis_music", "hannah_art"]
+  },
+  {
+    "category": "SupportiveCommenting",
+    "description": "Join supportive threads and encourage others to respect language learners",
+    "deltas": [{ "field": "TIN", "value": 0.5 }],
+    "agents": [
+      "mark.exploring",
+      "david_tx",
+      "priya_learns",
+      "luis_music",
+      "hannah_art"
+    ]
+  },
+  {
+    "category": "AllyResourceSharing",
+    "description": "Share resources on allyship, cultural learning, and inclusion",
+    "deltas": [{ "field": "UES", "value": 0.8 }],
+    "agents": ["david_tx", "priya_learns", "luis_music", "hannah_art"]
+  }
+]

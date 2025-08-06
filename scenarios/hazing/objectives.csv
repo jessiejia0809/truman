@@ -1,0 +1,5 @@
+level,label,category,isRequired
+,Figure out the bully’s motive,address bully,false
+,Figure out the victim’s motive,address victim,false
+,Show the victim they are not alone,support victim,true
+,Rally the bystanders to join your effort,rally bystander,true

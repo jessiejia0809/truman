@@ -1,0 +1,94 @@
+extends ui_layout
+
+block styles
+  link(type='text/css', rel='stylesheet', href='/public/css/script.css')
+  link(type='text/css', rel='stylesheet', href='/public/css/chat.css')
+  link(type='text/css', rel='stylesheet', href='/public/css/objectives.css')
+
+block content
+  // 💡 Floating UserCard (desktop only)
+  //-.usercard-overlay
+    include ./partials/userCard
+  // 🔥 Centered Posts
+  .ui.centered.grid
+    .column(style="max-width: 700px; width: 100%;")
+      #feed-container
+        each val in script
+          include partials/post
+
+      .ui.fluid.card
+        .content
+          .description
+          | End of Posts for the last 24 hours.
+
+      .ui.one.column.centered.grid#newActivityMessage
+        .ui.fixed.bottom.sticky.hidden
+          .ui.icon.message.info
+            i.close.icon
+            i.undo.icon.float
+            .content
+              .ui.header There is some new activity!
+              p Click to reload feed.
+
+  
+  //-#content.ten.wide.computer.ten.wide.tablet.sixteen.wide.mobile.column.hidden
+    .ui.centered.stackable.grid
+      .column(style="max-width: 800px; width: 100%;")
+        #feed-container
+        .ui.centered.stackable.grid
+          .column(style="max-width: 800px;")
+            each val in script
+              include partials/post
+            #content.six.wide.computer.six.wide.tablet.column
+              include partials/chat
+            .ui.fluid.card
+              .content
+                .description
+                |  End of Posts for the last 24 hours.
+            .ui.one.column.centered.grid#newActivityMessage
+              .ui.fixed.bottom.sticky.hidden
+                .ui.icon.message.info
+                  i.close.icon
+                  i.undo.icon.float
+                  .content
+                    .ui.header There is some new activity!
+                    p Click to reload feed.
+    //- Input for creating new post at top of feed
+    //-#newpost.ui.fluid.left.labeled.right.icon.input
+      .ui.label
+        if user.profile.picture
+          img.ui.avatar.image(src='/user_avatar/'+user.profile.picture)
+        else
+          img.ui.avatar.image(src=user.gravatar(60))
+      input(type='text', placeholder='Create a post')
+      i.big.photo.link.icon
+    
+    //-.computer.only.tablet.only.four.wide.column
+      button.ui.icon.generate.post.button(type='button') Generate Post
+    //-.ui.tiny.post.modal
+      i.close.icon
+      .header Add a New Post
+      .scrolling.content
+        form#postform.ui.feed.form(action='/post/new', method='POST', enctype='multipart/form-data')
+          input(type='hidden', name='_csrf', value=_csrf)
+          .field
+            textarea(rows='2', placeholder='Share your meal', name='body')
+          .field.image-upload
+            label(for='picinput')
+              .image.content
+                img#imgInp.ui.fluid.image(src='/public/photo-camera.svg')
+            input#picinput(type='file', accept='image/*', name='picinput')
+      .actions
+        input.ui.green.button(type='submit', form='postform', value='Submit')
+
+block scripts
+  script(src='https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js')
+  script(src='https://cdn.jsdelivr.net/npm/dayjs@1/plugin/relativeTime.js')
+  script(src='/public/js/postFunctionalities.js')
+  script(src='/public/js/script.js')
+  script(src='/public/js/chat.js')
+  script(src='/public/js/transitionModal.js')
+  script(src='/public/js/levelClient.js')
+  script(src='/public/js/score.js')
+  script(src='/public/js/timer.js')
+  script(src="/public/js/objectives.js")

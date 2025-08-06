@@ -1,0 +1,64 @@
+extends ui_layout
+
+block content
+  .ui.text.container(style="margin-top: 2em; margin-bottom: 2em;")
+    //- Page Title
+    h1(ui centered)(style="text-align: center;") Tutorial: Guardian of the Social Realm
+    
+    p Welcome, Guardian! Your mission is to protect our community by resolving highlighted posts in the feed and restoring our Community Health Score.
+    
+    //- Section: The Feed Overview
+    h2 The Feed
+    p The main feed displays user posts. Posts outlined in yellow indicate potential cyberbullying scenarios you need to address.
+    img.ui.centered.image(src='/public/images/tutorial-feed.png', alt='Feed with highlighted post')
+    
+    //- Section: Game Interface Indicators
+    h2 Game Interface
+    .ui.grid
+      //- Visual aid column
+      .four.wide.column
+        img.ui.centered.image(src='/public/images/tutorial-ui.png', alt='Game interface overview')
+      //- Explanation column
+      .twelve.wide.column
+        h3 Indicators
+        ul
+          li
+            strong Community Health Score (red):
+            |  Shows the overall well-being of the social realm. Raise it above 80 to succeed.
+          li
+            strong Time Limit (blue):
+            |  Countdown timer. Complete your objectives before time runs out.
+          li
+            strong Objectives Panel:
+            |  Lists tasks to guide you—check them off to boost the health score.
+    
+    //- Section: How to Play
+    h2 How to Play
+    ul
+      li
+        strong Investigate:
+        |  Read the highlighted post carefully to understand the situation.
+      li
+        strong Engage Publicly:
+        |  Leave constructive comments on the post to promote positive dialogue.
+      li
+        strong Reach Out:
+        |  Send a private DM to the informer for deeper context and support.
+      li
+        strong Complete Objectives:
+        |  Fulfill all tasks in the panel to increase the Community Health Score.
+      li
+        strong Beat the Clock:
+        |  Finish before the timer expires to advance to the next scenario.
+
+    //- Start button
+    .ui.big.green.labeled.icon.button.start
+      i.play.icon
+      |  Start Tutorial
+
+  //- Script to handle start button click
+  script.
+    $('.ui.big.green.labeled.icon.button.start').on('click', function() {
+      $(this).addClass('loading disabled');
+      window.location.href = '/level/1';
+    });

@@ -1,0 +1,43 @@
+[
+  {
+    "category": "Informer: Talk to informer",
+    "description": "Speak privately with jordankim to learn who’s orchestrating the exclusion and why.",
+    "deltas": [
+      { "field": "CNT", "value": 3.0 },
+      { "field": "PRS", "value": 3.0 },
+      { "field": "UAD", "value": 1.0 },
+      { "field": "UPS", "value": 1.0 }
+    ],
+    "agents": ["jordankim"]
+  },
+  {
+    "category": "Bully: Talk to bully",
+    "description": "Confront [bullyUsername] and help them recognize the harm caused by their manipulation tactics.",
+    "deltas": [
+      { "field": "AT", "value": -4.0 },
+      { "field": "PBC", "value": -3.0 },
+      { "field": "EMP", "value": 2.0 }
+    ],
+    "agents": ["alex_t"]
+  },
+  {
+    "category": "Authority: Report authority figure",
+    "description": "Comment publicly requesting authority to intervene and stop the manipulation. This can be calling teacher, police,... any authority",
+    "deltas": [
+      { "field": "AT", "value": -4.0 },
+      { "field": "PBC", "value": -3.0 },
+      { "field": "EMP", "value": 2.0 },
+      { "field": "TIN", "value": 4.0 }
+    ],
+    "agents": ["alex_t"]
+  },
+  {
+    "category": "Public Upstanding: Denounce manipulative behavior",
+    "description": "Post a public comment that calls out the toxic power-seeking behavior and rallies others to stand together against exclusion.",
+    "deltas": [
+      { "field": "CNT", "value": 3.0 },
+      { "field": "PRS", "value": 3.0 }
+    ],
+    "agents": ["k8lynne_", "ty_2k8", "sammie_r", "daveeeee", "zoeee99"]
+  }
+]

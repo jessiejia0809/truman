@@ -1,0 +1,32 @@
+[
+  {
+    "category": "CallOutAbuse",
+    "description": "Publicly call out humiliating behavior in the relationship as abusive",
+    "deltas": [{ "field": "CNT", "value": 1.0 }],
+    "agents": ["real_jane", "mariam_m"]
+  },
+  {
+    "category": "HealthyRelationshipEducation",
+    "description": "Share resources and posts about what healthy relationships look like",
+    "deltas": [{ "field": "UES", "value": 0.8 }],
+    "agents": ["jackyates33", "emfan_kelly"]
+  },
+  {
+    "category": "PrivateSupport",
+    "description": "Privately message the victim offering emotional support and resources",
+    "deltas": [{ "field": "EMP", "value": 0.9 }],
+    "agents": ["its.kat", "charlem"]
+  },
+  {
+    "category": "NormalizeRespect",
+    "description": "Create posts promoting respectful relationship behaviors as the norm",
+    "deltas": [{ "field": "AT", "value": 0.7 }],
+    "agents": ["jamie4real", "omar007"]
+  },
+  {
+    "category": "JoinSupportiveVoices",
+    "description": "Echo others calling out abuse to show consensus and reduce silence",
+    "deltas": [{ "field": "TIN", "value": 0.5 }],
+    "agents": ["real_jane", "mariam_m"]
+  }
+]

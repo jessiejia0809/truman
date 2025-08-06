@@ -1,0 +1,7 @@
+level,task_type,agent_name,goal_category,description,label
+,dm,Kelly890,Victim: Provide empathy,Talk to Kelly to understand her hardship and offer empathy.,Ask Kelly about her situation.
+,dm,its.kat,Informer: Uncover leak,DM Kat to uncover who leaked Kelly’s secret.,Ask Kat about the leak.
+,comment,justAGuy,Bully: Foster empathy,Confront @justAGuy and @kylex_football to help them understand the emotional harm they’ve caused Kelly.,Confront the bully about their actions.
+,dm,justAGuy,Bully: Legal accountability,Warn @justAGuy and @kylex_football about the legal consequences of non‑consensual disclosure and that anonymity isn’t guaranteed.,Warn the bullies about legal risks.
+,comment,justAGuy,Community: Raise awareness,Post a public comment reminding everyone of the legal risks of non‑consensual disclosure.,Promote awareness of legal risks.
+,dm,Ms.Miller,Teacher: Support and intervention,Message Ms. Miller to request intervention and support in de‑escalating the bullying.,Involve a trusted adult.

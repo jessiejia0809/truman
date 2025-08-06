@@ -1,0 +1,107 @@
+/* === Global Background & Font === */
+body {
+  background-color: #1e1e1e;
+  color: #000000; /* black text */
+  font-family: "Courier New", monospace;
+  margin: 0;
+  padding: 0;
+}
+
+/* === Page Layout === */
+#pagegrid,
+#pagecontainer {
+  justify-content: center;
+  padding-top: 50px;
+}
+
+.hidden {
+  display: none;
+}
+
+/* === Default Card Styling (non-bullying) === */
+.ui.fluid.card {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border: 1px solid #000000 !important;
+  border-radius: 6px;
+  box-shadow: none;
+  padding: 1rem;
+}
+
+/* === Bullying Posts === */
+.ui.fluid.card.relevant-post {
+  background-color: #5c0000 !important;
+  color: #ffffff !important;
+  border: 1px solid #ffffff !important;
+}
+
+/* === Comment Section === */
+.ui.comments {
+  background-color: #ffffff !important;
+  border-top: 1px solid #000000;
+  padding: 1em;
+}
+
+.ui.fluid.card.relevant-post .ui.comments {
+  background-color: #5c0000 !important;
+}
+
+.ui.comments .comment {
+  border-bottom: 1px solid #000000;
+  padding-bottom: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.ui.fluid.card.relevant-post .ui.comments .comment {
+  border-bottom: 1px solid #ffffff;
+}
+
+.ui.comments .comment .content > .text,
+.ui.comments .comment .author,
+.ui.comments .comment .metadata,
+.ui.comments .comment .actions,
+.ui.comments .comment .actions a {
+  color: inherit !important;
+}
+
+/* === Buttons and Inputs === */
+.ui.button,
+button {
+  background-color: transparent;
+  border: 1px solid #000000;
+  color: #000000;
+}
+
+.ui.fluid.card.relevant-post .ui.button,
+.ui.fluid.card.relevant-post button {
+  border-color: #ffffff;
+  color: #ffffff;
+}
+
+.ui.button:hover {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+textarea,
+input {
+  background-color: #ffffff;
+  color: #000000;
+  border: 1px solid #000000;
+}
+
+.ui.fluid.card.relevant-post textarea,
+.ui.fluid.card.relevant-post input {
+  background-color: #5c0000;
+  color: #ffffff;
+  border: 1px solid #ffffff;
+}
+
+/* === Image Upload Box === */
+.image-upload img {
+  border: 2px solid #000000;
+}
+
+.image-upload > input {
+  display: none;
+}

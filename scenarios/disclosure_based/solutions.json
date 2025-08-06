@@ -1,0 +1,67 @@
+[
+  {
+    "category": "Victim: Talk to victim",
+    "description": "Talk to Kelly to understand her hardship and offer empathy.",
+    "deltas": [
+      { "field": "URA", "value": 1.0 },
+      { "field": "UAD", "value": 1.0 }
+    ],
+    "agents": ["Kelly890"]
+  },
+  {
+    "category": "Informer: Talk to informer",
+    "description": "Talk to Kat to uncover who leaked Kelly’s secret-- it is James",
+    "deltas": [
+      { "field": "CNT", "value": 3.0 },
+      { "field": "PRS", "value": 3.0 },
+      { "field": "ANX", "value": -3.0 },
+      { "field": "TIN", "value": 1.0 }
+    ],
+    "agents": ["its.kat"]
+  },
+  {
+    "category": "Bully: Help them empathize with victim",
+    "description": "Confront @justAGuy to help them understand the emotional harm they’ve caused Kelly.",
+    "deltas": [
+      { "field": "AT", "value": -3.0 },
+      { "field": "PBC", "value": -3.0 },
+      { "field": "EMP", "value": 3.0 },
+      { "field": "TIN", "value": 3.0 }
+    ],
+    "agents": ["justAGuy"]
+  },
+  {
+    "category": "Bully: Remind of legal consequences and call out James",
+    "description": "Warn @justAGuy that sharing someone’s secret without consent can have legal repercussions and that anonymity is not guaranteed since we know he is James",
+    "deltas": [
+      { "field": "AT", "value": -2.0 },
+      { "field": "PBC", "value": -2.0 },
+      { "field": "EMP", "value": 2.0 },
+      { "field": "TIN", "value": 2.0 }
+    ],
+    "agents": ["justAGuy"]
+  },
+  {
+    "category": "Public Upstanding: Address legal consequences",
+    "description": "Post a public comment reminding everyone of the legal risks of non‑consensual disclosure, with context: Kelly’s secret was exposed without consent, causing shame and emotional harm.",
+    "deltas": [
+      { "field": "CNT", "value": 3.0 },
+      { "field": "PRS", "value": 3.0 }
+    ],
+    "agents": [
+      "its.kat",
+      "omar007",
+      "emfan_kelly",
+      "real_jane",
+      "jackyates33",
+      "jamie4real",
+      "charlem"
+    ]
+  },
+  {
+    "category": "Authority: Talk to teacher/authority figure",
+    "description": "Message Ms. Miller to request intervention and support in de‑escalating Amy’s bullying.",
+    "deltas": [{ "field": "TIN", "value": 1.0 }],
+    "agents": ["kylex_football", "justAGuy"]
+  }
+]
