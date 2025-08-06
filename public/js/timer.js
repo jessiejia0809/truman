@@ -47,13 +47,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const percent = Math.max(0, Math.min(1, timeLeft / totalTime));
     timerFill.style.width = `${percent * 100}%`;
-
+    console.log(
+      "Checking if win condition function exists:",
+      typeof window.checkWinCondition === "function",
+    );
     if (typeof window.checkWinCondition === "function") {
-      window.checkWinCondition(
+      console.log(
+        "Checking win condition with score:",
         window.currentScore || 0,
+        "and time left:",
         timeLeft,
-        window.userActions || [],
       );
+      window.checkWinCondition(window.currentScore || 0, timeLeft);
     }
   }
 

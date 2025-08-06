@@ -20,6 +20,15 @@ exports.getScript = async (req, res, next) => {
 
     const user = await User.findById(req.user.id).exec();
 
+    const relevantPost = scenario.posts.find((p) => p.isRelevant === true);
+
+    if (relevantPost && req.io) {
+      req.io.emit("timeline activity", {
+        timestamp: Date.now() + 1000, // 1 second from now
+        bullyingPostId: relevantPost._id?.toString?.() || relevantPost.postid,
+      });
+    }
+
     // If the user is no longer active, sign the user out.
     if (!user.active) {
       req.logout((err) => {

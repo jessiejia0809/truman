@@ -1,6 +1,7 @@
 let hintsUsed = new Set();
 
 async function loadObjectives(level) {
+  if (window.victoryTriggered) return;
   console.log("📌 Loading objectives for level:", level);
   try {
     const res = await fetch(`/api/objectives?level=${level}`);
@@ -80,12 +81,10 @@ async function loadObjectives(level) {
   }
 }
 
-// Load when DOM is ready
 document.addEventListener("DOMContentLoaded", () => {
   const urlParams = new URLSearchParams(window.location.search);
   const currentLevel = urlParams.get("level") || 1;
   loadObjectives(currentLevel);
 });
 
-// Expose globally
 window.loadObjectives = loadObjectives;

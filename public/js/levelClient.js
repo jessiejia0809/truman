@@ -29,12 +29,18 @@ window.retryLevel = async function () {
   }, 300);
 };
 
-window.checkWinCondition = async function (score, remainingTime, userActions) {
+window.checkWinCondition = async function (score, remainingTime) {
   console.log("Checking win condition for level", currentLevel);
-  if (currentLevel == 1 && score >= 60) {
+  console.log("Victory triggered:", window.victoryTriggered);
+  if (currentLevel == 1 && score >= 25) {
+    if (window.victoryTriggered) return;
+    window.victoryTriggered = true;
+    window.freezeScore?.();
+    window.startVictoryPostFlow?.();
+  } else if (score === 100 && !window.victoryTriggered) {
     console.log("Level 1 complete!");
     window.freezeScore();
-    window.showTransitionPopup("win");
+    window.startVictoryPostFlow?.();
   } else if (score >= 80) {
     console.log("Level complete!");
     window.freezeScore();
@@ -42,14 +48,6 @@ window.checkWinCondition = async function (score, remainingTime, userActions) {
   } else if (remainingTime <= 0) {
     window.freezeScore();
     console.log("Time's up! Checking for win condition.");
-    /*if (!userActions) {
-      //console.warn("No userActions provided for feedback analysis.");
-      window.showTransitionPopup("lose", [], score);
-      return;
-    }*/
-    //console.log("Fetching feedback for user actions");
-    //const feedback = await window.fetchFeedback(userActions);
-    //console.log("Feedback received:", feedback);
     window.showTransitionPopup("lose", score);
   }
 };
