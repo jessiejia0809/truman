@@ -557,6 +557,33 @@ app.get("/api/objectives", passportConfig.isAuthenticated, async (req, res) => {
   }
 });
 
+app.get(
+  "/api/bullying-post",
+  passportConfig.isAuthenticated,
+  async (req, res) => {
+    try {
+      const level = parseInt(req.query.level, 10) || currentLevel;
+
+      // Use Script model since bullying posts are saved there
+      const Script = require("./models/Script.js");
+
+      const post = await Script.findOne({
+        level: level,
+        isRelevant: true,
+      }).lean();
+
+      if (!post) {
+        return res.status(204).send(); // No content
+      }
+
+      return res.json({ bullyingPostId: post._id.toString() });
+    } catch (err) {
+      console.error("❌ Error in /api/bullying-post:", err);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  },
+);
+
 /**
  * Error Handler.
  */

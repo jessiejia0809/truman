@@ -30,13 +30,39 @@ window.retryLevel = async function () {
 };
 
 window.checkWinCondition = async function (score, remainingTime) {
+  fetch(`/api/bullying-post?level=${window.getCurrentLevel()}`)
+    .then((res) => res.json())
+    .then(({ bullyingPostId }) => {
+      if (!bullyingPostId) throw new Error("No bullying post ID");
+
+      const bullyingPost = document.querySelector(
+        `[postid="${bullyingPostId}"]`,
+      );
+
+      if (bullyingPost) {
+        bullyingPost.scrollIntoView({ behavior: "smooth", block: "center" });
+
+        setTimeout(() => {
+          window.showTransitionPopup("win");
+        }, 10000);
+      } else {
+        console.warn("⚠️ Bullying post not found in DOM. Completing anyway.");
+        window.showTransitionPopup("win");
+      }
+    })
+    .catch((err) => {
+      console.error("❌ Failed to load bullying post:", err);
+      window.showTransitionPopup("win");
+    });
+
   console.log("Checking win condition for level", currentLevel);
   console.log("Victory triggered:", window.victoryTriggered);
   if (currentLevel == 1 && score >= 25) {
     if (window.victoryTriggered) return;
     window.victoryTriggered = true;
     window.freezeScore?.();
-    window.startVictoryPostFlow?.();
+    window.freezeTimer?.();
+    showBullyingPopup();
   } else if (score === 100 && !window.victoryTriggered) {
     console.log("Level 1 complete!");
     window.freezeScore();
@@ -52,20 +78,61 @@ window.checkWinCondition = async function (score, remainingTime) {
   }
 };
 
-window.fetchFeedback = async function (userActions) {
-  try {
-    const res = await fetch("/api/feedback", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ actions: userActions }),
+function showBullyingPopup() {
+  const popup = document.createElement("div");
+  popup.id = "bullyingPopup";
+  popup.style.position = "fixed";
+  popup.style.bottom = "20px";
+  popup.style.left = "50%";
+  popup.style.transform = "translateX(-50%)";
+  popup.style.background = "#ffdddd";
+  popup.style.padding = "20px";
+  popup.style.border = "1px solid #ff0000";
+  popup.style.borderRadius = "10px";
+  popup.style.zIndex = "9999";
+  popup.innerHTML = `
+    <strong>🎯 Great job!</strong><br>
+    Before completing this level, please review the bullying post.<br><br>
+    <button id="reviewBullyingBtn" class="ui red button">Review Now</button>
+  `;
+
+  document.body.appendChild(popup);
+
+  document
+    .getElementById("reviewBullyingBtn")
+    .addEventListener("click", async () => {
+      popup.remove(); // Only now begin scroll → wait → win
+
+      try {
+        const res = await fetch(
+          `/api/bullying-post?level=${window.getCurrentLevel()}`,
+        );
+        const { bullyingPostId } = await res.json();
+
+        if (!bullyingPostId) throw new Error("No bullying post ID");
+
+        const bullyingPost = document.querySelector(
+          `[postid="${bullyingPostId}"]`,
+        );
+
+        if (bullyingPost) {
+          console.log("📌 Found bullying post:", bullyingPostId);
+
+          // Scroll and wait for scroll completion
+          bullyingPost.scrollIntoView({ behavior: "smooth", block: "center" });
+
+          // ⏱️ Wait 10 seconds after scroll
+          setTimeout(() => {
+            console.log("✅ 10s complete. Showing transition popup.");
+            window.showTransitionPopup("win");
+          }, 10000);
+        } else {
+          console.warn("⚠️ Bullying post not found in DOM. Completing anyway.");
+          window.showTransitionPopup("win");
+        }
+      } catch (err) {
+        console.error("❌ Failed to load bullying post:", err);
+        window.showTransitionPopup("win");
+      }
     });
-
-    if (!res.ok) throw new Error("Failed to fetch feedback");
-
-    const { feedback } = await res.json();
-    return feedback;
-  } catch (err) {
-    console.error("Feedback error:", err);
-    return [];
-  }
-};
+}
