@@ -1,3 +1,5 @@
+let expandedObjectives = new Set();
+
 document.addEventListener("DOMContentLoaded", () => {
   const scoreAudio = new Audio("/public/sounds/score-up.mp3");
   scoreAudio.volume = 0.3; // soft, not intrusive
@@ -8,7 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const scoreContainer = document.createElement("div");
   Object.assign(scoreContainer.style, {
     position: "fixed",
-    bottom: "200px",
+    bottom: "80px",
     left: "40px",
     zIndex: "1000",
     display: "flex",
@@ -87,14 +89,16 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     window.currentScore = clamped;
+    console.log("Updating score:", clamped);
     sessionStorage.setItem("currentScore", clamped);
 
     const segmentsToEmpty = Math.floor((clamped / MAX_SCORE) * SEGMENTS);
 
     for (let i = 0; i < SEGMENTS; i++) {
-      // The higher the index, the later the segment is
-      fillOverlays[i].style.height =
-        i < SEGMENTS - segmentsToEmpty ? "100%" : "0%";
+      fillRects[i].setAttribute(
+        "height",
+        i < SEGMENTS - segmentsToEmpty ? "48" : "0",
+      );
     }
 
     if (
@@ -124,13 +128,17 @@ document.addEventListener("DOMContentLoaded", () => {
   window.socket = socket;
 
   socket.on("scoreUpdate", (allScores) => {
-    if (
+    /*if (
       typeof window.currentScore !== "number" ||
       isNaN(window.currentScore) ||
       allScores.healthScore !== window.currentScore
     ) {
       console.log("Initializing score:", allScores.healthScore);
       if (!window.levelOver) window.updateScore(allScores.healthScore);
+    }*/
+    if (typeof allScores.healthScore === "number") {
+      console.log("Updating score from socket:", allScores.healthScore);
+      window.updateScore(allScores.healthScore);
     }
     console.log("is function:", typeof window.loadObjectives);
     if (typeof window.loadObjectives === "function") {

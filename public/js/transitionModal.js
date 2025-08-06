@@ -1,3 +1,114 @@
+// 🟢 Victory Narrative Flow
+
+window.startVictoryPostFlow = function () {
+  if (window.victoryTriggered) return;
+  window.victoryTriggered = true;
+
+  const checklist = document.querySelector(".checklist-panel");
+  if (checklist) {
+    checklist.style.transition = "opacity 0.5s ease";
+    checklist.style.opacity = "0";
+    setTimeout(() => (checklist.style.display = "none"), 500);
+  }
+
+  const popup = document.createElement("div");
+  popup.className = "victory-alert";
+  popup.innerHTML = `
+    <div class="victory-content">
+      <h2>You Did It!</h2>
+      <p>The original bullying post has changed. Go check it out.</p>
+      <button>Check Now</button>
+    </div>
+  `;
+  document.body.appendChild(popup);
+
+  Object.assign(popup.style, {
+    position: "fixed",
+    top: "0",
+    left: "0",
+    width: "100vw",
+    height: "100vh",
+    background: "rgba(0, 0, 0, 0.85)",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 9999,
+  });
+
+  const content = popup.querySelector(".victory-content");
+  Object.assign(content.style, {
+    backgroundColor: "#d1ffcc",
+    color: "#1a1a1a",
+    padding: "2rem",
+    borderRadius: "12px",
+    fontFamily: "monospace",
+    textAlign: "center",
+    boxShadow: "0 0 15px rgba(0, 0, 0, 0.3)",
+    width: "400px",
+  });
+
+  const btn = popup.querySelector("button");
+  Object.assign(btn.style, {
+    marginTop: "1.5rem",
+    fontSize: "1.2rem",
+    padding: "10px 20px",
+    backgroundColor: "#1a6600",
+    color: "#fff",
+    border: "none",
+    borderRadius: "6px",
+    cursor: "pointer",
+  });
+
+  btn.onclick = () => {
+    popup.remove();
+    window.scrollToBullyingPostAndObserve();
+  };
+};
+
+window.scrollToBullyingPostAndObserve = function () {
+  console.log("🔍 Searching for bullying post...");
+  const post = document.querySelector(
+    ".bullying-post, [data-is-relevant='true']",
+  );
+  if (!post) {
+    console.warn("❌ Bullying post not found. Showing win screen anyway.");
+    return window.showTransitionPopup("win");
+  }
+
+  console.log("✅ Bullying post found. Highlighting...");
+  post.style.backgroundColor = "#004400";
+  post.style.transition = "background-color 1s";
+  post.scrollIntoView({ behavior: "smooth", block: "center" });
+
+  const observer = new IntersectionObserver(
+    (entries, obs) => {
+      const entry = entries[0];
+      if (entry.isIntersecting) {
+        console.log("👁️ Bullying post is visible on screen. Starting timer...");
+        obs.disconnect();
+
+        let secondsSeen = 0;
+        const interval = setInterval(() => {
+          secondsSeen++;
+          console.log(`⏱️ Viewing post: ${secondsSeen} seconds`);
+          if (secondsSeen >= 10) {
+            clearInterval(interval);
+            console.log("✅ Viewed for 10 seconds. Showing win screen...");
+            window.showTransitionPopup("win");
+          }
+        }, 1000);
+      } else {
+        console.log("👀 Bullying post not yet in view.");
+      }
+    },
+    {
+      threshold: 0.5,
+    },
+  );
+
+  observer.observe(post);
+};
+
 window.showTransitionPopup = function (
   result = "lose",
   //feedback = [],

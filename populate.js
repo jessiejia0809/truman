@@ -258,36 +258,33 @@ async function doPopulate(path, level) {
       }),
   );
 
+  let solutionMap = new Map();
+  try {
+    const solutionFile = await fs.readFile(`${path}/solutions.json`, "utf8");
+    const solutions = JSON.parse(solutionFile);
+    solutionMap = new Map(solutions.map((s) => [s.category, s.description]));
+  } catch (err) {
+    console.warn(`⚠️ No solutions.json found in ${path}. Hints will be empty.`);
+  }
+
   // Create objectives
   let objectives = [];
   try {
     const objectives_list = await CSVToJSON().fromFile(objectives_inputFile);
     objectives = await Promise.all(
       objectives_list.map(async (row) => {
-        const agent = agents.find((a) => a.username === row.agent_name);
-        if (!agent) {
-          console.warn(
-            `⚠️ No agent found for objective target "${row.agent_name}"`,
-          );
-          return null;
-        }
-
         const objective = new Objective({
           level,
-          taskType: row.task_type,
-          goalCategory: row.goal_category,
+          goalCategory: row.category,
           label: row.label,
-          description: row.description,
-          details: row.details,
-          targetAgent: agent._id,
-          targetAgentUsername: agent.username,
+          description: row.description || "",
+          hint: solutionMap.get(row.category) || null,
+          isRequired: String(row.isRequired).toLowerCase() === "true",
           completed: false,
-          user: null,
         });
-
         // ✅ Print right when it's created
         console.log(
-          `📘 Objective: [Level ${objective.level}] Task: ${objective.taskType.toUpperCase()} ${objective.goalCategory} → ${objective.targetAgentUsername} — ${objective.label}`,
+          `📘 Objective: [Level ${objective.level}] ${objective.goalCategory} — ${objective.label} ${objective.isRequired ? "(required)" : "(optional)"}`,
         );
 
         return objective;

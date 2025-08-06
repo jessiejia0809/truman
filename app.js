@@ -162,6 +162,8 @@ schedule.scheduleJob(rule3, function () {
 schedule.scheduleJob("*/1 * * * * *", async () => {
   try {
     const healthScore = await scoreController.getHealthScore(currentLevel);
+    const timeLeft = levelState.getTimeLeft(currentLevel);
+    const totalTime = levelState.getTotalDuration(currentLevel);
 
     const isNumber = (n) => typeof n === "number" && !isNaN(n);
     if (!isNumber(healthScore)) {
@@ -169,7 +171,7 @@ schedule.scheduleJob("*/1 * * * * *", async () => {
       return;
     }
 
-    const payload = { healthScore, level: currentLevel };
+    const payload = { healthScore, level: currentLevel, timeLeft, totalTime };
     io.emit("scoreUpdate", payload);
     console.log("[Score Update Emitted]", payload);
   } catch (err) {
@@ -535,7 +537,6 @@ app.get("/reset-level", async (req, res) => {
 
 app.get("/api/objectives", passportConfig.isAuthenticated, async (req, res) => {
   try {
-    const userId = req.user._id;
     const level = parseInt(req.query.level, 10);
 
     if (!level) {
@@ -543,20 +544,46 @@ app.get("/api/objectives", passportConfig.isAuthenticated, async (req, res) => {
     }
 
     // Step 1: Find and assign null-user objectives to this user
-    const unclaimed = await Objective.find({ user: null, level });
+    const unclaimed = await Objective.find({ level });
     for (const obj of unclaimed) {
-      obj.user = userId;
       await obj.save();
     }
 
     // Step 2: Fetch only objectives for this user and level
-    const objectives = await Objective.find({ level, user: userId }).lean();
+    const objectives = await Objective.find({ level }).lean();
     res.json(objectives);
   } catch (err) {
     console.error("Error fetching objectives:", err);
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
+app.get(
+  "/api/bullying-post",
+  passportConfig.isAuthenticated,
+  async (req, res) => {
+    try {
+      const level = parseInt(req.query.level, 10) || currentLevel;
+
+      // Use Script model since bullying posts are saved there
+      const Script = require("./models/Script.js");
+
+      const post = await Script.findOne({
+        level: level,
+        isRelevant: true,
+      }).lean();
+
+      if (!post) {
+        return res.status(204).send(); // No content
+      }
+
+      return res.json({ bullyingPostId: post._id.toString() });
+    } catch (err) {
+      console.error("❌ Error in /api/bullying-post:", err);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  },
+);
 
 /**
  * Error Handler.
