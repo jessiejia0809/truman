@@ -88,3 +88,16 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 window.loadObjectives = loadObjectives;
+
+window.resetObjectives = function () {
+  if (!Array.isArray(window.objectives)) return;
+
+  window.objectives.forEach((obj) => (obj.completed = false));
+
+  // Also update UI if needed
+  document.querySelectorAll(".objective").forEach((el) => {
+    el.classList.remove("completed");
+  });
+
+  console.log("🧹 Objectives reset.");
+};

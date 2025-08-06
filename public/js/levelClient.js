@@ -12,7 +12,8 @@ window.goToNextLevel = function () {
 
   // Notify server BEFORE redirecting
   window.socket.emit("levelChanged", { level: nextLevel });
-
+  window.resetScore?.();
+  window.resetObjectives?.();
   window.location.href = `/feed?level=${nextLevel}`;
 };
 
@@ -22,7 +23,6 @@ window.retryLevel = async function () {
 
   window.socket.emit("resetLevel", { level: currentLevel });
   console.log("🔄 Level reset requested via socket.");
-
   // Wait and reload the same level
   setTimeout(() => {
     window.location.href = `/feed?level=${currentLevel}`;
@@ -30,49 +30,26 @@ window.retryLevel = async function () {
 };
 
 window.checkWinCondition = async function (score, remainingTime) {
-  fetch(`/api/bullying-post?level=${window.getCurrentLevel()}`)
-    .then((res) => res.json())
-    .then(({ bullyingPostId }) => {
-      if (!bullyingPostId) throw new Error("No bullying post ID");
-
-      const bullyingPost = document.querySelector(
-        `[postid="${bullyingPostId}"]`,
-      );
-
-      if (bullyingPost) {
-        bullyingPost.scrollIntoView({ behavior: "smooth", block: "center" });
-
-        setTimeout(() => {
-          window.showTransitionPopup("win");
-        }, 10000);
-      } else {
-        console.warn("⚠️ Bullying post not found in DOM. Completing anyway.");
-        window.showTransitionPopup("win");
-      }
-    })
-    .catch((err) => {
-      console.error("❌ Failed to load bullying post:", err);
-      window.showTransitionPopup("win");
-    });
-
   console.log("Checking win condition for level", currentLevel);
-  console.log("Victory triggered:", window.victoryTriggered);
-  if (currentLevel == 1 && score >= 25) {
-    if (window.victoryTriggered) return;
-    window.victoryTriggered = true;
+
+  if (score < 100 && remainingTime > 0) {
+    console.log("⏸️ Not ready to win yet.");
+    return;
+  }
+
+  if (currentLevel == 1 && score == 100) {
+    console.log("Level 1 complete!");
     window.freezeScore?.();
     window.freezeTimer?.();
     showBullyingPopup();
-  } else if (score === 100 && !window.victoryTriggered) {
-    console.log("Level 1 complete!");
-    window.freezeScore();
-    window.startVictoryPostFlow?.();
-  } else if (score >= 80) {
+  } else if (score === 100) {
     console.log("Level complete!");
-    window.freezeScore();
-    window.showTransitionPopup("win");
+    window.freezeScore?.();
+    window.freezeTimer?.();
+    showBullyingPopup();
   } else if (remainingTime <= 0) {
     window.freezeScore();
+    window.freezeTimer?.();
     console.log("Time's up! Checking for win condition.");
     window.showTransitionPopup("lose", score);
   }
@@ -136,3 +113,23 @@ function showBullyingPopup() {
       }
     });
 }
+
+document.addEventListener("keydown", function (e) {
+  if (e.key === "r" || e.key === "R") {
+    const active = document.activeElement;
+    const isTyping =
+      active &&
+      (active.tagName === "INPUT" ||
+        active.tagName === "TEXTAREA" ||
+        active.isContentEditable);
+
+    if (!isTyping) {
+      const confirmReset = confirm(
+        "🔁 Are you sure you want to restart this level?",
+      );
+      if (confirmReset) {
+        window.retryLevel?.();
+      }
+    }
+  }
+});

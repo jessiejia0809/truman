@@ -526,8 +526,14 @@ app.get("/reset-level", async (req, res) => {
   await Comment.deleteMany({
     commentType: "User",
   });
-
+  objectives = await Objective.find({ level: currentLevel });
+  for (const obj of objectives) {
+    obj.completed = false;
+    await obj.save();
+  }
   levelState.resetLevelStartTime();
+
+  scoreController.resetScores(currentLevel);
 
   setTimeout(() => {
     res.redirect(`/feed?level=${currentLevel}`);
@@ -645,9 +651,10 @@ io.on("connection", (socket) => {
       { name: sessionName },
       { level: currentLevel },
     );
-
+    await scoreController.resetScores(currentLevel);
     levelState.setLevel(level);
-    levelState.resetLevelStartTime(); // optional, but recommended
+    levelState.resetLevelStartTime();
+    scoreController.resetScores(currentLevel);
 
     // // Reset score immediately
     // await ScoreController.resetScores();
@@ -655,6 +662,42 @@ io.on("connection", (socket) => {
     // // Emit updated score immediately
     // const newScore = await ScoreController.getAllScores();
     // io.emit("scoreUpdate", newScore);
+  });
+
+  socket.on("resetLevel", async ({ level }) => {
+    try {
+      const currentLevel = parseInt(level, 10) || 1;
+      console.log(`[RESET] (socket) Resetting level ${currentLevel}`);
+
+      await Session.findOneAndUpdate(
+        { name: sessionName },
+        { level: currentLevel },
+      );
+
+      const allComments = await Comment.find();
+      console.log("📋 All comments:", allComments);
+
+      const userComments = await Comment.find({ commentType: "User" });
+      console.log("👤 User comments before deletion:", userComments);
+
+      await Comment.deleteMany({ commentType: "User" });
+
+      const objectives = await Objective.find({ level: currentLevel });
+      for (const obj of objectives) {
+        obj.completed = false;
+        await obj.save();
+      }
+
+      levelState.resetLevelStartTime();
+
+      await scoreController.resetScores(currentLevel);
+
+      console.log(`✅ Socket: Level ${currentLevel} reset complete`);
+      socket.emit("levelResetConfirmed", { level: currentLevel });
+    } catch (err) {
+      console.error("❌ Socket: Failed to reset level:", err);
+      socket.emit("levelResetFailed", { error: err.message });
+    }
   });
 
   socket.on("error", function (err) {
