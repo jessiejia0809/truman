@@ -190,6 +190,7 @@ schedule.scheduleJob("*/10 * * * * *", async () => {
       level: currentLevel,
       scoreController,
     });
+    await grader.init();
 
     const categories = await grader.classifyActionsWithLLM(toGrade);
     console.log("Classified categories:", categories);

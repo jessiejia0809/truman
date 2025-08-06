@@ -7,10 +7,8 @@ const { performFeedAction } = require("./script");
 const Agent = require("../models/Agent");
 const Session = require("../models/Session");
 const Script = require("../models/Script");
-
-const levelOrder = require(
-  path.resolve(process.cwd(), "scenarios/level_order.json"),
-);
+const LevelOrder = require("../models/LevelOrder");
+const Solution = require("../models/Solution");
 
 /**
  * Helper to push a comment via your existing /action endpoint
@@ -66,14 +64,19 @@ class Grader {
     this.scoreController = scoreController;
     this.openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-    const entry = levelOrder.find((e) => e.level === this.level);
-    const solutionsPath = path.join(
-      process.cwd(),
-      entry.folder,
-      "solutions.json",
-    );
-    console.log(`Loading solutions for level ${this.level}: ${solutionsPath}`);
-    this.solutions = JSON.parse(fs.readFileSync(solutionsPath, "utf-8"));
+    this.levelEntry = null;
+    this.solutions = [];
+  }
+  async init() {
+    // load level-order
+    this.levelEntry = await LevelOrder.findOne({ level: this.level }).lean();
+    if (!this.levelEntry)
+      throw new Error(`No LevelOrder for level ${this.level}`);
+
+    // Load only solutions not yet done
+    this.solutions = await Solution.find({ level: this.level, done: false })
+      .sort({ category: 1 })
+      .lean();
   }
 
   _extractMentions(text = "") {
@@ -217,8 +220,13 @@ Do not emit any other text.
       };
     }
 
-    // **NEW** — strip away everything else and return only the matched solutions array:
-    return result.matchedSolutions;
+    const matched = result.matchedSolutions;
+    // mark matched solutions as done
+    await Solution.updateMany(
+      { level: this.level, category: { $in: matched } },
+      { $set: { done: true } },
+    );
+    return matched;
   }
 
   /**
