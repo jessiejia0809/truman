@@ -162,6 +162,8 @@ schedule.scheduleJob(rule3, function () {
 schedule.scheduleJob("*/1 * * * * *", async () => {
   try {
     const healthScore = await scoreController.getHealthScore(currentLevel);
+    const timeLeft = levelState.getTimeLeft(currentLevel);
+    const totalTime = levelState.getTotalDuration(currentLevel);
 
     const isNumber = (n) => typeof n === "number" && !isNaN(n);
     if (!isNumber(healthScore)) {
@@ -169,7 +171,7 @@ schedule.scheduleJob("*/1 * * * * *", async () => {
       return;
     }
 
-    const payload = { healthScore, level: currentLevel };
+    const payload = { healthScore, level: currentLevel, timeLeft, totalTime };
     io.emit("scoreUpdate", payload);
     console.log("[Score Update Emitted]", payload);
   } catch (err) {
