@@ -84,8 +84,8 @@ exports.postChatAction = async (req, res, next) => {
     const sessionDoc = await Session.findById(sender.session).exec();
     const sessionName = sessionDoc.name;
 
-    console.log("Sender object:", sender);
-    console.log("Sender.session:", sender?.session);
+    // console.log("Sender object:", sender);
+    // console.log("Sender.session:", sender?.session);
 
     const { feed, state } = await runFeedAndRead(sessionName);
     const feedContext = JSON.stringify(feed, null, 2);
@@ -165,7 +165,7 @@ exports.postChatAction = async (req, res, next) => {
 
     // If recipient is LLM-driven, generate response
     if (recipient.isLLMDriven) {
-      console.log("speaking with LLM agent");
+      // console.log("speaking with LLM agent");
       const relevantFeed = getActorRelevantFeed(feed, recipient.username);
       const actorContext = JSON.stringify(relevantFeed, null, 2);
 

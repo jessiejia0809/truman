@@ -3,7 +3,9 @@ const Agent = require("./models/Agent.js");
 const Script = require("./models/Script.js");
 const Comment = require("./models/Comment.js");
 const Scenario = require("./models/Scenario.js");
+const LevelOrder = require("./models/LevelOrder.js");
 const Objective = require("./models/Objective.js");
+const Solution = require("./models/Solution");
 const fs = require("fs/promises");
 const dotenv = require("dotenv");
 const mongoose = require("mongoose");
@@ -300,6 +302,8 @@ async function doPopulate(path, level) {
     console.log(`ℹ️ No objectives.csv found in ${path}, skipping objectives.`);
   }
 
+  await populateSolutions(path, level);
+
   try {
     console.log(color_start, "Starting to populate actors collection...");
     await Actor.bulkSave(Object.values(actors));
@@ -369,6 +373,38 @@ function getLikesComment() {
   var idx = Math.floor(Math.random() * notRandomNumbers.length);
   return notRandomNumbers[idx];
 }
+/**
+ * Read solutions.json and insert into MongoDB
+ */
+async function populateSolutions(path, level) {
+  try {
+    const raw = await fs.readFile(`${path}/solutions.json`, "utf-8");
+    const arr = JSON.parse(raw);
+    const docs = arr.map(
+      (s) =>
+        new Solution({
+          level,
+          category: s.category,
+          description: s.description,
+          deltas: s.deltas,
+          next_steps: s.next_steps,
+          done: false,
+        }),
+    );
+
+    console.log(
+      color_start,
+      `Populating ${docs.length} solutions for level ${level}...`,
+    );
+    await Solution.bulkSave(docs);
+    console.log(color_success, `✅ Saved solutions for level ${level}`);
+  } catch (err) {
+    console.warn(
+      color_error,
+      `⚠️ No solutions.json in ${path}, skipping solutions for level ${level}`,
+    );
+  }
+}
 
 // Call the populate function
 mongoose.connection.once("open", async () => {
@@ -403,12 +439,12 @@ mongoose.connection.once("open", async () => {
     folder,
   }));
 
-  await fs.writeFile(
-    "scenarios/level_order.json",
-    JSON.stringify(levelOrder, null, 2),
+  // Persist level order in MongoDB
+  await LevelOrder.deleteMany({});
+  await LevelOrder.insertMany(
+    levelOrder.map(({ level, folder }) => ({ level, folder })),
   );
-
-  console.log(color_success, "✅ Saved level_order.json");
+  console.log(color_success, "✅ Saved level order to MongoDB");
 
   mongoose.connection.close();
 });
