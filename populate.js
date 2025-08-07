@@ -279,6 +279,7 @@ async function doPopulate(path, level) {
           hint: solutionMap.get(row.category) || null,
           isRequired: String(row.isRequired).toLowerCase() === "true",
           completed: false,
+          order: row.order ? parseInt(row.order) : 0,
         });
         // ✅ Print right when it's created
         console.log(

@@ -33,6 +33,10 @@ const objectiveSchema = new Schema({
   completedAt: {
     type: Date,
   },
+  order: {
+    type: Number,
+    required: true,
+  },
 });
 
 module.exports = mongoose.model("Objective", objectiveSchema);
