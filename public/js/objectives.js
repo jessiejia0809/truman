@@ -101,3 +101,26 @@ window.resetObjectives = function () {
 
   console.log("🧹 Objectives reset.");
 };
+
+window.renderObjectivesList = function (objectives) {
+  const checklist = document.querySelector(".checklist");
+  console.log("Rendering objectives list:", objectives);
+  checklist.innerHTML = ""; // clear old
+
+  for (const obj of objectives) {
+    const li = document.createElement("li");
+    li.setAttribute("data-objective-id", obj._id);
+    li.classList.add("objective-item");
+
+    if (obj.completed) {
+      li.classList.add("completed");
+    }
+
+    li.innerHTML = `
+      <span class="objective-label">${obj.label}</span>
+      <div class="objective-details">${obj.description}</div>
+    `;
+
+    checklist.appendChild(li);
+  }
+};

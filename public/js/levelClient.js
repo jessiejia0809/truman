@@ -30,6 +30,7 @@ window.retryLevel = async function () {
 };
 
 window.checkWinCondition = async function (score, remainingTime) {
+  //fetchAndRenderObjectives?.();
   console.log("Checking win condition for level", currentLevel);
 
   if (score < 100 && remainingTime > 0) {
@@ -132,4 +133,19 @@ document.addEventListener("keydown", function (e) {
       }
     }
   }
+});
+
+async function fetchAndRenderObjectives() {
+  const level = window.getCurrentLevel?.() || 1;
+  try {
+    const res = await fetch(`/api/objectives?level=${level}`);
+    const objectives = await res.json();
+    window.renderObjectivesList(objectives);
+  } catch (err) {
+    console.error("Failed to load objectives:", err);
+  }
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  fetchAndRenderObjectives?.();
 });

@@ -548,17 +548,21 @@ app.get("/api/objectives", passportConfig.isAuthenticated, async (req, res) => {
       return res.status(400).json({ error: "Missing level query param" });
     }
 
-    // Step 1: Find and assign null-user objectives to this user
-    const unclaimed = await Objective.find({ level });
-    for (const obj of unclaimed) {
-      await obj.save();
-    }
-
-    // Step 2: Fetch only objectives for this user and level
+    // Step 1: Fetch all objectives for the level (you could also limit by user if needed)
     const objectives = await Objective.find({ level }).lean();
-    res.json(objectives);
+
+    // Step 2: Ensure completed is explicitly included
+    const response = objectives.map((obj) => ({
+      _id: obj._id,
+      label: obj.label,
+      description: obj.description,
+      completed: !!obj.completed,
+      hint: obj.hint || "",
+    }));
+
+    res.json(response);
   } catch (err) {
-    console.error("Error fetching objectives:", err);
+    console.error("❌ Error fetching objectives:", err);
     res.status(500).json({ error: "Internal server error" });
   }
 });
