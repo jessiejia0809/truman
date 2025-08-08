@@ -1,112 +1,10 @@
-// 🟢 Victory Narrative Flow
-
-window.startVictoryPostFlow = function () {
-  if (window.victoryTriggered) return;
-  window.victoryTriggered = true;
-
-  const checklist = document.querySelector(".checklist-panel");
-  if (checklist) {
-    checklist.style.transition = "opacity 0.5s ease";
-    checklist.style.opacity = "0";
-    setTimeout(() => (checklist.style.display = "none"), 500);
-  }
-
-  const popup = document.createElement("div");
-  popup.className = "victory-alert";
-  popup.innerHTML = `
-    <div class="victory-content">
-      <h2>You Did It!</h2>
-      <p>The original bullying post has changed. Go check it out.</p>
-      <button>Check Now</button>
-    </div>
-  `;
-  document.body.appendChild(popup);
-
-  Object.assign(popup.style, {
-    position: "fixed",
-    top: "0",
-    left: "0",
-    width: "100vw",
-    height: "100vh",
-    background: "rgba(0, 0, 0, 0.85)",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    zIndex: 9999,
-  });
-
-  const content = popup.querySelector(".victory-content");
-  Object.assign(content.style, {
-    backgroundColor: "#d1ffcc",
-    color: "#1a1a1a",
-    padding: "2rem",
-    borderRadius: "12px",
-    fontFamily: "monospace",
-    textAlign: "center",
-    boxShadow: "0 0 15px rgba(0, 0, 0, 0.3)",
-    width: "400px",
-  });
-
-  const btn = popup.querySelector("button");
-  Object.assign(btn.style, {
-    marginTop: "1.5rem",
-    fontSize: "1.2rem",
-    padding: "10px 20px",
-    backgroundColor: "#1a6600",
-    color: "#fff",
-    border: "none",
-    borderRadius: "6px",
-    cursor: "pointer",
-  });
-
-  btn.onclick = () => {
-    popup.remove();
-    window.scrollToBullyingPostAndObserve();
-  };
-};
-
-window.scrollToBullyingPostAndObserve = function () {
-  console.log("🔍 Searching for bullying post...");
-  const post = document.querySelector(
-    ".bullying-post, [data-is-relevant='true']",
-  );
-  if (!post) {
-    console.warn("❌ Bullying post not found. Showing win screen anyway.");
-    return window.showTransitionPopup("win");
-  }
-
-  console.log("✅ Bullying post found. Highlighting...");
-  post.style.backgroundColor = "#004400";
-  post.style.transition = "background-color 1s";
-  post.scrollIntoView({ behavior: "smooth", block: "center" });
-
-  const observer = new IntersectionObserver(
-    (entries, obs) => {
-      const entry = entries[0];
-      if (entry.isIntersecting) {
-        console.log("👁️ Bullying post is visible on screen. Starting timer...");
-        obs.disconnect();
-
-        let secondsSeen = 0;
-        const interval = setInterval(() => {
-          secondsSeen++;
-          console.log(`⏱️ Viewing post: ${secondsSeen} seconds`);
-          if (secondsSeen >= 10) {
-            clearInterval(interval);
-            console.log("✅ Viewed for 10 seconds. Showing win screen...");
-            window.showTransitionPopup("win");
-          }
-        }, 1000);
-      } else {
-        console.log("👀 Bullying post not yet in view.");
-      }
-    },
-    {
-      threshold: 0.5,
-    },
-  );
-
-  observer.observe(post);
+const levelStats = {
+  1: "67% of adolescents and emerging adults (age 16-25) have experienced cyberbullying, such as hazing, offensive name-calling, purposeful embarrassment, physical threats, and sexual harassment",
+  2: "This alarming prevalence of cyberbullying is concerning, because it is associated with young people's depression, self-harm, and even suicide attempts.",
+  3: "Public, prosocial bystander interventions (e.g., bystanders confronting the bully, comforting the victim) can effectively reduce cyberbullying prevalence and mitigate its negative impact on victims.",
+  4: "However, bystanders on social media tend to intervene indirectly (e.g., flag the abusive post), and often lack the knowledge of how to intervene publicly.",
+  5: "As a result, the lack of bystander intervention often makes bad actors feel less inhibited to escalate abuse, causing a downward spiral of increasing toxicity and aggression on social media",
+  // Add more levels and stats as needed
 };
 
 window.showTransitionPopup = function (
@@ -183,36 +81,21 @@ window.showTransitionPopup = function (
         `;
         modalBox.appendChild(scoreCircle);
 
-        // Score breakdown
-        const by = document.createElement("p");
-        by.innerText = `Bystander Score: ${Math.trunc(window.bystanderScore * 100) ?? "?"}%`;
-        const bu = document.createElement("p");
-        bu.innerText = `Bully Score: ${Math.trunc(window.bullyScore * 100) ?? "?"}%`;
-        modalBox.appendChild(by);
-        modalBox.appendChild(bu);
+        // Statistic
+        const stat = document.createElement("p");
+        stat.style.marginTop = "20px";
+        stat.style.fontStyle = "italic";
+        stat.style.fontSize = "0.9em";
+        stat.style.color = "#f0f0f0";
 
-        /*// Harmful actions
-        const actionHeader = document.createElement("h3");
-        actionHeader.innerText = "ACTIONS THAT CONTRIBUTED TO FAILURE";
-        actionHeader.style.marginTop = "15px";
-        modalBox.appendChild(actionHeader);
+        const currentLevel = window.getCurrentLevel
+          ? window.getCurrentLevel()
+          : 1;
+        stat.innerText =
+          levelStats[currentLevel] ||
+          "Keep going – each level teaches something new.";
 
-        const ul = document.createElement("ul");
-        ul.style.textAlign = "left";
-
-        feedback.forEach((item) => {
-          const li = document.createElement("li");
-          li.innerText = `• Verbal Harassment towards ${item.target?.owner || "unknown"}: “${item.text.slice(0, 60)}...”`;
-          ul.appendChild(li);
-        });
-
-        modalBox.appendChild(ul);*/
-
-        // Hint
-        const hint = document.createElement("p");
-        hint.style.marginTop = "20px";
-        hint.innerText = "Hint: Try to support victims with affirming comments";
-        modalBox.appendChild(hint);
+        modalBox.appendChild(stat);
 
         // Retry button
         const retryBtn = document.createElement("button");
@@ -230,6 +113,7 @@ window.showTransitionPopup = function (
           const currentLevel = window.getCurrentLevel
             ? window.getCurrentLevel()
             : 1;
+          window.resetScore?.();
           window.location.href = `/reset-level?level=${currentLevel}`;
         };
 
@@ -246,6 +130,21 @@ window.showTransitionPopup = function (
         title.style.fontSize = "3em";
         modalBox.appendChild(title);
 
+        const stat = document.createElement("p");
+        stat.style.marginTop = "20px";
+        stat.style.fontStyle = "italic";
+        stat.style.fontSize = "0.9em";
+        stat.style.color = "#fff";
+        stat.style.fontFamily = "monospace";
+
+        const currentLevel = window.getCurrentLevel
+          ? window.getCurrentLevel()
+          : 1;
+        stat.innerText =
+          levelStats[currentLevel] || "Well done! Keep the momentum going.";
+
+        modalBox.appendChild(stat);
+
         const arrowBtn = document.createElement("button");
         arrowBtn.innerText = "➔";
         arrowBtn.style.backgroundColor = "#fff";
@@ -256,7 +155,10 @@ window.showTransitionPopup = function (
         arrowBtn.style.width = "65px";
         arrowBtn.style.height = "65px";
         arrowBtn.style.cursor = "pointer";
-        arrowBtn.onclick = () => window.goToNextLevel();
+        arrowBtn.onclick = () => {
+          window.goToNextLevel();
+          window.resetScore?.();
+        };
 
         modalBox.appendChild(arrowBtn);
       }

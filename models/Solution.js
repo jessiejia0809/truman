@@ -14,6 +14,7 @@ const SolutionSchema = new mongoose.Schema({
   category: { type: String, required: true },
   description: { type: String, required: true },
   deltas: { type: Number, default: 0 },
+  type: { type: [String], default: "" },
   next_steps: { type: [NextStepSchema], default: [] },
   done: { type: Boolean, default: false },
 });

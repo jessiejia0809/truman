@@ -2,18 +2,21 @@
   {
     "category": "talk to bully",
     "description": "Talk to bully Blake and ask about his intentions. -the bully’s motive as malicious (e.g., seeking power, dominance, or attention), not as ignorance or tradition.",
+    "type": "dm",
     "deltas": 25,
     "next_steps": []
   },
   {
     "category": "talk to victim",
     "description": "Talk to victim Casey and dentify the victim’s motive as wanting to join the group despite harm (e.g., social belonging, lack of agency). Evidence includes explicitly stating they want acceptance or feel they have no choice.",
+    "type": "dm",
     "deltas": 25,
     "next_steps": []
   },
   {
     "category": "rally bystander",
     "description": "Publicly organize other bystanders before the hazing occurs to take collective action against it. Evidence includes tagging or addressing other bystanders and urging them to join in opposing the hazing.",
+    "type": "comment",
     "deltas": 25,
     "next_steps": [
       {
@@ -26,6 +29,7 @@
   {
     "category": "support victim",
     "description": "Post a public comment under the hazing post to show the victim and other bystanders they are not alone. The comment should oppose the hazing, explicitly ask the bully to delete or change the post, and affirm the victim’s belonging.",
+    "type": "comment",
     "deltas": 25,
     "next_steps": [
       {

@@ -117,15 +117,15 @@ document.addEventListener("DOMContentLoaded", () => {
     );
   };
 
+  const socket = window.socket || io("http://localhost:3000");
+  window.socket = socket;
+
   window.resetScore = function () {
     window.currentScore = 0;
     sessionStorage.setItem("currentScore", "0");
-    scoreBar.style.width = "0%";
-    scoreText.textContent = "0/100";
-  };
 
-  const socket = window.socket || io("http://localhost:3000");
-  window.socket = socket;
+    window.socket.emit("resetScore");
+  };
 
   socket.on("scoreUpdate", (allScores) => {
     /*if (

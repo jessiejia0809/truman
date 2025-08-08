@@ -194,12 +194,33 @@ schedule.scheduleJob("*/10 * * * * *", async () => {
     });
     await grader.init();
 
-    const categories = await grader.classifyActionsWithLLM(toGrade);
-    console.log("Classified categories:", categories);
+    const { matched, unmatchedReasons } =
+      await grader.classifyActionsWithLLM(toGrade);
+    console.log("Classified categories:", matched);
 
-    const newHealth = await grader.applyDeltas(categories);
+    const newHealth = await grader.applyDeltas(matched);
     console.log(`Level ${currentLevel} health updated to ${newHealth}`);
-    await grader.processNextSteps(categories);
+
+    await grader.processNextSteps(matched);
+    await grader.markCompletedObjectives(matched, unmatchedReasons);
+    // Emit first unmatched reason in correct objective order
+    const uncompleted = await Objective.find({
+      level: currentLevel,
+      completed: false,
+    }).sort({ order: 1 });
+
+    const firstUnmatched = uncompleted.find((obj) =>
+      unmatchedReasons?.hasOwnProperty(obj.goalCategory),
+    );
+
+    if (firstUnmatched) {
+      const reason = unmatchedReasons[firstUnmatched.goalCategory];
+      io.emit("objectiveFeedback", {
+        unmatchedReasons: {
+          [firstUnmatched.goalCategory]: reason,
+        },
+      });
+    }
   } catch (err) {
     console.error("Grader job error:", err);
   }
@@ -527,8 +548,16 @@ app.get("/reset-level", async (req, res) => {
   await Comment.deleteMany({
     commentType: "User",
   });
-
+  objectives = await Objective.find({ level: currentLevel });
+  for (const obj of objectives) {
+    obj.completed = false;
+    await obj.save();
+  }
   levelState.resetLevelStartTime();
+
+  scoreController.resetScores(currentLevel);
+
+  //await Solution.updateMany({ level }, { $set: { done: false } });
 
   setTimeout(() => {
     res.redirect(`/feed?level=${currentLevel}`);
@@ -543,17 +572,21 @@ app.get("/api/objectives", passportConfig.isAuthenticated, async (req, res) => {
       return res.status(400).json({ error: "Missing level query param" });
     }
 
-    // Step 1: Find and assign null-user objectives to this user
-    const unclaimed = await Objective.find({ level });
-    for (const obj of unclaimed) {
-      await obj.save();
-    }
-
-    // Step 2: Fetch only objectives for this user and level
+    // Step 1: Fetch all objectives for the level (you could also limit by user if needed)
     const objectives = await Objective.find({ level }).lean();
-    res.json(objectives);
+
+    // Step 2: Ensure completed is explicitly included
+    const response = objectives.map((obj) => ({
+      _id: obj._id,
+      label: obj.label,
+      description: obj.description,
+      completed: !!obj.completed,
+      hint: obj.hint || "",
+    }));
+
+    res.json(response);
   } catch (err) {
-    console.error("Error fetching objectives:", err);
+    console.error("❌ Error fetching objectives:", err);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -646,9 +679,10 @@ io.on("connection", (socket) => {
       { name: sessionName },
       { level: currentLevel },
     );
-
+    await scoreController.resetScores(currentLevel);
     levelState.setLevel(level);
-    levelState.resetLevelStartTime(); // optional, but recommended
+    levelState.resetLevelStartTime();
+    scoreController.resetScores(currentLevel);
 
     // // Reset score immediately
     // await ScoreController.resetScores();
@@ -656,6 +690,42 @@ io.on("connection", (socket) => {
     // // Emit updated score immediately
     // const newScore = await ScoreController.getAllScores();
     // io.emit("scoreUpdate", newScore);
+  });
+
+  socket.on("resetLevel", async ({ level }) => {
+    try {
+      const currentLevel = parseInt(level, 10) || 1;
+      console.log(`[RESET] (socket) Resetting level ${currentLevel}`);
+
+      await Session.findOneAndUpdate(
+        { name: sessionName },
+        { level: currentLevel },
+      );
+
+      const allComments = await Comment.find();
+      console.log("📋 All comments:", allComments);
+
+      const userComments = await Comment.find({ commentType: "User" });
+      console.log("👤 User comments before deletion:", userComments);
+
+      await Comment.deleteMany({ commentType: "User" });
+
+      const objectives = await Objective.find({ level: currentLevel });
+      for (const obj of objectives) {
+        obj.completed = false;
+        await obj.save();
+      }
+
+      levelState.resetLevelStartTime();
+
+      await scoreController.resetScores(currentLevel);
+
+      console.log(`✅ Socket: Level ${currentLevel} reset complete`);
+      socket.emit("levelResetConfirmed", { level: currentLevel });
+    } catch (err) {
+      console.error("❌ Socket: Failed to reset level:", err);
+      socket.emit("levelResetFailed", { error: err.message });
+    }
   });
 
   socket.on("error", function (err) {

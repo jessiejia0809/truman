@@ -10,6 +10,7 @@ const Script = require("../models/Script");
 const Objective = require("../models/Objective");
 const LevelOrder = require("../models/LevelOrder");
 const Solution = require("../models/Solution");
+const { type } = require("os");
 
 /**
  * Helper to push a comment via your existing /action endpoint
@@ -192,6 +193,7 @@ Do not emit any other text.
       categories: this.solutions.map((s) => ({
         name: s.category,
         description: s.description,
+        type: s.type,
       })),
     };
 
@@ -227,14 +229,17 @@ Do not emit any other text.
       { level: this.level, category: { $in: matched } },
       { $set: { done: true } },
     );
-    return matched;
+    return {
+      matched,
+      unmatchedReasons: result.unmatchedReasons || {},
+    };
   }
 
   /**
    * @param {string[]} categories
    * @returns {Promise<number>} updated health score for this level
    */
-  async applyDeltas(categories) {
+  async applyDeltas(categories, unmatchedReasons = {}) {
     const current = await this.scoreController.getHealthScore(this.level);
     const totalDelta = categories.reduce((sum, cat) => {
       if (cat === "none") return sum;
@@ -243,7 +248,7 @@ Do not emit any other text.
     }, 0);
     const updated = current + totalDelta;
     await this.scoreController.setHealthScore(this.level, updated);
-    await this.markCompletedObjectives(categories);
+    await this.markCompletedObjectives(categories, unmatchedReasons);
     return updated;
   }
 
@@ -308,7 +313,7 @@ Do not emit any other text.
     }
   }
 
-  async markCompletedObjectives(categories) {
+  async markCompletedObjectives(categories, unmatchedReasons = {}) {
     const objectives = await Objective.find({
       level: this.level,
       completed: false,
@@ -342,6 +347,21 @@ Do not emit any other text.
         console.log(
           `→ ${item.label} (${item.goalCategory}): ${item.description || "No description"}`,
         );
+      }
+    }
+
+    const uncompleted = await Objective.find({
+      level: this.level,
+      completed: false,
+    }).sort({ order: 1 });
+
+    for (const obj of uncompleted) {
+      const reason = unmatchedReasons[obj.goalCategory];
+      if (reason) {
+        console.warn(
+          `⚠️ Objective "${obj.label}" (category: ${obj.goalCategory}) was NOT completed.\nReason: ${reason}`,
+        );
+        // optionally push this as a system comment or log to DB here
       }
     }
   }
