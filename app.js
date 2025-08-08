@@ -536,6 +536,8 @@ app.get("/reset-level", async (req, res) => {
 
   scoreController.resetScores(currentLevel);
 
+  await Solution.updateMany({ level }, { $set: { done: false } });
+
   setTimeout(() => {
     res.redirect(`/feed?level=${currentLevel}`);
   }, 100);

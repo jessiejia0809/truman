@@ -10,6 +10,7 @@ const Script = require("../models/Script");
 const Objective = require("../models/Objective");
 const LevelOrder = require("../models/LevelOrder");
 const Solution = require("../models/Solution");
+const { type } = require("os");
 
 /**
  * Helper to push a comment via your existing /action endpoint
@@ -192,6 +193,7 @@ Do not emit any other text.
       categories: this.solutions.map((s) => ({
         name: s.category,
         description: s.description,
+        type: s.type,
       })),
     };
 

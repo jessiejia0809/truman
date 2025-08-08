@@ -109,31 +109,3 @@ window.resetObjectives = function () {
 
   console.log("🧹 Objectives reset.");
 };
-
-function renderObjectives(objectives) {
-  const container = document.getElementById("objectiveList");
-  container.innerHTML = "";
-
-  // Sort by order
-  objectives.sort((a, b) => a.order - b.order);
-
-  let previousCompleted = true;
-
-  for (const obj of objectives) {
-    const div = document.createElement("div");
-    div.classList.add("objective-item");
-
-    if (!previousCompleted) {
-      div.classList.add("locked");
-      div.innerHTML = `🔒 ${obj.label}`;
-    } else if (obj.completed) {
-      div.classList.add("completed");
-      div.innerHTML = `✅ ${obj.label}`;
-    } else {
-      div.innerHTML = `<input type="checkbox" disabled> ${obj.label}`;
-    }
-
-    previousCompleted = obj.completed;
-    container.appendChild(div);
-  }
-}

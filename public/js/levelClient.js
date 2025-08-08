@@ -30,7 +30,7 @@ window.retryLevel = async function () {
 };
 
 window.checkWinCondition = async function (score, remainingTime) {
-  //fetchAndRenderObjectives?.();
+  await fetchAndRenderObjectives();
   console.log("Checking win condition for level", currentLevel);
 
   if (score < 100 && remainingTime > 0) {
@@ -140,7 +140,7 @@ async function fetchAndRenderObjectives() {
   try {
     const res = await fetch(`/api/objectives?level=${level}`);
     const objectives = await res.json();
-    window.renderObjectivesList(objectives);
+    window.loadObjectives?.(level);
   } catch (err) {
     console.error("Failed to load objectives:", err);
   }

@@ -386,6 +386,7 @@ async function populateSolutions(path, level) {
           level,
           category: s.category,
           description: s.description,
+          type: s.type,
           deltas: s.deltas,
           next_steps: s.next_steps,
           done: false,
@@ -419,6 +420,7 @@ mongoose.connection.once("open", async () => {
     db.collections["comments"].drop(),
     db.collections["scenarios"].drop(),
     db.collections["objectives"].drop(),
+    db.collections["solutions"].drop(),
   ]);
   console.log(color_success, "All collections dropped.");
 
