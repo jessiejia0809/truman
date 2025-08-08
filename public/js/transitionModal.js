@@ -1,3 +1,12 @@
+const levelStats = {
+  1: "67% of adolescents and emerging adults (age 16-25) have experienced cyberbullying, such as hazing, offensive name-calling, purposeful embarrassment, physical threats, and sexual harassment",
+  2: "This alarming prevalence of cyberbullying is concerning, because it is associated with young people's depression, self-harm, and even suicide attempts.",
+  3: "Public, prosocial bystander interventions (e.g., bystanders confronting the bully, comforting the victim) can effectively reduce cyberbullying prevalence and mitigate its negative impact on victims.",
+  4: "However, bystanders on social media tend to intervene indirectly (e.g., flag the abusive post), and often lack the knowledge of how to intervene publicly.",
+  5: "As a result, the lack of bystander intervention often makes bad actors feel less inhibited to escalate abuse, causing a downward spiral of increasing toxicity and aggression on social media",
+  // Add more levels and stats as needed
+};
+
 window.showTransitionPopup = function (
   result = "lose",
   //feedback = [],
@@ -72,36 +81,21 @@ window.showTransitionPopup = function (
         `;
         modalBox.appendChild(scoreCircle);
 
-        // Score breakdown
-        const by = document.createElement("p");
-        by.innerText = `Bystander Score: ${Math.trunc(window.bystanderScore * 100) ?? "?"}%`;
-        const bu = document.createElement("p");
-        bu.innerText = `Bully Score: ${Math.trunc(window.bullyScore * 100) ?? "?"}%`;
-        modalBox.appendChild(by);
-        modalBox.appendChild(bu);
+        // Statistic
+        const stat = document.createElement("p");
+        stat.style.marginTop = "20px";
+        stat.style.fontStyle = "italic";
+        stat.style.fontSize = "0.9em";
+        stat.style.color = "#f0f0f0";
 
-        /*// Harmful actions
-        const actionHeader = document.createElement("h3");
-        actionHeader.innerText = "ACTIONS THAT CONTRIBUTED TO FAILURE";
-        actionHeader.style.marginTop = "15px";
-        modalBox.appendChild(actionHeader);
+        const currentLevel = window.getCurrentLevel
+          ? window.getCurrentLevel()
+          : 1;
+        stat.innerText =
+          levelStats[currentLevel] ||
+          "Keep going – each level teaches something new.";
 
-        const ul = document.createElement("ul");
-        ul.style.textAlign = "left";
-
-        feedback.forEach((item) => {
-          const li = document.createElement("li");
-          li.innerText = `• Verbal Harassment towards ${item.target?.owner || "unknown"}: “${item.text.slice(0, 60)}...”`;
-          ul.appendChild(li);
-        });
-
-        modalBox.appendChild(ul);*/
-
-        // Hint
-        const hint = document.createElement("p");
-        hint.style.marginTop = "20px";
-        hint.innerText = "Hint: Try to support victims with affirming comments";
-        modalBox.appendChild(hint);
+        modalBox.appendChild(stat);
 
         // Retry button
         const retryBtn = document.createElement("button");
@@ -135,6 +129,21 @@ window.showTransitionPopup = function (
         title.style.fontFamily = "'Courier New', monospace";
         title.style.fontSize = "3em";
         modalBox.appendChild(title);
+
+        const stat = document.createElement("p");
+        stat.style.marginTop = "20px";
+        stat.style.fontStyle = "italic";
+        stat.style.fontSize = "0.9em";
+        stat.style.color = "#fff";
+        stat.style.fontFamily = "monospace";
+
+        const currentLevel = window.getCurrentLevel
+          ? window.getCurrentLevel()
+          : 1;
+        stat.innerText =
+          levelStats[currentLevel] || "Well done! Keep the momentum going.";
+
+        modalBox.appendChild(stat);
 
         const arrowBtn = document.createElement("button");
         arrowBtn.innerText = "➔";

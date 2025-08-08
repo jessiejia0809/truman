@@ -7,6 +7,8 @@ async function loadObjectives(level) {
     const res = await fetch(`/api/objectives?level=${level}`);
     const objectives = await res.json();
 
+    objectives.sort((a, b) => a.order - b.order);
+
     const existing = document.querySelector(".checklist-panel");
     if (existing) existing.remove();
 
@@ -22,7 +24,10 @@ async function loadObjectives(level) {
     list.className = "checklist";
     checklistPanel.appendChild(list);
 
-    for (const obj of objectives) {
+    for (let i = 0; i < objectives.length; i++) {
+      const obj = objectives[i];
+      const prev = objectives[i - 1];
+
       const li = document.createElement("li");
       li.className = "objective-item";
 
@@ -43,31 +48,34 @@ async function loadObjectives(level) {
       const hint = document.createElement("div");
       hint.className = "objective-details";
       hint.textContent = obj.hint || "No hint available.";
-      if (expandedObjectives.has(obj.label)) {
-        hint.style.display = "block";
-        toggle.textContent = "▾";
-      } else {
-        hint.style.display = "none";
-      }
+      hint.style.display = "none";
 
       toggle.addEventListener("click", () => {
         const isVisible = hint.style.display === "block";
         hint.style.display = isVisible ? "none" : "block";
         toggle.textContent = isVisible ? "▸" : "▾";
-
-        if (isVisible) {
-          expandedObjectives.delete(obj.label);
-        } else {
-          expandedObjectives.add(obj.label);
-        }
       });
 
       const row = document.createElement("div");
       row.className = "objective-header";
       row.appendChild(checkbox);
       row.appendChild(toggle);
-      row.appendChild(label);
 
+      // Determine status
+      const isUnlocked = i === 0 || (prev && prev.completed);
+      if (!isUnlocked && !obj.completed) {
+        li.classList.add("locked");
+        const lockIcon = document.createElement("span");
+        lockIcon.textContent = "🔒";
+        lockIcon.className = "lock-icon";
+        row.appendChild(lockIcon);
+      }
+
+      if (obj.completed) {
+        li.classList.add("completed");
+      }
+
+      row.appendChild(label);
       li.appendChild(row);
       li.appendChild(hint);
       list.appendChild(li);
@@ -102,25 +110,30 @@ window.resetObjectives = function () {
   console.log("🧹 Objectives reset.");
 };
 
-window.renderObjectivesList = function (objectives) {
-  const checklist = document.querySelector(".checklist");
-  console.log("Rendering objectives list:", objectives);
-  checklist.innerHTML = ""; // clear old
+function renderObjectives(objectives) {
+  const container = document.getElementById("objectiveList");
+  container.innerHTML = "";
+
+  // Sort by order
+  objectives.sort((a, b) => a.order - b.order);
+
+  let previousCompleted = true;
 
   for (const obj of objectives) {
-    const li = document.createElement("li");
-    li.setAttribute("data-objective-id", obj._id);
-    li.classList.add("objective-item");
+    const div = document.createElement("div");
+    div.classList.add("objective-item");
 
-    if (obj.completed) {
-      li.classList.add("completed");
+    if (!previousCompleted) {
+      div.classList.add("locked");
+      div.innerHTML = `🔒 ${obj.label}`;
+    } else if (obj.completed) {
+      div.classList.add("completed");
+      div.innerHTML = `✅ ${obj.label}`;
+    } else {
+      div.innerHTML = `<input type="checkbox" disabled> ${obj.label}`;
     }
 
-    li.innerHTML = `
-      <span class="objective-label">${obj.label}</span>
-      <div class="objective-details">${obj.description}</div>
-    `;
-
-    checklist.appendChild(li);
+    previousCompleted = obj.completed;
+    container.appendChild(div);
   }
-};
+}
