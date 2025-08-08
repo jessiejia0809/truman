@@ -145,48 +145,48 @@ exports.lookupActorByName = async function (username) {
   throw new Error("Actor not found");
 };
 
-exports.runFeedAndRead = async function (
-  sessionName,
-  schemaPath = path.resolve(
-    __dirname,
-    "../../truman-world/backend/configs/feed_schema.json",
-  ),
-) {
-  const dbUri = process.env.MONGODB_URI;
-  const workingDir = path.resolve(
-    __dirname,
-    "../../truman-world/backend/sessions",
-    sessionName,
-  );
-  const feedScript = path.resolve(
-    __dirname,
-    "../../truman-world/backend/feed.py",
-  );
+// exports.runFeedAndRead = async function (
+//   sessionName,
+//   schemaPath = path.resolve(
+//     __dirname,
+//     "../../truman-world/backend/configs/feed_schema.json",
+//   ),
+// ) {
+//   const dbUri = process.env.MONGODB_URI;
+//   const workingDir = path.resolve(
+//     __dirname,
+//     "../../truman-world/backend/sessions",
+//     sessionName,
+//   );
+//   const feedScript = path.resolve(
+//     __dirname,
+//     "../../truman-world/backend/feed.py",
+//   );
 
-  const cmd =
-    `python "${feedScript}" ` +
-    `--db-uri "${dbUri}" ` +
-    `--schema "${schemaPath}" ` +
-    `--session-name ${sessionName} ` +
-    `--working-dir "${workingDir}"`;
+//   const cmd =
+//     `python "${feedScript}" ` +
+//     `--db-uri "${dbUri}" ` +
+//     `--schema "${schemaPath}" ` +
+//     `--session-name ${sessionName} ` +
+//     `--working-dir "${workingDir}"`;
 
-  try {
-    const { stdout, stderr } = await execPromise(cmd);
-    if (stderr) console.error("stderr:", stderr);
-    if (stdout) console.log("stdout:", stdout);
+//   try {
+//     const { stdout, stderr } = await execPromise(cmd);
+//     if (stderr) console.error("stderr:", stderr);
+//     if (stdout) console.log("stdout:", stdout);
 
-    const feed = JSON.parse(
-      fs.readFileSync(path.join(workingDir, "feed.json")),
-    );
-    const state = JSON.parse(
-      fs.readFileSync(path.join(workingDir, "feed_state.json")),
-    );
-    return { feed, state };
-  } catch (error) {
-    console.error("read feed failed", error);
-    return null;
-  }
-};
+//     const feed = JSON.parse(
+//       fs.readFileSync(path.join(workingDir, "feed.json")),
+//     );
+//     const state = JSON.parse(
+//       fs.readFileSync(path.join(workingDir, "feed_state.json")),
+//     );
+//     return { feed, state };
+//   } catch (error) {
+//     console.error("read feed failed", error);
+//     return null;
+//   }
+// };
 
 /**
  * Filter the full feed object down to only the posts, comments, and likes

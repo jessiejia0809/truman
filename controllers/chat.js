@@ -1,6 +1,6 @@
 const Chat = require("../models/Chat.js");
 const helpers = require("./helpers.js");
-const { runFeedAndRead } = require("./helpers.js");
+// const { runFeedAndRead } = require("./helpers.js");
 const { getActorRelevantFeed } = require("./helpers.js");
 const { OpenAI } = require("openai");
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -87,7 +87,8 @@ exports.postChatAction = async (req, res, next) => {
     // console.log("Sender object:", sender);
     // console.log("Sender.session:", sender?.session);
 
-    const { feed, state } = await runFeedAndRead(sessionName);
+    // const { feed, state } = await runFeedAndRead(sessionName);
+    const { feed, state } = { feed: [], state: {} };
     const feedContext = JSON.stringify(feed, null, 2);
 
     if (req.body.chatFullId.startsWith("chatbot")) {
