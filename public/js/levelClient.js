@@ -149,3 +149,51 @@ async function fetchAndRenderObjectives() {
 window.addEventListener("DOMContentLoaded", () => {
   fetchAndRenderObjectives?.();
 });
+
+window.socket.on("objectiveFeedback", ({ unmatchedReasons }) => {
+  if (!unmatchedReasons) return;
+  console.log("Received objective feedback:", unmatchedReasons);
+  const [category, reason] = unmatchedReasons;
+  if (category && reason) {
+    showObjectiveFeedbackPopup(category, reason);
+  }
+});
+
+function showObjectiveFeedbackPopup(category, reason) {
+  // Remove any existing one
+  const old = document.getElementById("objective-feedback-popup");
+  if (old) old.remove();
+
+  const popup = document.createElement("div");
+  popup.id = "objective-feedback-popup";
+  popup.style.position = "fixed";
+  popup.style.bottom = "30px";
+  popup.style.right = "30px";
+  popup.style.maxWidth = "300px";
+  popup.style.padding = "20px";
+  popup.style.backgroundColor = "#ffe0e0";
+  popup.style.border = "2px solid #ff0000";
+  popup.style.borderRadius = "10px";
+  popup.style.boxShadow = "0 0 10px rgba(0,0,0,0.3)";
+  popup.style.zIndex = "10000";
+  popup.style.fontFamily = "sans-serif";
+
+  popup.innerHTML = `
+    <strong>Objective Feedback</strong><br>
+    <em>${category}</em><br>
+    ${reason}
+    <div style="margin-top:10px;text-align:right;">
+      <button id="closeFeedbackBtn" style="
+        background: #ff5555;
+        border: none;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 5px;
+        cursor: pointer;">Dismiss</button>
+    </div>
+  `;
+
+  document.body.appendChild(popup);
+
+  document.getElementById("closeFeedbackBtn").onclick = () => popup.remove();
+}

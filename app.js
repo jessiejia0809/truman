@@ -194,12 +194,33 @@ schedule.scheduleJob("*/10 * * * * *", async () => {
     });
     await grader.init();
 
-    const categories = await grader.classifyActionsWithLLM(toGrade);
-    console.log("Classified categories:", categories);
+    const { matched, unmatchedReasons } =
+      await grader.classifyActionsWithLLM(toGrade);
+    console.log("Classified categories:", matched);
 
-    const newHealth = await grader.applyDeltas(categories);
+    const newHealth = await grader.applyDeltas(matched);
     console.log(`Level ${currentLevel} health updated to ${newHealth}`);
-    await grader.processNextSteps(categories);
+
+    await grader.processNextSteps(matched);
+    await grader.markCompletedObjectives(matched, unmatchedReasons);
+    // Emit first unmatched reason in correct objective order
+    const uncompleted = await Objective.find({
+      level: currentLevel,
+      completed: false,
+    }).sort({ order: 1 });
+
+    const firstUnmatched = uncompleted.find((obj) =>
+      unmatchedReasons?.hasOwnProperty(obj.goalCategory),
+    );
+
+    if (firstUnmatched) {
+      const reason = unmatchedReasons[firstUnmatched.goalCategory];
+      io.emit("objectiveFeedback", {
+        unmatchedReasons: {
+          [firstUnmatched.goalCategory]: reason,
+        },
+      });
+    }
   } catch (err) {
     console.error("Grader job error:", err);
   }
@@ -536,7 +557,7 @@ app.get("/reset-level", async (req, res) => {
 
   scoreController.resetScores(currentLevel);
 
-  await Solution.updateMany({ level }, { $set: { done: false } });
+  //await Solution.updateMany({ level }, { $set: { done: false } });
 
   setTimeout(() => {
     res.redirect(`/feed?level=${currentLevel}`);
