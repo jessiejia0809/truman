@@ -1,6 +1,10 @@
 const levelStats = {
   1: "67% of adolescents and emerging adults (age 16-25) have experienced cyberbullying, such as hazing, offensive name-calling, purposeful embarrassment, physical threats, and sexual harassment",
+<<<<<<< HEAD
   2: "Legally, doxxing refers to malicious disclosure of personal identifiable information. Under the U.S. Interstate Doxxing Prevention Act, it can be classified as a federal crime.",
+=======
+  2: "This alarming prevalence of cyberbullying is concerning, because it is associated with young people's depression, self-harm, and even suicide attempts.",
+>>>>>>> main
   3: "Public, prosocial bystander interventions (e.g., bystanders confronting the bully, comforting the victim) can effectively reduce cyberbullying prevalence and mitigate its negative impact on victims.",
   4: "However, bystanders on social media tend to intervene indirectly (e.g., flag the abusive post), and often lack the knowledge of how to intervene publicly.",
   5: "As a result, the lack of bystander intervention often makes bad actors feel less inhibited to escalate abuse, causing a downward spiral of increasing toxicity and aggression on social media",

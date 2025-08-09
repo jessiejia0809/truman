@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 window.socket = window.socket || io("http://localhost:3000");
+=======
+const socketURL = window.location.origin;  
+window.socket = window.socket || io(socketURL);
+>>>>>>> main
 
 let currentLevel =
   parseInt(new URLSearchParams(window.location.search).get("level")) || 1;

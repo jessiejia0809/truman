@@ -62,8 +62,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+<<<<<<< HEAD
   const socket = window.socket || io("http://localhost:3000");
   window.socket = socket;
+=======
+  const socketURL = window.location.origin;  
+  window.socket = window.socket || io(socketURL); 
+>>>>>>> main
 
   let isTimerFrozen = false;
 
